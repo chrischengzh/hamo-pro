@@ -2,6 +2,8 @@
 
 AI Therapy Avatar Management Platform for Psychology Therapists
 
+!! The code was written entirely by AI!!
+
 ## Overview
 
 Hamo Pro is a professional application designed for psychology therapists to create and manage AI-powered therapy avatars. Therapists can configure personalized AI instances for each client, share access via QR codes, and monitor therapeutic conversations in real-time.
