@@ -168,10 +168,11 @@ const HamoPro = () => {
   };
 
   // Generate new invitation code for a client
+  // Only avatarId is needed - client will register using the invitation code
   const handleGenerateInvitation = async (client) => {
     setInvitationLoading(true);
     try {
-      const result = await apiService.generateInvitationCode(client.id, client.avatarId);
+      const result = await apiService.generateInvitationCode(client.avatarId);
       if (result.success) {
         setInvitationCode(result.invitationCode);
         setShowInvitationCard(client);
