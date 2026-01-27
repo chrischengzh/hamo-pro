@@ -1,5 +1,5 @@
-// Hamo Pro API Service v1.2.5
-// Integrates with Hamo-UME Backend v1.2.5
+// Hamo Pro API Service v1.2.6
+// Integrates with Hamo-UME Backend v1.2.6
 // Production: https://api.hamo.ai/api
 // AWS Deployment with Custom Domain and HTTPS
 
@@ -210,6 +210,42 @@ class ApiService {
   // Check if user is authenticated
   isAuthenticated() {
     return !!this.getAccessToken();
+  }
+
+  // Create a new avatar for the Pro user
+  // Returns the avatar with backend-generated ID
+  async createAvatar(avatarData) {
+    try {
+      const requestBody = {
+        name: avatarData.name,
+        persona: avatarData.persona || '',
+        greeting: avatarData.greeting || '',
+      };
+      console.log('🔵 Creating avatar with:', requestBody);
+
+      const response = await this.request('/pro/avatar/create', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('✅ Avatar created:', response);
+
+      return {
+        success: true,
+        avatar: {
+          id: response.id || response.avatar_id,
+          name: response.name,
+          persona: response.persona,
+          greeting: response.greeting,
+        },
+      };
+    } catch (error) {
+      console.error('❌ Failed to create avatar:', error.message);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
   }
 
   // Generate invitation code for an avatar

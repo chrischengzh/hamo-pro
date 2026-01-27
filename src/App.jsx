@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.2.4";
+  const APP_VERSION = "1.2.6";
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
@@ -142,10 +142,28 @@ const HamoPro = () => {
     setShowDeleteConfirm(false);
   };
 
-  const handleCreateAvatar = () => {
+  const handleCreateAvatar = async () => {
     if (avatarForm.name && avatarForm.theory) {
-      // TODO: Call API to create avatar
-      setAvatars([...avatars, { ...avatarForm, id: Date.now() }]);
+      // Call API to create avatar and get backend-generated ID
+      const result = await apiService.createAvatar({
+        name: avatarForm.name,
+        persona: `${avatarForm.theory}\n${avatarForm.methodology}\n${avatarForm.principles}`,
+        greeting: '',
+      });
+
+      if (result.success) {
+        // Use backend-generated avatar ID
+        setAvatars([...avatars, {
+          ...avatarForm,
+          id: result.avatar.id,
+        }]);
+        console.log('✅ Avatar created with backend ID:', result.avatar.id);
+      } else {
+        // Fallback to local ID if API fails
+        console.warn('⚠️ API failed, using local ID:', result.error);
+        setAvatars([...avatars, { ...avatarForm, id: Date.now() }]);
+      }
+
       setAvatarForm({ name: '', theory: '', methodology: '', principles: '' });
       setShowAvatarForm(false);
     }
