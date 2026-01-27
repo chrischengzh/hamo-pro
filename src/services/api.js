@@ -202,14 +202,13 @@ class ApiService {
     return !!this.getAccessToken();
   }
 
-  // Generate invitation code for a client
+  // Generate invitation code for an avatar
   // This code is used to link a Pro's Avatar with a Client
-  async generateInvitationCode(clientId, avatarId) {
+  async generateInvitationCode(avatarId) {
     try {
       const response = await this.request('/pro/invitation/generate', {
         method: 'POST',
         body: JSON.stringify({
-          client_id: String(clientId),
           avatar_id: String(avatarId),
         }),
       });

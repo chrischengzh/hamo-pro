@@ -171,7 +171,7 @@ const HamoPro = () => {
   const handleGenerateInvitation = async (client) => {
     setInvitationLoading(true);
     try {
-      const result = await apiService.generateInvitationCode(client.id, client.avatarId);
+      const result = await apiService.generateInvitationCode(client.avatarId);
       if (result.success) {
         setInvitationCode(result.invitationCode);
         setShowInvitationCard(client);
