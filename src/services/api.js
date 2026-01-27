@@ -209,8 +209,8 @@ class ApiService {
       const response = await this.request('/pro/invitation/generate', {
         method: 'POST',
         body: JSON.stringify({
-          client_id: clientId,
-          avatar_id: avatarId,
+          client_id: String(clientId),
+          avatar_id: String(avatarId),
         }),
       });
 
