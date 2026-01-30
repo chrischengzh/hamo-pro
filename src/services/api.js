@@ -1,5 +1,5 @@
-// Hamo Pro API Service v1.2.7
-// Integrates with Hamo-UME Backend v1.2.7
+// Hamo Pro API Service v1.3.0
+// Integrates with Hamo-UME Backend v1.3.0
 // Production: https://api.hamo.ai/api
 // AWS Deployment with Custom Domain and HTTPS
 
