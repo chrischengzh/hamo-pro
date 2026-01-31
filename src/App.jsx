@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.3.6";
+  const APP_VERSION = "1.3.5";
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
@@ -205,43 +205,17 @@ const HamoPro = () => {
     }
   };
 
-  const handleCreateClient = async () => {
+  const handleCreateClient = () => {
     if (clientForm.name && clientForm.avatarId) {
-      // Call API to create client profile (pre-binding)
-      const result = await apiService.createClient({
-        name: clientForm.name,
-        sex: clientForm.sex,
-        age: clientForm.age,
-        emotionPattern: clientForm.emotionPattern,
-        personality: clientForm.personality,
-        cognition: clientForm.cognition,
-        goals: clientForm.goals,
-        therapyPrinciples: clientForm.therapyPrinciples,
-        avatarId: clientForm.avatarId,
-      });
-
-      if (result.success) {
-        // Use backend-generated client with ID
-        setClients([...clients, {
-          ...result.client,
-          sessions: 0,
-          avgTime: 0,
-          conversations: []
-        }]);
-        console.log('✅ Client profile created with backend ID:', result.client.id);
-      } else {
-        // Fallback to local ID if API fails
-        console.warn('⚠️ API failed, using local ID:', result.error);
-        const newClient = {
-          ...clientForm,
-          id: Date.now(),
-          sessions: 0,
-          avgTime: 0,
-          conversations: []
-        };
-        setClients([...clients, newClient]);
-      }
-
+      // TODO: Call API to create client and generate invitation
+      const newClient = {
+        ...clientForm,
+        id: Date.now(),
+        sessions: 0,
+        avgTime: 0,
+        conversations: []
+      };
+      setClients([...clients, newClient]);
       setClientForm({ name: '', sex: '', age: '', emotionPattern: '', personality: '', cognition: '', goals: '', therapyPrinciples: '', avatarId: '' });
       setShowClientForm(false);
     }

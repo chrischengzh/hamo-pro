@@ -1,5 +1,5 @@
-// Hamo Pro API Service v1.3.6
-// Integrates with Hamo-UME Backend v1.3.6
+// Hamo Pro API Service v1.3.4
+// Integrates with Hamo-UME Backend v1.3.4
 // Production: https://api.hamo.ai/api
 // AWS Deployment with Custom Domain and HTTPS
 
@@ -324,55 +324,6 @@ class ApiService {
         success: false,
         error: error.message,
         clients: [],
-      };
-    }
-  }
-
-  // Create a client profile (pre-binding) for an avatar
-  // This stores the therapy profile before the client binds with invitation code
-  async createClient(clientData) {
-    try {
-      const requestBody = {
-        name: clientData.name,
-        sex: clientData.sex || '',
-        age: clientData.age ? parseInt(clientData.age) : null,
-        emotion_pattern: clientData.emotionPattern || '',
-        personality: clientData.personality || '',
-        cognition: clientData.cognition || '',
-        goals: clientData.goals || '',
-        therapy_principles: clientData.therapyPrinciples || '',
-        avatar_id: String(clientData.avatarId),
-      };
-      console.log('🔵 Creating client profile with:', requestBody);
-
-      const response = await this.request('/clients', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('✅ Client profile created:', response);
-
-      return {
-        success: true,
-        client: {
-          id: response.id,
-          name: response.name,
-          sex: response.sex || response.gender,
-          age: response.age,
-          emotionPattern: response.emotion_pattern || response.emotionPattern,
-          personality: response.personality,
-          cognition: response.cognition,
-          goals: response.goals,
-          therapyPrinciples: response.therapy_principles || response.therapyPrinciples,
-          avatarId: response.avatar_id || response.avatarId,
-          connectedAt: response.connected_at || response.connectedAt,
-        },
-      };
-    } catch (error) {
-      console.error('❌ Failed to create client profile:', error.message);
-      return {
-        success: false,
-        error: error.message,
       };
     }
   }
