@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.3.0";
+  const APP_VERSION = "1.3.1";
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
@@ -25,12 +25,32 @@ const HamoPro = () => {
   const [avatarForm, setAvatarForm] = useState({ name: '', theory: '', methodology: '', principles: '' });
   const [clientForm, setClientForm] = useState({ name: '', sex: '', age: '', emotionPattern: '', personality: '', cognition: '', goals: '', therapyPrinciples: '', avatarId: '' });
 
-  // Check authentication on mount
+  // Load avatars and clients from backend
+  const loadUserData = async () => {
+    console.log('🔵 Loading user data...');
+
+    // Load avatars
+    const avatarsResult = await apiService.getAvatars();
+    if (avatarsResult.success) {
+      setAvatars(avatarsResult.avatars);
+      console.log('✅ Loaded avatars:', avatarsResult.avatars.length);
+    }
+
+    // Load clients
+    const clientsResult = await apiService.getClients();
+    if (clientsResult.success) {
+      setClients(clientsResult.clients);
+      console.log('✅ Loaded clients:', clientsResult.clients.length);
+    }
+  };
+
+  // Check authentication on mount and load data
   useEffect(() => {
     const checkAuth = async () => {
       if (apiService.isAuthenticated()) {
-        // TODO: Fetch user profile from API
         setIsAuthenticated(true);
+        // Load user data after confirming authentication
+        await loadUserData();
       }
     };
     checkAuth();
@@ -79,6 +99,9 @@ const HamoPro = () => {
         setIsAuthenticated(true);
         setAuthForm({ email: '', password: '', fullName: '', profession: '' });
         setAuthError('');
+
+        // Load user's avatars and clients (likely empty for new user)
+        await loadUserData();
       } else {
         setAuthError(result.error || 'Registration failed');
       }
@@ -110,8 +133,9 @@ const HamoPro = () => {
         setIsAuthenticated(true);
         setAuthForm({ email: '', password: '', fullName: '', profession: '' });
         setAuthError('');
-        
-        // TODO: Load user's avatars and clients from API
+
+        // Load user's avatars and clients from API
+        await loadUserData();
       } else {
         setAuthError(result.error || 'Invalid email or password');
       }

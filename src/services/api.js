@@ -1,5 +1,5 @@
-// Hamo Pro API Service v1.3.0
-// Integrates with Hamo-UME Backend v1.3.0
+// Hamo Pro API Service v1.3.1
+// Integrates with Hamo-UME Backend v1.3.1
 // Production: https://api.hamo.ai/api
 // AWS Deployment with Custom Domain and HTTPS
 
@@ -248,6 +248,81 @@ class ApiService {
       return {
         success: false,
         error: error.message,
+      };
+    }
+  }
+
+  // Get all avatars for the current Pro user
+  async getAvatars() {
+    try {
+      console.log('🔵 Fetching avatars...');
+      const response = await this.request('/avatars', {
+        method: 'GET',
+      });
+
+      console.log('✅ Avatars fetched:', response);
+
+      // Handle both array response and object with data property
+      const avatars = Array.isArray(response) ? response : (response.data || []);
+
+      return {
+        success: true,
+        avatars: avatars.map(avatar => ({
+          id: avatar.id,
+          name: avatar.name,
+          theory: avatar.theory,
+          methodology: avatar.methodology,
+          principles: avatar.principles,
+          description: avatar.description,
+        })),
+      };
+    } catch (error) {
+      console.error('❌ Failed to fetch avatars:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        avatars: [],
+      };
+    }
+  }
+
+  // Get all clients for the current Pro user
+  async getClients() {
+    try {
+      console.log('🔵 Fetching clients...');
+      const response = await this.request('/clients', {
+        method: 'GET',
+      });
+
+      console.log('✅ Clients fetched:', response);
+
+      // Handle both array response and object with data property
+      const clients = Array.isArray(response) ? response : (response.data || []);
+
+      return {
+        success: true,
+        clients: clients.map(client => ({
+          id: client.id,
+          name: client.name || client.nickname,
+          sex: client.sex || client.gender,
+          age: client.age,
+          emotionPattern: client.emotion_pattern || client.emotionPattern,
+          personality: client.personality,
+          cognition: client.cognition,
+          goals: client.goals,
+          therapyPrinciples: client.therapy_principles || client.therapyPrinciples,
+          avatarId: client.avatar_id || client.avatarId,
+          sessions: client.sessions || 0,
+          avgTime: client.avg_time || client.avgTime || 0,
+          conversations: client.conversations || [],
+        })),
+      };
+    } catch (error) {
+      console.error('❌ Failed to fetch clients:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        clients: [],
       };
     }
   }
