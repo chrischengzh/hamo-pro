@@ -580,7 +580,7 @@ const HamoPro = () => {
               {clients.map(c => {
                 const avatar = avatars.find(a => a.id === parseInt(c.avatarId) || a.id === c.avatarId);
                 const isConnected = c.connectedAt || c.connected_at;
-                const connectionDate = isConnected ? new Date(isConnected).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) : null;
+                // Connection date now formatted inline in English
                 return (
                   <div key={c.id} className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex justify-between mb-4">
@@ -588,8 +588,8 @@ const HamoPro = () => {
                       {isConnected ? (
                         <div className="flex flex-col items-center text-green-500">
                           <Calendar className="w-5 h-5" />
-                          <span className="text-xs mt-1">{connectionDate}</span>
-                          <span className="text-xs text-green-600 font-medium">已连接</span>
+                          <span className="text-xs mt-1">{new Date(isConnected).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                          <span className="text-xs text-green-600 font-medium">Connected</span>
                         </div>
                       ) : (
                         <button
