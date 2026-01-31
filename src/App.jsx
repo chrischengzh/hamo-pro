@@ -655,35 +655,133 @@ const HamoPro = () => {
                   <div className="text-center py-8 text-red-500">{mindData.error}</div>
                 ) : mindData ? (
                   <div className="space-y-4">
-                    {mindData.summary && (
+                    {/* Personality Section */}
+                    {mindData.personality && (
                       <div className="bg-purple-50 rounded-lg p-4">
-                        <h4 className="font-medium text-purple-700 mb-2">Summary</h4>
-                        <p className="text-sm text-gray-700">{mindData.summary}</p>
+                        <h4 className="font-medium text-purple-700 mb-3">Personality</h4>
+                        {mindData.personality.primary_traits?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-purple-600 font-medium">Primary Traits: </span>
+                            <span className="text-sm text-gray-700">{mindData.personality.primary_traits.join(', ')}</span>
+                          </div>
+                        )}
+                        <div className="grid grid-cols-5 gap-2 mt-2">
+                          <div className="text-center"><div className="text-lg font-bold text-purple-600">{mindData.personality.openness || 0}</div><div className="text-xs text-gray-500">Openness</div></div>
+                          <div className="text-center"><div className="text-lg font-bold text-purple-600">{mindData.personality.conscientiousness || 0}</div><div className="text-xs text-gray-500">Conscient.</div></div>
+                          <div className="text-center"><div className="text-lg font-bold text-purple-600">{mindData.personality.extraversion || 0}</div><div className="text-xs text-gray-500">Extraversion</div></div>
+                          <div className="text-center"><div className="text-lg font-bold text-purple-600">{mindData.personality.agreeableness || 0}</div><div className="text-xs text-gray-500">Agreeable.</div></div>
+                          <div className="text-center"><div className="text-lg font-bold text-purple-600">{mindData.personality.neuroticism || 0}</div><div className="text-xs text-gray-500">Neuroticism</div></div>
+                        </div>
+                        {mindData.personality.description && <p className="text-sm text-gray-600 mt-2">{mindData.personality.description}</p>}
                       </div>
                     )}
-                    {mindData.emotions && (
+
+                    {/* Emotion Pattern Section */}
+                    {mindData.emotion_pattern && (
                       <div className="bg-blue-50 rounded-lg p-4">
-                        <h4 className="font-medium text-blue-700 mb-2">Emotional State</h4>
-                        <p className="text-sm text-gray-700">{typeof mindData.emotions === 'object' ? JSON.stringify(mindData.emotions, null, 2) : mindData.emotions}</p>
+                        <h4 className="font-medium text-blue-700 mb-3">Emotion Pattern</h4>
+                        {mindData.emotion_pattern.dominant_emotions?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-blue-600 font-medium">Dominant Emotions: </span>
+                            <span className="text-sm text-gray-700">{mindData.emotion_pattern.dominant_emotions.join(', ')}</span>
+                          </div>
+                        )}
+                        {mindData.emotion_pattern.triggers?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-blue-600 font-medium">Triggers: </span>
+                            <span className="text-sm text-gray-700">{mindData.emotion_pattern.triggers.join(', ')}</span>
+                          </div>
+                        )}
+                        {mindData.emotion_pattern.coping_mechanisms?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-blue-600 font-medium">Coping Mechanisms: </span>
+                            <span className="text-sm text-gray-700">{mindData.emotion_pattern.coping_mechanisms.join(', ')}</span>
+                          </div>
+                        )}
+                        {mindData.emotion_pattern.emotional_stability !== undefined && (
+                          <div className="mb-2">
+                            <span className="text-xs text-blue-600 font-medium">Emotional Stability: </span>
+                            <span className="text-sm font-bold text-blue-700">{mindData.emotion_pattern.emotional_stability}/10</span>
+                          </div>
+                        )}
+                        {mindData.emotion_pattern.description && <p className="text-sm text-gray-600 mt-2">{mindData.emotion_pattern.description}</p>}
                       </div>
                     )}
-                    {mindData.insights && (
+
+                    {/* Cognition & Beliefs Section */}
+                    {mindData.cognition_beliefs && (
                       <div className="bg-teal-50 rounded-lg p-4">
-                        <h4 className="font-medium text-teal-700 mb-2">Insights</h4>
-                        <p className="text-sm text-gray-700">{typeof mindData.insights === 'object' ? JSON.stringify(mindData.insights, null, 2) : mindData.insights}</p>
+                        <h4 className="font-medium text-teal-700 mb-3">Cognition & Beliefs</h4>
+                        {mindData.cognition_beliefs.core_beliefs?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-teal-600 font-medium">Core Beliefs: </span>
+                            <span className="text-sm text-gray-700">{mindData.cognition_beliefs.core_beliefs.join(', ')}</span>
+                          </div>
+                        )}
+                        {mindData.cognition_beliefs.cognitive_distortions?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-teal-600 font-medium">Cognitive Distortions: </span>
+                            <span className="text-sm text-gray-700">{mindData.cognition_beliefs.cognitive_distortions.join(', ')}</span>
+                          </div>
+                        )}
+                        {mindData.cognition_beliefs.thinking_patterns?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-teal-600 font-medium">Thinking Patterns: </span>
+                            <span className="text-sm text-gray-700">{mindData.cognition_beliefs.thinking_patterns.join(', ')}</span>
+                          </div>
+                        )}
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          {mindData.cognition_beliefs.self_perception && <div><div className="text-xs text-teal-600 font-medium">Self Perception</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.self_perception}</div></div>}
+                          {mindData.cognition_beliefs.world_perception && <div><div className="text-xs text-teal-600 font-medium">World Perception</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.world_perception}</div></div>}
+                          {mindData.cognition_beliefs.future_perception && <div><div className="text-xs text-teal-600 font-medium">Future Perception</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.future_perception}</div></div>}
+                        </div>
                       </div>
                     )}
-                    {mindData.patterns && (
+
+                    {/* Relationship & Manipulations Section */}
+                    {mindData.relationship_manipulations && (
                       <div className="bg-orange-50 rounded-lg p-4">
-                        <h4 className="font-medium text-orange-700 mb-2">Patterns</h4>
-                        <p className="text-sm text-gray-700">{typeof mindData.patterns === 'object' ? JSON.stringify(mindData.patterns, null, 2) : mindData.patterns}</p>
+                        <h4 className="font-medium text-orange-700 mb-3">Relationship Patterns</h4>
+                        {mindData.relationship_manipulations.attachment_style && (
+                          <div className="mb-2">
+                            <span className="text-xs text-orange-600 font-medium">Attachment Style: </span>
+                            <span className="text-sm font-semibold text-orange-700 capitalize">{mindData.relationship_manipulations.attachment_style}</span>
+                          </div>
+                        )}
+                        {mindData.relationship_manipulations.relationship_patterns?.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-xs text-orange-600 font-medium">Relationship Patterns: </span>
+                            <span className="text-sm text-gray-700">{mindData.relationship_manipulations.relationship_patterns.join(', ')}</span>
+                          </div>
+                        )}
+                        {mindData.relationship_manipulations.communication_style && (
+                          <div className="mb-2">
+                            <span className="text-xs text-orange-600 font-medium">Communication Style: </span>
+                            <span className="text-sm text-gray-700">{mindData.relationship_manipulations.communication_style}</span>
+                          </div>
+                        )}
+                        {mindData.relationship_manipulations.conflict_resolution && (
+                          <div className="mb-2">
+                            <span className="text-xs text-orange-600 font-medium">Conflict Resolution: </span>
+                            <span className="text-sm text-gray-700">{mindData.relationship_manipulations.conflict_resolution}</span>
+                          </div>
+                        )}
+                        <div className="flex space-x-4 mt-2">
+                          {mindData.relationship_manipulations.trust_level !== undefined && (
+                            <div><span className="text-xs text-orange-600 font-medium">Trust Level: </span><span className="text-sm font-bold text-orange-700">{mindData.relationship_manipulations.trust_level}/10</span></div>
+                          )}
+                          {mindData.relationship_manipulations.intimacy_comfort !== undefined && (
+                            <div><span className="text-xs text-orange-600 font-medium">Intimacy Comfort: </span><span className="text-sm font-bold text-orange-700">{mindData.relationship_manipulations.intimacy_comfort}/10</span></div>
+                          )}
+                        </div>
                       </div>
                     )}
-                    {!mindData.summary && !mindData.emotions && !mindData.insights && !mindData.patterns && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <pre className="text-sm text-gray-700 whitespace-pre-wrap">{JSON.stringify(mindData, null, 2)}</pre>
-                      </div>
-                    )}
+
+                    {/* Footer with metadata */}
+                    <div className="flex justify-between items-center text-xs text-gray-400 pt-2 border-t">
+                      {mindData.last_updated && <span>Last Updated: {new Date(mindData.last_updated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+                      {mindData.confidence_score !== undefined && <span>Confidence: {Math.round(mindData.confidence_score * 100)}%</span>}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500">No AI Mind data available</div>
