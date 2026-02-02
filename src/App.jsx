@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send } from 'lucide-react';
+import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase } from 'lucide-react';
 import apiService from './services/api';
 
 const HamoPro = () => {
@@ -68,6 +68,7 @@ const HamoPro = () => {
   const [showInvitationCard, setShowInvitationCard] = useState(null);
   const [invitationCode, setInvitationCode] = useState('');
   const [invitationLoading, setInvitationLoading] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [avatarForm, setAvatarForm] = useState({
     name: '',
     specialty: '',
@@ -842,27 +843,149 @@ const HamoPro = () => {
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Avatar List - Vertical Layout */}
+            <div className="space-y-3">
               {avatars.map(a => (
-                <div key={a.id} className="bg-white rounded-xl shadow-md p-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-teal-400 rounded-full flex items-center justify-center mb-4"><Brain className="w-6 h-6 text-white" /></div>
-                  <h3 className="text-lg font-semibold mb-1">{a.name}</h3>
-                  <p className="text-sm text-blue-600 mb-2">{a.specialty || a.theory}</p>
-                  {a.therapeuticApproaches && <p className="text-xs text-gray-500 mb-1">{a.therapeuticApproaches.join(', ')}</p>}
-                  {(a.experienceYears !== undefined || a.experienceMonths !== undefined) && (
-                    <p className="text-xs text-gray-400">{a.experienceYears || 0}y {a.experienceMonths || 0}m experience</p>
-                  )}
-                  {a.specializations && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {a.specializations.slice(0, 2).map((s, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-purple-100 text-purple-600 text-xs rounded-full">{s}</span>
-                      ))}
-                      {a.specializations.length > 2 && <span className="text-xs text-gray-400">+{a.specializations.length - 2}</span>}
+                <div
+                  key={a.id}
+                  onClick={() => setSelectedAvatar(a)}
+                  className="bg-white rounded-xl shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start space-x-4">
+                    {/* Avatar Icon */}
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-teal-400 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Brain className="w-8 h-8 text-white" />
                     </div>
-                  )}
+
+                    {/* Avatar Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">{a.name}</h3>
+                          <p className="text-sm text-blue-600">{a.specialty || a.theory}</p>
+                        </div>
+                        {/* Rating placeholder - can be removed if not needed */}
+                        <div className="flex items-center space-x-1 text-yellow-500">
+                          <Star className="w-4 h-4 fill-current" />
+                          <span className="text-sm font-medium">5.0</span>
+                        </div>
+                      </div>
+
+                      {/* Therapeutic Approaches */}
+                      {a.therapeuticApproaches && a.therapeuticApproaches.length > 0 && (
+                        <p className="text-sm text-gray-600 mt-1">{a.therapeuticApproaches.join(' • ')}</p>
+                      )}
+
+                      {/* Stats Row */}
+                      <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        {(a.experienceYears !== undefined || a.experienceMonths !== undefined) && (
+                          <div className="flex items-center space-x-1">
+                            <Briefcase className="w-4 h-4" />
+                            <span>{a.experienceYears || 0}y {a.experienceMonths || 0}m</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Specializations Tags */}
+                      {a.specializations && a.specializations.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {a.specializations.map((s, i) => (
+                            <span key={i} className="px-2.5 py-1 bg-purple-100 text-purple-600 text-xs rounded-full">{s}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
+
+            {/* Avatar Detail Popup */}
+            {selectedAvatar && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                  {/* Header with gradient background */}
+                  <div className="bg-gradient-to-br from-blue-500 to-teal-500 p-6 rounded-t-2xl relative">
+                    <button
+                      onClick={() => setSelectedAvatar(null)}
+                      className="absolute top-4 right-4 text-white hover:bg-white/20 p-1 rounded-full transition-colors"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg">
+                        <Brain className="w-12 h-12 text-blue-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white">{selectedAvatar.name}</h2>
+                      <p className="text-blue-100 mt-1">{selectedAvatar.specialty || selectedAvatar.theory}</p>
+
+                      {/* Rating */}
+                      <div className="flex items-center space-x-1 mt-2">
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <Star key={i} className="w-5 h-5 text-yellow-300 fill-current" />
+                        ))}
+                        <span className="text-white ml-2 text-sm">5.0</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 space-y-5">
+                    {/* Therapeutic Approaches */}
+                    {selectedAvatar.therapeuticApproaches && selectedAvatar.therapeuticApproaches.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-2">Therapeutic Approach</h4>
+                        <p className="text-gray-800">{selectedAvatar.therapeuticApproaches.join(' • ')}</p>
+                      </div>
+                    )}
+
+                    {/* About */}
+                    {selectedAvatar.about && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-2">About</h4>
+                        <p className="text-gray-700 text-sm leading-relaxed">{selectedAvatar.about}</p>
+                      </div>
+                    )}
+
+                    {/* Experience */}
+                    {(selectedAvatar.experienceYears !== undefined || selectedAvatar.experienceMonths !== undefined) && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-2">Experience</h4>
+                        <div className="flex items-center space-x-2">
+                          <Briefcase className="w-5 h-5 text-blue-500" />
+                          <span className="text-gray-800 font-medium">
+                            {selectedAvatar.experienceYears || 0} years {selectedAvatar.experienceMonths || 0} months
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Specializations */}
+                    {selectedAvatar.specializations && selectedAvatar.specializations.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-2">Specializations</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedAvatar.specializations.map((s, i) => (
+                            <span key={i} className="px-3 py-1.5 bg-purple-100 text-purple-700 text-sm rounded-full font-medium">{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-6 pt-0">
+                    <button
+                      onClick={() => setSelectedAvatar(null)}
+                      className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
