@@ -3,7 +3,19 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.3.8";
+  const APP_VERSION = "1.3.9";
+
+  // Profession options for sign up
+  const professionOptions = [
+    { value: 'mental_health_professional', label: 'Mental Health Professional' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  // Helper function to get profession label
+  const getProfessionLabel = (value) => {
+    const option = professionOptions.find(opt => opt.value === value);
+    return option ? option.label : value;
+  };
 
   // Avatar form options
   const specialtyOptions = [
@@ -548,14 +560,17 @@ const HamoPro = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Profession</label>
-                    <input 
-                      type="text" 
-                      value={authForm.profession} 
-                      onChange={(e) => setAuthForm({ ...authForm, profession: e.target.value })} 
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                      placeholder="Clinical Psychologist"
+                    <select
+                      value={authForm.profession}
+                      onChange={(e) => setAuthForm({ ...authForm, profession: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                       disabled={authLoading}
-                    />
+                    >
+                      <option value="">Select your profession</option>
+                      {professionOptions.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </>
               )}
@@ -616,7 +631,7 @@ const HamoPro = () => {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <div className="flex items-center space-x-2 text-sm font-medium"><User className="w-4 h-4" /><span>{currentUser?.full_name || currentUser?.fullName}</span></div>
-                <p className="text-xs text-gray-500">{currentUser?.profession}</p>
+                <p className="text-xs text-gray-500">{getProfessionLabel(currentUser?.profession)}</p>
               </div>
               <button onClick={handleSignOut} className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"><LogOut className="w-4 h-4" /><span className="text-sm">Sign Out</span></button>
               <button onClick={() => setShowDeleteConfirm(true)} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
