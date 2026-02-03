@@ -987,12 +987,12 @@ const HamoPro = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Client Instances</h2>
-              <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>Initialize Client</span></button>
+              <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>Invite Client</span></button>
             </div>
             {!avatars.length && <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">Create an avatar first</div>}
             {showClientForm && avatars.length > 0 && (
               <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                <h3 className="text-lg font-semibold">Initialize Client</h3>
+                <h3 className="text-lg font-semibold">Initialize AI Mind for the Client</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div><label className="block text-sm font-medium mb-1">Name</label><input type="text" value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} className="w-full px-4 py-2 border rounded-lg" placeholder="Client name" /></div>
                   <div><label className="block text-sm font-medium mb-1">Sex</label><select value={clientForm.sex} onChange={(e) => setClientForm({ ...clientForm, sex: e.target.value })} className="w-full px-4 py-2 border rounded-lg"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
