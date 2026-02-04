@@ -3,7 +3,10 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.3.9";
+  const APP_VERSION = "1.3.10";
+
+  // Contributors list
+  const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan'];
 
   // Profession options for sign up
   const professionOptions = [
@@ -1323,6 +1326,27 @@ const HamoPro = () => {
                 ))}
               </div>
             )}
+
+            {/* Contributors Section */}
+            <div className="mt-8 bg-white rounded-xl shadow-md p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Contributors</h3>
+              <div className="overflow-hidden">
+                <div className="flex animate-marquee whitespace-nowrap">
+                  {[...contributors, ...contributors].map((name, index) => (
+                    <span key={index} className="mx-4 text-gray-700 font-medium">{name}</span>
+                  ))}
+                </div>
+              </div>
+              <style>{`
+                @keyframes marquee {
+                  0% { transform: translateX(0%); }
+                  100% { transform: translateX(-50%); }
+                }
+                .animate-marquee {
+                  animation: marquee 15s linear infinite;
+                }
+              `}</style>
+            </div>
           </div>
         )}
       </div>
