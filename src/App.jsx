@@ -1333,7 +1333,7 @@ const HamoPro = () => {
               <div className="overflow-hidden">
                 <div className="flex animate-marquee whitespace-nowrap">
                   {[...contributors, ...contributors].map((name, index) => (
-                    <span key={index} className="mx-4 text-gray-700 font-medium">{name}</span>
+                    <span key={index} className="mx-4 text-gray-400 font-medium">{name}</span>
                   ))}
                 </div>
               </div>
