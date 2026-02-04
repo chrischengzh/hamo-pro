@@ -8,7 +8,6 @@ const HamoPro = () => {
   // Profession options for sign up
   const professionOptions = [
     { value: 'mental_health_professional', label: 'Mental Health Professional' },
-    { value: 'other', label: 'Other' },
   ];
 
   // Helper function to get profession label
