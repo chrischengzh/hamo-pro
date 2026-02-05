@@ -1880,7 +1880,7 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-white font-bold text-lg">Emotion Pattern</h4>
+                              <h4 className="text-white font-bold text-lg">Emotion Patterns</h4>
                               {mindData.emotion_pattern.dominant_emotions?.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {mindData.emotion_pattern.dominant_emotions.slice(0, 3).map((emotion, idx) => (
