@@ -557,7 +557,7 @@ const HamoPro = () => {
     });
 
     try {
-      const result = await apiService.getMind(client.id, client.avatarId);
+      const result = await apiService.getMind(client.id);
       if (result.success) {
         setMindData(result.mind);
       } else {

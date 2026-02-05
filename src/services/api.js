@@ -468,11 +468,11 @@ class ApiService {
     }
   }
 
-  // Get AI Mind data for a specific user and avatar
-  async getMind(userId, avatarId) {
+  // Get AI Mind data by mind ID
+  async getMind(mindId) {
     try {
-      console.log('🔵 Fetching AI Mind for user:', userId, 'avatar:', avatarId);
-      const response = await this.request(`/mind/${userId}/${avatarId}`, {
+      console.log('🔵 Fetching AI Mind:', mindId);
+      const response = await this.request(`/mind/${mindId}`, {
         method: 'GET',
       });
 
