@@ -256,6 +256,47 @@ class ApiService {
     }
   }
 
+  // Update an existing avatar
+  async updateAvatar(avatarId, avatarData) {
+    try {
+      const requestBody = {
+        name: avatarData.name,
+        specialty: avatarData.specialty || '',
+        therapeutic_approaches: avatarData.therapeutic_approaches || [],
+        about: avatarData.about || '',
+        experience_years: avatarData.experience_years || 0,
+        experience_months: avatarData.experience_months || 0,
+      };
+      console.log('🔵 Updating avatar:', avatarId, requestBody);
+
+      const response = await this.request(`/avatars/${avatarId}`, {
+        method: 'PUT',
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('✅ Avatar updated:', response);
+
+      return {
+        success: true,
+        avatar: {
+          id: response.id,
+          name: response.name,
+          specialty: response.specialty,
+          therapeuticApproaches: response.therapeutic_approaches,
+          about: response.about,
+          experienceYears: response.experience_years,
+          experienceMonths: response.experience_months,
+        },
+      };
+    } catch (error) {
+      console.error('❌ Failed to update avatar:', error.message);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
   // Get all avatars for the current Pro user
   async getAvatars() {
     try {

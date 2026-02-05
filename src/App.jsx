@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.4.3";
+  const APP_VERSION = "1.4.4";
 
   // Contributors list
   const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan'];
@@ -71,6 +71,7 @@ const HamoPro = () => {
   const [invitationCode, setInvitationCode] = useState('');
   const [invitationLoading, setInvitationLoading] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [editingAvatar, setEditingAvatar] = useState(null);
   const [avatarForm, setAvatarForm] = useState({
     name: '',
     specialty: '',
@@ -293,6 +294,98 @@ const HamoPro = () => {
       experienceMonths: 0,
     });
     setShowAvatarForm(false);
+  };
+
+  // Open edit mode for an avatar
+  const handleEditAvatar = (avatar) => {
+    // Check if specialty is custom (not in the predefined list)
+    const isCustomSpecialty = !specialtyOptions.includes(avatar.specialty);
+
+    setAvatarForm({
+      name: avatar.name || '',
+      specialty: isCustomSpecialty ? 'custom' : (avatar.specialty || ''),
+      customSpecialty: isCustomSpecialty ? avatar.specialty : '',
+      therapeuticApproaches: avatar.therapeuticApproaches || [],
+      customApproach: '',
+      about: avatar.about || '',
+      experienceYears: avatar.experienceYears || 0,
+      experienceMonths: avatar.experienceMonths || 0,
+    });
+    setEditingAvatar(avatar);
+    setSelectedAvatar(null);
+  };
+
+  // Update an existing avatar
+  const handleUpdateAvatar = async () => {
+    // Validate required fields
+    const specialty = avatarForm.specialty === 'custom' ? avatarForm.customSpecialty : avatarForm.specialty;
+    const approaches = [...avatarForm.therapeuticApproaches];
+    if (avatarForm.customApproach) approaches.push(avatarForm.customApproach);
+
+    if (!avatarForm.name || !specialty || approaches.length === 0 || !avatarForm.about ||
+        (avatarForm.experienceYears === 0 && avatarForm.experienceMonths === 0)) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (approaches.length > 3) {
+      alert('Maximum 3 therapeutic approaches allowed');
+      return;
+    }
+
+    if (avatarForm.about.length > 280) {
+      alert('About section must be 280 characters or less');
+      return;
+    }
+
+    // Call API to update avatar
+    const result = await apiService.updateAvatar(editingAvatar.id, {
+      name: avatarForm.name,
+      specialty: specialty,
+      therapeutic_approaches: approaches,
+      about: avatarForm.about,
+      experience_years: avatarForm.experienceYears,
+      experience_months: avatarForm.experienceMonths,
+    });
+
+    if (result.success) {
+      // Update local state
+      setAvatars(avatars.map(a => a.id === editingAvatar.id ? {
+        ...a,
+        name: avatarForm.name,
+        specialty: specialty,
+        therapeuticApproaches: approaches,
+        about: avatarForm.about,
+        experienceYears: avatarForm.experienceYears,
+        experienceMonths: avatarForm.experienceMonths,
+      } : a));
+      console.log('✅ Avatar updated:', editingAvatar.id);
+    } else {
+      console.warn('⚠️ API failed to update avatar:', result.error);
+      // Still update local state for better UX
+      setAvatars(avatars.map(a => a.id === editingAvatar.id ? {
+        ...a,
+        name: avatarForm.name,
+        specialty: specialty,
+        therapeuticApproaches: approaches,
+        about: avatarForm.about,
+        experienceYears: avatarForm.experienceYears,
+        experienceMonths: avatarForm.experienceMonths,
+      } : a));
+    }
+
+    // Reset form and close edit mode
+    setAvatarForm({
+      name: '',
+      specialty: '',
+      customSpecialty: '',
+      therapeuticApproaches: [],
+      customApproach: '',
+      about: '',
+      experienceYears: 0,
+      experienceMonths: 0,
+    });
+    setEditingAvatar(null);
   };
 
   const handleCreateClient = async () => {
@@ -979,13 +1072,220 @@ const HamoPro = () => {
                   </div>
 
                   {/* Footer */}
-                  <div className="p-6 pt-0">
+                  <div className="p-6 pt-0 flex space-x-3">
+                    <button
+                      onClick={() => handleEditAvatar(selectedAvatar)}
+                      className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors"
+                    >
+                      Edit AI Avatar
+                    </button>
                     <button
                       onClick={() => setSelectedAvatar(null)}
-                      className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                      className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
                     >
                       Close
                     </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Avatar Form Modal */}
+            {editingAvatar && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+                <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-5">
+                      <h3 className="text-lg font-semibold">Edit AI Avatar</h3>
+                      <button
+                        onClick={() => {
+                          setEditingAvatar(null);
+                          setAvatarForm({
+                            name: '',
+                            specialty: '',
+                            customSpecialty: '',
+                            therapeuticApproaches: [],
+                            customApproach: '',
+                            about: '',
+                            experienceYears: 0,
+                            experienceMonths: 0,
+                          });
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Section 1: Basic Identity - Blue tint */}
+                      <div className="bg-blue-50/70 rounded-xl p-4 space-y-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <User className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <span className="text-sm font-semibold text-blue-700">Basic Identity</span>
+                        </div>
+
+                        {/* Avatar Name */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Avatar Name <span className="text-red-500">*</span></label>
+                          <input
+                            type="text"
+                            value={avatarForm.name}
+                            onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
+                            className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
+                            placeholder="e.g., Dr. Emily Chen"
+                          />
+                        </div>
+
+                        {/* Specialty */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Specialty <span className="text-red-500">*</span></label>
+                          <select
+                            value={avatarForm.specialty}
+                            onChange={(e) => setAvatarForm({ ...avatarForm, specialty: e.target.value })}
+                            className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
+                          >
+                            <option value="">Select Specialty</option>
+                            {specialtyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            <option value="custom">Other (Custom)</option>
+                          </select>
+                          {avatarForm.specialty === 'custom' && (
+                            <input
+                              type="text"
+                              value={avatarForm.customSpecialty}
+                              onChange={(e) => setAvatarForm({ ...avatarForm, customSpecialty: e.target.value })}
+                              className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white mt-2 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
+                              placeholder="Enter custom specialty"
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Section 2: Therapeutic Approach - Teal tint */}
+                      <div className="bg-teal-50/70 rounded-xl p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center">
+                            <Brain className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <span className="text-sm font-semibold text-teal-700">Therapeutic Approach</span>
+                          <span className="text-xs text-teal-500 ml-1">(Select 1-3)</span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {therapeuticApproachOptions.map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => {
+                                if (avatarForm.therapeuticApproaches.includes(opt)) {
+                                  setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt) });
+                                } else if (avatarForm.therapeuticApproaches.length < 3) {
+                                  setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt] });
+                                }
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                                avatarForm.therapeuticApproaches.includes(opt)
+                                  ? 'bg-teal-500 text-white'
+                                  : 'bg-white border border-teal-200 text-gray-700 hover:border-teal-400'
+                              }`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+
+                        <input
+                          type="text"
+                          value={avatarForm.customApproach}
+                          onChange={(e) => setAvatarForm({ ...avatarForm, customApproach: e.target.value })}
+                          className="w-full px-4 py-2.5 border border-teal-200 rounded-lg bg-white focus:ring-2 focus:ring-teal-300 focus:border-teal-300 transition-all"
+                          placeholder="Or add custom approach"
+                        />
+                      </div>
+
+                      {/* Section 3: About - Purple tint */}
+                      <div className="bg-purple-50/70 rounded-xl p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                            <MessageSquare className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <span className="text-sm font-semibold text-purple-700">About</span>
+                        </div>
+
+                        <textarea
+                          value={avatarForm.about}
+                          onChange={(e) => setAvatarForm({ ...avatarForm, about: e.target.value.slice(0, 280) })}
+                          className="w-full px-4 py-2.5 border border-purple-200 rounded-lg bg-white h-24 resize-none focus:ring-2 focus:ring-purple-300 focus:border-purple-300 transition-all"
+                          placeholder="Describe the avatar's expertise and approach..."
+                        />
+                        <p className={`text-xs mt-1 ${avatarForm.about.length > 250 ? 'text-orange-500' : 'text-gray-400'}`}>
+                          {avatarForm.about.length}/280 characters
+                        </p>
+                      </div>
+
+                      {/* Section 4: Experience - Yellow tint */}
+                      <div className="bg-yellow-50/70 rounded-xl p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <Briefcase className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <span className="text-sm font-semibold text-yellow-700">Experience</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs text-yellow-600 mb-1">Years</label>
+                            <select
+                              value={avatarForm.experienceYears}
+                              onChange={(e) => setAvatarForm({ ...avatarForm, experienceYears: parseInt(e.target.value) })}
+                              className="w-full px-4 py-2.5 border border-yellow-200 rounded-lg bg-white focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 transition-all"
+                            >
+                              {[...Array(51)].map((_, i) => <option key={i} value={i}>{i} years</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs text-yellow-600 mb-1">Months</label>
+                            <select
+                              value={avatarForm.experienceMonths}
+                              onChange={(e) => setAvatarForm({ ...avatarForm, experienceMonths: parseInt(e.target.value) })}
+                              className="w-full px-4 py-2.5 border border-yellow-200 rounded-lg bg-white focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 transition-all"
+                            >
+                              {[...Array(12)].map((_, i) => <option key={i} value={i}>{i} months</option>)}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex space-x-3 mt-6">
+                      <button
+                        onClick={handleUpdateAvatar}
+                        className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingAvatar(null);
+                          setAvatarForm({
+                            name: '',
+                            specialty: '',
+                            customSpecialty: '',
+                            therapeuticApproaches: [],
+                            customApproach: '',
+                            about: '',
+                            experienceYears: 0,
+                            experienceMonths: 0,
+                          });
+                        }}
+                        className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
