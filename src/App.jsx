@@ -1755,6 +1755,48 @@ const HamoPro = () => {
 
                     {/* Collapsible Mind Sections */}
                     <div className="space-y-3">
+                      {/* Goals & Therapy Principles Section - Moved to top */}
+                      {(mindData.goals || mindData.therapy_principles) && (
+                        <div
+                          className={`bg-green-400 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'goals' ? 'ring-2 ring-green-300' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedMindSection(expandedMindSection === 'goals' ? null : 'goals');
+                          }}
+                        >
+                          <div className="px-5 py-4 flex items-center justify-between">
+                            <div>
+                              <h4 className="text-gray-900 font-bold text-lg">Goals & Principles</h4>
+                              <p className="text-gray-700 text-sm mt-1 line-clamp-1">
+                                {mindData.goals || mindData.therapy_principles}
+                              </p>
+                            </div>
+                            <div className={`w-10 h-10 bg-black rounded-full flex items-center justify-center transition-transform duration-300 ${expandedMindSection === 'goals' ? 'rotate-90' : ''}`}>
+                              <ChevronRight className="w-5 h-5 text-white" />
+                            </div>
+                          </div>
+
+                          {expandedMindSection === 'goals' && (
+                            <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {mindData.goals && (
+                                  <div className="bg-green-50 rounded-lg p-3">
+                                    <span className="text-xs font-medium text-green-700 uppercase tracking-wide">Therapy Goals</span>
+                                    <p className="text-sm text-gray-700 mt-2">{mindData.goals}</p>
+                                  </div>
+                                )}
+                                {mindData.therapy_principles && (
+                                  <div className="bg-green-50 rounded-lg p-3">
+                                    <span className="text-xs font-medium text-green-700 uppercase tracking-wide">Therapy Principles</span>
+                                    <p className="text-sm text-gray-700 mt-2">{mindData.therapy_principles}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {/* Personality Section */}
                       {mindData.personality && (
                         <div
@@ -2132,47 +2174,6 @@ const HamoPro = () => {
                         </div>
                       )}
 
-                      {/* Goals & Therapy Principles Section */}
-                      {(mindData.goals || mindData.therapy_principles) && (
-                        <div
-                          className={`bg-green-400 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'goals' ? 'ring-2 ring-green-300' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExpandedMindSection(expandedMindSection === 'goals' ? null : 'goals');
-                          }}
-                        >
-                          <div className="px-5 py-4 flex items-center justify-between">
-                            <div>
-                              <h4 className="text-gray-900 font-bold text-lg">Goals & Principles</h4>
-                              <p className="text-gray-700 text-sm mt-1 line-clamp-1">
-                                {mindData.goals || mindData.therapy_principles}
-                              </p>
-                            </div>
-                            <div className={`w-10 h-10 bg-black rounded-full flex items-center justify-center transition-transform duration-300 ${expandedMindSection === 'goals' ? 'rotate-90' : ''}`}>
-                              <ChevronRight className="w-5 h-5 text-white" />
-                            </div>
-                          </div>
-
-                          {expandedMindSection === 'goals' && (
-                            <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {mindData.goals && (
-                                  <div className="bg-green-50 rounded-lg p-3">
-                                    <span className="text-xs font-medium text-green-700 uppercase tracking-wide">Therapy Goals</span>
-                                    <p className="text-sm text-gray-700 mt-2">{mindData.goals}</p>
-                                  </div>
-                                )}
-                                {mindData.therapy_principles && (
-                                  <div className="bg-green-50 rounded-lg p-3">
-                                    <span className="text-xs font-medium text-green-700 uppercase tracking-wide">Therapy Principles</span>
-                                    <p className="text-sm text-gray-700 mt-2">{mindData.therapy_principles}</p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
 
                     {/* Footer with metadata */}
