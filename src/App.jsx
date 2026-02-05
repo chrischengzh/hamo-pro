@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.4.4";
+  const APP_VERSION = "1.4.5";
 
   // Contributors list
   const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan'];
@@ -82,7 +82,25 @@ const HamoPro = () => {
     experienceYears: 0,
     experienceMonths: 0,
   });
-  const [clientForm, setClientForm] = useState({ name: '', sex: '', age: '', emotionPattern: '', personality: '', cognition: '', goals: '', therapyPrinciples: '', avatarId: '' });
+  const [clientForm, setClientForm] = useState({
+    name: '',
+    sex: '',
+    age: '',
+    avatarId: '',
+    // Therapy Goal & Principles
+    goals: '',
+    therapyPrinciples: '',
+    // Personality Traits
+    personalityDimension1: '', // 'introverted' or 'extroverted'
+    personalityDimension2: '', // 'rational' or 'emotional'
+    personalityTraits: [], // Selected traits from the 3 blocks
+    // Emotion Patterns
+    emotionPattern: '',
+    // Cognition & Beliefs
+    cognition: '',
+    // Relationship Manipulations
+    relationshipManipulations: ''
+  });
 
   // Load avatars and clients from backend
   const loadUserData = async () => {
@@ -388,8 +406,64 @@ const HamoPro = () => {
     setEditingAvatar(null);
   };
 
+  // Get personality traits based on dimension selections
+  const getPersonalityTraitOptions = () => {
+    const d1 = clientForm.personalityDimension1;
+    const d2 = clientForm.personalityDimension2;
+
+    if (d1 === 'introverted' && d2 === 'rational') {
+      return {
+        orange: ['Respectful', 'Logical / Fact-based', 'Cautious / Prudent'],
+        gray: ['Avoidant', 'Passive', 'Disengaged'],
+        red: ['Procrastinating', 'Over-deliberating', 'Decision-blocked']
+      };
+    } else if (d1 === 'introverted' && d2 === 'emotional') {
+      return {
+        orange: ['Supportive', 'Trusting', 'Cooperative'],
+        gray: ['Compliant', 'People-pleasing', 'Self-erasing'],
+        red: ['Withdrawn', 'Self-neglecting', 'Emotionally flat']
+      };
+    } else if (d1 === 'extroverted' && d2 === 'rational') {
+      return {
+        orange: ['Decisive', 'Controlling', 'Challenge-oriented'],
+        gray: ['Domineering', 'Confrontational', 'Impatient'],
+        red: ['Aggressive', 'Reckless', 'Hyper-controlling']
+      };
+    } else if (d1 === 'extroverted' && d2 === 'emotional') {
+      return {
+        orange: ['Expressive', 'Inspiring', 'Enthusiastic'],
+        gray: ['Suspicious', 'Dramatizing', 'Attention-seeking'],
+        red: ['Narcissistic', 'Entitled', 'Exploitative']
+      };
+    }
+    return null;
+  };
+
+  // Toggle personality trait selection
+  const togglePersonalityTrait = (trait) => {
+    const currentTraits = clientForm.personalityTraits;
+    if (currentTraits.includes(trait)) {
+      setClientForm({
+        ...clientForm,
+        personalityTraits: currentTraits.filter(t => t !== trait)
+      });
+    } else if (currentTraits.length < 6) {
+      setClientForm({
+        ...clientForm,
+        personalityTraits: [...currentTraits, trait]
+      });
+    }
+  };
+
   const handleCreateClient = async () => {
     if (clientForm.name && clientForm.avatarId) {
+      // Build personality string from selections
+      const personalityString = [
+        clientForm.personalityDimension1,
+        clientForm.personalityDimension2,
+        ...clientForm.personalityTraits
+      ].filter(Boolean).join(', ');
+
       // Call API to create AI Mind (client profile)
       const result = await apiService.createMind({
         avatarId: clientForm.avatarId,
@@ -397,10 +471,11 @@ const HamoPro = () => {
         sex: clientForm.sex,
         age: clientForm.age,
         emotionPattern: clientForm.emotionPattern,
-        personality: clientForm.personality,
+        personality: personalityString,
         cognition: clientForm.cognition,
         goals: clientForm.goals,
         therapyPrinciples: clientForm.therapyPrinciples,
+        relationshipManipulations: clientForm.relationshipManipulations,
       });
 
       if (result.success) {
@@ -430,7 +505,20 @@ const HamoPro = () => {
         setClients([...clients, newClient]);
       }
 
-      setClientForm({ name: '', sex: '', age: '', emotionPattern: '', personality: '', cognition: '', goals: '', therapyPrinciples: '', avatarId: '' });
+      setClientForm({
+        name: '',
+        sex: '',
+        age: '',
+        avatarId: '',
+        goals: '',
+        therapyPrinciples: '',
+        personalityDimension1: '',
+        personalityDimension2: '',
+        personalityTraits: [],
+        emotionPattern: '',
+        cognition: '',
+        relationshipManipulations: ''
+      });
       setShowClientForm(false);
     }
   };
@@ -1302,21 +1390,251 @@ const HamoPro = () => {
             {!avatars.length && <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">Create an avatar first</div>}
             {showClientForm && avatars.length > 0 && (
               <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                <h3 className="text-lg font-semibold">Initialize AI Mind for the Client</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-medium mb-1">Name</label><input type="text" value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} className="w-full px-4 py-2 border rounded-lg" placeholder="Client name" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Sex</label><select value={clientForm.sex} onChange={(e) => setClientForm({ ...clientForm, sex: e.target.value })} className="w-full px-4 py-2 border rounded-lg"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
-                  <div><label className="block text-sm font-medium mb-1">Age</label><input type="number" value={clientForm.age} onChange={(e) => setClientForm({ ...clientForm, age: e.target.value })} className="w-full px-4 py-2 border rounded-lg" placeholder="Age" /></div>
-                  <div><label className="block text-sm font-medium mb-1">Avatar</label><select value={clientForm.avatarId} onChange={(e) => setClientForm({ ...clientForm, avatarId: e.target.value })} className="w-full px-4 py-2 border rounded-lg"><option value="">Select Avatar</option>{avatars.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</select></div>
-                  <div className="col-span-2"><label className="block text-sm font-medium mb-1">Emotion Pattern</label><textarea value={clientForm.emotionPattern} onChange={(e) => setClientForm({ ...clientForm, emotionPattern: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows="2" placeholder="e.g., Tends toward anxiety in social situations..." /></div>
-                  <div className="col-span-2"><label className="block text-sm font-medium mb-1">Personality & Characteristics</label><textarea value={clientForm.personality} onChange={(e) => setClientForm({ ...clientForm, personality: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows="2" placeholder="e.g., Introverted, perfectionist, people-pleaser..." /></div>
-                  <div className="col-span-2"><label className="block text-sm font-medium mb-1">Cognition Features & Beliefs</label><textarea value={clientForm.cognition} onChange={(e) => setClientForm({ ...clientForm, cognition: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows="2" placeholder="e.g., 'If I perform well, disaster will come to me'..." /></div>
-                  <div className="col-span-2"><label className="block text-sm font-medium mb-1">Therapy Goals</label><textarea value={clientForm.goals} onChange={(e) => setClientForm({ ...clientForm, goals: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows="2" placeholder="e.g., Reduce anxiety and depression, improve vitality..." /></div>
-                  <div className="col-span-2"><label className="block text-sm font-medium mb-1">Therapy Principles</label><textarea value={clientForm.therapyPrinciples} onChange={(e) => setClientForm({ ...clientForm, therapyPrinciples: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows="2" placeholder="e.g., Be kind, empathy first, less suggestion..." /></div>
+                <h3 className="text-lg font-semibold mb-4">Initialize AI Mind for the Client</h3>
+
+                {/* Section 1: Basic Information */}
+                <div className="bg-blue-50 rounded-xl p-4 mb-4 border-l-4 border-blue-400">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <User className="w-5 h-5 text-blue-600" />
+                    <h4 className="font-semibold text-blue-800">Basic Information</h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                      <input type="text" value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder="Client name" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
+                      <select value={clientForm.sex} onChange={(e) => setClientForm({ ...clientForm, sex: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white">
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                      <input type="number" value={clientForm.age} onChange={(e) => setClientForm({ ...clientForm, age: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder="Age" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Avatar</label>
+                      <select value={clientForm.avatarId} onChange={(e) => setClientForm({ ...clientForm, avatarId: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white">
+                        <option value="">Select Avatar</option>
+                        {avatars.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex space-x-3">
-                  <button onClick={handleCreateClient} className="bg-blue-500 text-white px-6 py-2 rounded-lg">Initialize</button>
-                  <button onClick={() => setShowClientForm(false)} className="bg-gray-200 px-6 py-2 rounded-lg">Cancel</button>
+
+                {/* Section 2: Therapy Goal & Principles */}
+                <div className="bg-teal-50 rounded-xl p-4 mb-4 border-l-4 border-teal-400">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Star className="w-5 h-5 text-teal-600" />
+                    <h4 className="font-semibold text-teal-800">Therapy Goal & Principles</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Therapy Goals</label>
+                      <textarea value={clientForm.goals} onChange={(e) => setClientForm({ ...clientForm, goals: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder="e.g., Reduce anxiety and depression, improve vitality..." />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Therapy Principles</label>
+                      <textarea value={clientForm.therapyPrinciples} onChange={(e) => setClientForm({ ...clientForm, therapyPrinciples: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder="e.g., Be kind, empathy first, less suggestion..." />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Personality Traits - Key Section */}
+                <div className="bg-purple-50 rounded-xl p-4 mb-4 border-l-4 border-purple-400">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Brain className="w-5 h-5 text-purple-600" />
+                    <h4 className="font-semibold text-purple-800">Personality Traits</h4>
+                    <span className="text-xs text-purple-500">(Select dimensions first)</span>
+                  </div>
+
+                  {/* Dimension Selection */}
+                  <div className="mb-4">
+                    {/* Dimension 1: Introverted vs Extroverted */}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Social Orientation</label>
+                      <div className="flex space-x-3">
+                        <button
+                          type="button"
+                          onClick={() => setClientForm({ ...clientForm, personalityDimension1: 'introverted', personalityTraits: [] })}
+                          className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                            clientForm.personalityDimension1 === 'introverted'
+                              ? 'border-purple-500 bg-purple-100 text-purple-700 font-medium'
+                              : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
+                          }`}
+                        >
+                          Introverted
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setClientForm({ ...clientForm, personalityDimension1: 'extroverted', personalityTraits: [] })}
+                          className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                            clientForm.personalityDimension1 === 'extroverted'
+                              ? 'border-purple-500 bg-purple-100 text-purple-700 font-medium'
+                              : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
+                          }`}
+                        >
+                          Extroverted
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Dimension 2: Rational vs Emotional */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Decision Style</label>
+                      <div className="flex space-x-3">
+                        <button
+                          type="button"
+                          onClick={() => setClientForm({ ...clientForm, personalityDimension2: 'rational', personalityTraits: [] })}
+                          className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                            clientForm.personalityDimension2 === 'rational'
+                              ? 'border-purple-500 bg-purple-100 text-purple-700 font-medium'
+                              : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
+                          }`}
+                        >
+                          Rational
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setClientForm({ ...clientForm, personalityDimension2: 'emotional', personalityTraits: [] })}
+                          className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                            clientForm.personalityDimension2 === 'emotional'
+                              ? 'border-purple-500 bg-purple-100 text-purple-700 font-medium'
+                              : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
+                          }`}
+                        >
+                          Emotional
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trait Selection - Only show when both dimensions are selected */}
+                  {getPersonalityTraitOptions() && (
+                    <div className="mt-4 pt-4 border-t border-purple-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="text-sm font-medium text-gray-700">Select Traits (1-6)</label>
+                        <span className="text-xs text-purple-500">{clientForm.personalityTraits.length}/6 selected</span>
+                      </div>
+
+                      {/* Orange Block - Adaptive */}
+                      <div className="bg-orange-50 rounded-lg p-3 mb-3">
+                        <p className="text-xs text-orange-600 font-medium mb-2">Adaptive Traits</p>
+                        <div className="flex flex-wrap gap-2">
+                          {getPersonalityTraitOptions().orange.map(trait => (
+                            <button
+                              key={trait}
+                              type="button"
+                              onClick={() => togglePersonalityTrait(trait)}
+                              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                                clientForm.personalityTraits.includes(trait)
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-white border border-orange-300 text-orange-700 hover:bg-orange-100'
+                              }`}
+                            >
+                              {trait}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Gray Block - Maladaptive Mild */}
+                      <div className="bg-gray-100 rounded-lg p-3 mb-3">
+                        <p className="text-xs text-gray-600 font-medium mb-2">Mild Maladaptive</p>
+                        <div className="flex flex-wrap gap-2">
+                          {getPersonalityTraitOptions().gray.map(trait => (
+                            <button
+                              key={trait}
+                              type="button"
+                              onClick={() => togglePersonalityTrait(trait)}
+                              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                                clientForm.personalityTraits.includes(trait)
+                                  ? 'bg-gray-600 text-white'
+                                  : 'bg-white border border-gray-400 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {trait}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Red Block - Maladaptive Severe */}
+                      <div className="bg-red-50 rounded-lg p-3">
+                        <p className="text-xs text-red-600 font-medium mb-2">Severe Maladaptive</p>
+                        <div className="flex flex-wrap gap-2">
+                          {getPersonalityTraitOptions().red.map(trait => (
+                            <button
+                              key={trait}
+                              type="button"
+                              onClick={() => togglePersonalityTrait(trait)}
+                              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                                clientForm.personalityTraits.includes(trait)
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-white border border-red-300 text-red-700 hover:bg-red-100'
+                              }`}
+                            >
+                              {trait}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Section 4: Emotion Patterns */}
+                <div className="bg-yellow-50 rounded-xl p-4 mb-4 border-l-4 border-yellow-400">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Sparkles className="w-5 h-5 text-yellow-600" />
+                    <h4 className="font-semibold text-yellow-800">Emotion Patterns</h4>
+                  </div>
+                  <textarea
+                    value={clientForm.emotionPattern}
+                    onChange={(e) => setClientForm({ ...clientForm, emotionPattern: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white"
+                    rows="2"
+                    placeholder="e.g., Tends toward anxiety in social situations, difficulty expressing anger..."
+                  />
+                </div>
+
+                {/* Section 5: Cognition & Beliefs */}
+                <div className="bg-indigo-50 rounded-xl p-4 mb-4 border-l-4 border-indigo-400">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Brain className="w-5 h-5 text-indigo-600" />
+                    <h4 className="font-semibold text-indigo-800">Cognition & Beliefs</h4>
+                  </div>
+                  <textarea
+                    value={clientForm.cognition}
+                    onChange={(e) => setClientForm({ ...clientForm, cognition: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white"
+                    rows="2"
+                    placeholder="e.g., 'If I perform well, disaster will come to me', black-and-white thinking..."
+                  />
+                </div>
+
+                {/* Section 6: Relationship Manipulations */}
+                <div className="bg-rose-50 rounded-xl p-4 mb-4 border-l-4 border-rose-400">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <User className="w-5 h-5 text-rose-600" />
+                    <h4 className="font-semibold text-rose-800">Relationship Manipulations</h4>
+                  </div>
+                  <textarea
+                    value={clientForm.relationshipManipulations}
+                    onChange={(e) => setClientForm({ ...clientForm, relationshipManipulations: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white"
+                    rows="2"
+                    placeholder="e.g., Tends to use guilt to control others, avoids conflict at all costs..."
+                  />
+                </div>
+
+                <div className="flex space-x-3 pt-2">
+                  <button onClick={handleCreateClient} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">Initialize</button>
+                  <button onClick={() => setShowClientForm(false)} className="bg-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">Cancel</button>
                 </div>
               </div>
             )}
