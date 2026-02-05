@@ -1766,8 +1766,8 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-gray-900 font-bold text-lg">Goals & Principles</h4>
-                              <p className="text-gray-700 text-sm mt-1 line-clamp-1">
+                              <h4 className="text-white font-bold text-lg">Goals & Principles</h4>
+                              <p className="text-white/90 text-sm mt-1 line-clamp-1">
                                 {mindData.goals || mindData.therapy_principles}
                               </p>
                             </div>
