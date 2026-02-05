@@ -1400,7 +1400,7 @@ const HamoPro = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            {mindData.name?.charAt(0) || '?'}
+                            {mindData.name?.charAt(0) || selectedMindClient?.name?.charAt(0) || ''}
                           </div>
                           <div>
                             <h4 className="font-semibold text-gray-900 text-lg">{mindData.name || selectedMindClient.name}</h4>
