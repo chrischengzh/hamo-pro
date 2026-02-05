@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.4.2";
+  const APP_VERSION = "1.4.3";
 
   // Contributors list
   const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan'];
@@ -712,15 +712,7 @@ const HamoPro = () => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex space-x-2 bg-white rounded-lg p-1 shadow-sm">
-          <button onClick={() => setActiveTab('avatars')} className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-md ${activeTab === 'avatars' ? 'bg-blue-500 text-white' : 'text-gray-600'}`}><Brain className="w-5 h-5" /><span>AI Avatars</span></button>
-          <button onClick={() => setActiveTab('clients')} className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-md ${activeTab === 'clients' ? 'bg-blue-500 text-white' : 'text-gray-600'}`}><User className="w-5 h-5" /><span>Clients</span></button>
-          <button onClick={() => setActiveTab('dashboard')} className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-md ${activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'text-gray-600'}`}><BarChart3 className="w-5 h-5" /><span>Dashboard</span></button>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 pb-8">
+      <div className="max-w-7xl mx-auto px-6 pb-24">
         {activeTab === 'avatars' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -1684,9 +1676,35 @@ const HamoPro = () => {
         )}
       </div>
 
-      <footer className="max-w-7xl mx-auto px-6 py-4 text-center">
-        <p className="text-xs text-gray-400">Hamo Pro Version {APP_VERSION}</p>
-      </footer>
+      {/* Fixed Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+        <div className="max-w-7xl mx-auto flex justify-around items-center py-2">
+          <button
+            onClick={() => setActiveTab('avatars')}
+            className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'avatars' ? 'text-blue-500' : 'text-gray-400'}`}
+          >
+            <Brain className="w-6 h-6" />
+            <span className="text-xs mt-1 font-medium">AI Avatars</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('clients')}
+            className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'clients' ? 'text-blue-500' : 'text-gray-400'}`}
+          >
+            <User className="w-6 h-6" />
+            <span className="text-xs mt-1 font-medium">Clients</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'dashboard' ? 'text-blue-500' : 'text-gray-400'}`}
+          >
+            <BarChart3 className="w-6 h-6" />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </button>
+        </div>
+        <div className="text-center pb-2">
+          <p className="text-xs text-gray-400">Hamo Pro Version {APP_VERSION}</p>
+        </div>
+      </nav>
     </div>
   );
 };
