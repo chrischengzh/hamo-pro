@@ -1637,17 +1637,17 @@ const HamoPro = () => {
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {clients.map(c => {
                 const avatar = avatars.find(a => a.id === parseInt(c.avatarId) || a.id === c.avatarId);
                 const isConnected = c.connectedAt || c.connected_at;
                 // Connection date now formatted inline in English
                 return (
-                  <div key={c.id} className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex justify-between mb-4">
+                  <div key={c.id} className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                    <div className="flex justify-between mb-3">
                       <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{c.sex}, {c.age} years</p></div>
                       {isConnected ? (
-                        <div className="flex flex-col items-center text-green-500">
+                        <div className="flex flex-col items-center text-green-500 flex-shrink-0">
                           <Calendar className="w-5 h-5" />
                           <span className="text-xs mt-1">{new Date(isConnected).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                           <span className="text-xs text-green-600 font-medium">Connected</span>
@@ -1656,21 +1656,21 @@ const HamoPro = () => {
                         <button
                           onClick={() => handleGenerateInvitation(c)}
                           disabled={invitationLoading}
-                          className="flex flex-col items-center text-blue-500 hover:text-blue-600 disabled:opacity-50"
+                          className="flex flex-col items-center text-blue-500 hover:text-blue-600 disabled:opacity-50 flex-shrink-0"
                         >
                           <Ticket className="w-5 h-5" />
                           <span className="text-xs mt-1">邀请码</span>
                         </button>
                       )}
                     </div>
-                    <p className="text-sm mb-3"><span className="font-medium">Avatar:</span> {avatar?.name || '未分配'}</p>
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-                      <div className="flex items-center space-x-2"><MessageSquare className="w-4 h-4" /><span>{c.sessions} sessions</span></div>
-                      <div className="flex items-center space-x-2"><Clock className="w-4 h-4" /><span>{c.avgTime} min avg</span></div>
+                    <p className="text-sm mb-2"><span className="font-medium">Avatar:</span> {avatar?.name || '未分配'}</p>
+                    <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-3">
+                      <div className="flex items-center space-x-1"><MessageSquare className="w-4 h-4" /><span>{c.sessions} sessions</span></div>
+                      <div className="flex items-center space-x-1"><Clock className="w-4 h-4" /><span>{c.avgTime} min avg</span></div>
                     </div>
                     <div className="flex space-x-2">
-                      <button onClick={() => handleViewMind(c)} className="flex-1 bg-purple-50 text-purple-600 px-3 py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-purple-100"><Sparkles className="w-4 h-4" /><span className="text-sm">AI Mind</span></button>
-                      <button onClick={() => handleViewChats(c)} className="flex-1 bg-blue-50 text-blue-600 px-3 py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-100"><Eye className="w-4 h-4" /><span className="text-sm">View Chats</span></button>
+                      <button onClick={() => handleViewMind(c)} className="flex-1 bg-purple-50 text-purple-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-purple-100"><Sparkles className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">AI Mind</span></button>
+                      <button onClick={() => handleViewChats(c)} className="flex-1 bg-blue-50 text-blue-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-blue-100"><Eye className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">View Chats</span></button>
                     </div>
                   </div>
                 );
