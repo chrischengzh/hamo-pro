@@ -2257,13 +2257,20 @@ const HamoPro = () => {
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Dashboard</h2>
             {!clients.length ? <div className="text-center py-12 text-gray-500 bg-white rounded-xl">No client data available</div> : (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {clients.map(c => (
-                  <div key={c.id} className="bg-white rounded-xl shadow-md p-6">
-                    <h3 className="font-semibold mb-4">{c.name}</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3"><MessageSquare className="w-5 h-5 text-blue-500" /><div><p className="text-2xl font-bold">{c.sessions}</p><p className="text-xs text-gray-500">Sessions</p></div></div>
-                      <div className="flex items-center space-x-3"><Clock className="w-5 h-5 text-teal-500" /><div><p className="text-2xl font-bold">{c.avgTime} min</p><p className="text-xs text-gray-500">Avg Time</p></div></div>
+                  <div key={c.id} className="bg-white rounded-xl shadow-md p-5">
+                    <h3 className="font-semibold text-lg mb-4 text-center">{c.name}</h3>
+                    <div className="flex justify-around items-center">
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-gray-800">{c.sessions}</p>
+                        <p className="text-xs text-gray-500 mt-1">Sessions</p>
+                      </div>
+                      <div className="w-px h-12 bg-gray-200"></div>
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-gray-800">{c.avgTime}<span className="text-lg ml-1">min</span></p>
+                        <p className="text-xs text-gray-500 mt-1">Avg Time</p>
+                      </div>
                     </div>
                   </div>
                 ))}
