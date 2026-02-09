@@ -729,7 +729,7 @@ const HamoPro = () => {
               <HamoLogo size={72} />
             </div>
             <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">Hamo Pro</h1>
-            <p className="text-center text-gray-500 mb-8 text-sm">Avatar Therapist with AI Mind</p>
+            <p className="text-center text-gray-500 mb-8 text-sm">Build Avatar Therapists with an AI Mind</p>
             
             <div className="flex space-x-2 mb-6">
               <button 
@@ -831,7 +831,7 @@ const HamoPro = () => {
               <HamoLogo size={40} />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Hamo Pro</h1>
-                <p className="text-sm text-gray-500">Avatar Therapist with AI Mind</p>
+                <p className="text-sm text-gray-500">Build Avatar Therapists with an AI Mind</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
