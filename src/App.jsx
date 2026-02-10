@@ -520,16 +520,9 @@ const HamoPro = () => {
         }]);
         console.log('✅ AI Mind created with ID:', result.mind.id);
       } else {
-        // Fallback to local state if API fails
-        console.warn('⚠️ API failed, using local state:', result.error);
-        const newClient = {
-          ...clientForm,
-          id: Date.now(),
-          sessions: 0,
-          avgTime: 0,
-          conversations: []
-        };
-        setClients([...clients, newClient]);
+        // Show error message - DO NOT create fake clients
+        alert(`Failed to create AI Mind:\n${result.error}\n\nPlease check:\n1. Backend API is running\n2. Avatar exists and belongs to you\n3. You are logged in as a therapist`);
+        console.error('❌ AI Mind creation failed:', result.error);
       }
 
       setClientForm({
@@ -559,9 +552,14 @@ const HamoPro = () => {
       if (result.success) {
         setInvitationCode(result.invitationCode);
         setShowInvitationCard(client);
+      } else {
+        // Show error message to user
+        alert(`Failed to generate invitation code:\n${result.error}\n\nPlease check:\n1. Backend API is running\n2. AI Mind exists in database\n3. You are logged in as the correct therapist`);
+        console.error('❌ Invitation generation failed:', result.error);
       }
     } catch (error) {
-      console.error('Failed to generate invitation code:', error);
+      alert(`Failed to generate invitation code:\n${error.message}\n\nPlease check your connection and try again.`);
+      console.error('❌ Failed to generate invitation code:', error);
     } finally {
       setInvitationLoading(false);
     }

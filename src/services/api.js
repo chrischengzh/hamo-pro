@@ -454,16 +454,13 @@ class ApiService {
         expiresAt: response.expires_at,
       };
     } catch (error) {
-      // Fallback: generate code locally if API not available
-      console.warn('API not available, generating code locally:', error.message);
-      const code = `HAMO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      // ⚠️ API FAILED - DO NOT generate fake codes that don't exist in database
+      console.error('❌ Failed to generate invitation code:', error.message);
+      console.error('❌ THIS IS A REAL ERROR - The backend API is failing');
 
       return {
-        success: true,
-        invitationCode: code,
-        expiresAt: expiresAt,
-        fallback: true,
+        success: false,
+        error: error.message,
       };
     }
   }
