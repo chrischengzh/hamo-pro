@@ -241,6 +241,6 @@ For questions or support, please open an issue on GitHub.
 
 ---
 
-**Version**: 1.4.6
+**Version**: 1.4.7
 **Last Updated**: February 2026
 **Author**: Chris Cheng
