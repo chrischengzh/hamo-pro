@@ -515,6 +515,66 @@ class ApiService {
       };
     }
   }
+
+  // Get all sessions for a specific mind
+  async getSessions(mindId) {
+    try {
+      console.log('🔵 Fetching sessions for mind:', mindId);
+      const response = await this.request(`/session/mind/${mindId}`, {
+        method: 'GET',
+      });
+
+      console.log('✅ Sessions fetched:', response);
+
+      // Handle both array response and object with data property
+      const sessions = Array.isArray(response) ? response : (response.data || response.sessions || []);
+
+      return {
+        success: true,
+        sessions: sessions,
+      };
+    } catch (error) {
+      console.error('❌ Failed to fetch sessions:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        sessions: [],
+      };
+    }
+  }
+
+  // Get messages for a specific session
+  async getSessionMessages(sessionId) {
+    try {
+      console.log('🔵 Fetching messages for session:', sessionId);
+      const response = await this.request(`/session/${sessionId}/messages`, {
+        method: 'GET',
+      });
+
+      console.log('✅ Messages fetched:', response);
+
+      // Handle both array response and object with data property
+      const messages = Array.isArray(response) ? response : (response.data || response.messages || []);
+
+      return {
+        success: true,
+        messages: messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          psvs_snapshot: msg.psvs_snapshot,
+        })),
+      };
+    } catch (error) {
+      console.error('❌ Failed to fetch messages:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        messages: [],
+      };
+    }
+  }
 }
 
 // Export singleton instance

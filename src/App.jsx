@@ -3,7 +3,7 @@ import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut
 import apiService from './services/api';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.4.6";
+  const APP_VERSION = "1.4.7";
 
   // Hamo Logo SVG Component (Light theme, no text)
   const HamoLogo = ({ size = 40, className = "" }) => (
@@ -83,6 +83,8 @@ const HamoPro = () => {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showClientForm, setShowClientForm] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [conversationsData, setConversationsData] = useState([]);
+  const [conversationsLoading, setConversationsLoading] = useState(false);
   const [selectedMindClient, setSelectedMindClient] = useState(null);
   const [mindData, setMindData] = useState(null);
   const [mindLoading, setMindLoading] = useState(false);
@@ -597,12 +599,43 @@ const HamoPro = () => {
   };
 
   // View chats for a client (close AI Mind if open)
-  const handleViewChats = (client) => {
+  const handleViewChats = async (client) => {
     // Close AI Mind panel if open
     setSelectedMindClient(null);
     setMindData(null);
 
     setSelectedClient(client);
+    setConversationsLoading(true);
+    setConversationsData([]);
+
+    try {
+      // Fetch sessions for this mind
+      const sessionsResult = await apiService.getSessions(client.id);
+      if (sessionsResult.success && sessionsResult.sessions.length > 0) {
+        // Fetch messages for each session
+        const conversationsWithMessages = await Promise.all(
+          sessionsResult.sessions.map(async (session) => {
+            const messagesResult = await apiService.getSessionMessages(session.id);
+            return {
+              sessionId: session.id,
+              date: new Date(session.started_at || session.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }),
+              messages: messagesResult.success ? messagesResult.messages : []
+            };
+          })
+        );
+        setConversationsData(conversationsWithMessages);
+      }
+    } catch (error) {
+      console.error('Failed to fetch conversations:', error);
+    } finally {
+      setConversationsLoading(false);
+    }
   };
 
   // Handle supervision submission for a specific section
@@ -2252,16 +2285,30 @@ const HamoPro = () => {
                   </div>
                   {/* Content */}
                   <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-                    {selectedClient.conversations && selectedClient.conversations.length > 0 ? (
-                      selectedClient.conversations.map((conv, i) => (
+                    {conversationsLoading ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+                        <p>Loading conversations...</p>
+                      </div>
+                    ) : conversationsData && conversationsData.length > 0 ? (
+                      conversationsData.map((conv, i) => (
                         <div key={i} className="border-l-4 border-blue-500 pl-4 mb-6">
                           <p className="text-sm font-medium text-gray-500 mb-3">{conv.date}</p>
-                          {conv.messages.map((msg, j) => (
-                            <div key={j} className={`p-3 rounded-lg mb-2 ${msg.sender === 'client' ? 'bg-gray-100' : 'bg-blue-50'}`}>
-                              <div className="flex justify-between mb-1"><span className="text-xs font-medium">{msg.sender === 'client' ? 'Client' : 'Avatar'}</span><span className="text-xs text-gray-400">{msg.time}</span></div>
-                              <p className="text-sm">{msg.text}</p>
-                            </div>
-                          ))}
+                          {conv.messages && conv.messages.length > 0 ? (
+                            conv.messages.map((msg, j) => (
+                              <div key={j} className={`p-3 rounded-lg mb-2 ${msg.role === 'user' ? 'bg-gray-100' : 'bg-blue-50'}`}>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-xs font-medium">{msg.role === 'user' ? 'Client' : 'Avatar'}</span>
+                                  <span className="text-xs text-gray-400">
+                                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
+                                  </span>
+                                </div>
+                                <p className="text-sm">{msg.content}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-400 italic">No messages in this session</p>
+                          )}
                         </div>
                       ))
                     ) : (
