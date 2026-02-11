@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Brain, BarChart3, Plus, Ticket, Eye, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight } from 'lucide-react';
+import { User, Brain, BarChart3, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight } from 'lucide-react';
 import apiService from './services/api';
 
 const HamoPro = () => {
@@ -615,7 +615,13 @@ const HamoPro = () => {
         // Fetch messages for each session
         const conversationsWithMessages = await Promise.all(
           sessionsResult.sessions.map(async (session) => {
-            const messagesResult = await apiService.getSessionMessages(session.id);
+            const proVisible = session.pro_visible !== false; // default true
+            // Only fetch messages if visible to Pro
+            let messages = [];
+            if (proVisible) {
+              const messagesResult = await apiService.getSessionMessages(session.id);
+              messages = messagesResult.success ? messagesResult.messages : [];
+            }
             return {
               sessionId: session.id,
               date: new Date(session.started_at || session.created_at).toLocaleDateString('en-US', {
@@ -625,7 +631,8 @@ const HamoPro = () => {
                 hour: '2-digit',
                 minute: '2-digit'
               }),
-              messages: messagesResult.success ? messagesResult.messages : []
+              messages,
+              proVisible
             };
           })
         );
@@ -2292,9 +2299,14 @@ const HamoPro = () => {
                       </div>
                     ) : conversationsData && conversationsData.length > 0 ? (
                       conversationsData.map((conv, i) => (
-                        <div key={i} className="border-l-4 border-blue-500 pl-4 mb-6">
+                        <div key={i} className={`border-l-4 ${conv.proVisible === false ? 'border-gray-300' : 'border-blue-500'} pl-4 mb-6`}>
                           <p className="text-sm font-medium text-gray-500 mb-3">{conv.date}</p>
-                          {conv.messages && conv.messages.length > 0 ? (
+                          {conv.proVisible === false ? (
+                            <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-50">
+                              <EyeOff size={16} className="text-gray-400 flex-shrink-0" />
+                              <p className="text-sm text-gray-400 italic">The client has turned on "Hidden from Pro". This conversation is not viewable.</p>
+                            </div>
+                          ) : conv.messages && conv.messages.length > 0 ? (
                             conv.messages.map((msg, j) => (
                               <div key={j} className={`p-3 rounded-lg mb-2 ${msg.role === 'user' ? 'bg-gray-100' : 'bg-blue-50'}`}>
                                 <div className="flex justify-between mb-1">
