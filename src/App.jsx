@@ -2436,7 +2436,7 @@ const HamoPro = () => {
                                 onClick={() => msg.psvs_snapshot && setCurrentPsvs({ ...msg.psvs_snapshot, messageId: msg.id })}
                               >
                                 <div className="flex justify-between mb-1">
-                                  <span className="text-xs font-medium">{msg.role === 'user' ? 'Client' : 'Avatar'}</span>
+                                  <span className="text-xs font-medium">{msg.role === 'user' ? selectedClient.name : (avatars.find(a => String(a.id) === String(selectedClient.avatarId))?.name || 'Avatar')}</span>
                                   <div className="flex items-center space-x-2">
                                     {msg.psvs_snapshot && (
                                       <span className={`w-2 h-2 rounded-full ${
