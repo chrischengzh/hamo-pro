@@ -158,7 +158,7 @@ export const translations = {
   zh: {
     // App
     appName: 'Hamo Pro',
-    tagline: '用 AI Mind 构建虚拟咨询师',
+    tagline: '用 AI Mind 构建您的虚拟咨询师',
     version: '版本',
 
     // Auth
