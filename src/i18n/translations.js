@@ -158,7 +158,7 @@ export const translations = {
   zh: {
     // App
     appName: 'Hamo Pro',
-    tagline: '用 AI Mind 构建虚拟治疗师',
+    tagline: '用 AI Mind 构建虚拟咨询师',
     version: '版本',
 
     // Auth
@@ -183,26 +183,26 @@ export const translations = {
     dashboard: '仪表板',
 
     // Avatars
-    avatarTherapists: '虚拟治疗师',
+    avatarTherapists: '虚拟咨询师',
     createAvatar: '创建形象',
     editAvatar: '编辑形象',
     avatarName: '形象名称',
     specialty: '专业领域',
     selectSpecialty: '选择专业领域',
-    therapeuticApproaches: '治疗方法',
+    therapeuticApproaches: '咨询方法',
     about: '简介',
     experience: '经验',
     years: '年',
     months: '月',
     save: '保存',
     cancel: '取消',
-    noAvatarsYet: '暂无形象。创建您的第一个 AI 虚拟治疗师！',
+    noAvatarsYet: '暂无形象。创建您的第一个 AI 虚拟咨询师！',
 
     // Specialties
     depressionAnxiety: '抑郁与焦虑',
     npdPersonality: '自恋型及人格障碍',
-    familyCouples: '家庭与婚姻治疗',
-    childAdolescent: '儿童与青少年治疗',
+    familyCouples: '家庭与婚姻咨询',
+    childAdolescent: '儿童与青少年咨询',
     stressBurnout: '压力与倦怠',
     ptsdTrauma: 'PTSD 与创伤',
     substanceAbuse: '物质滥用与成瘾',
@@ -240,10 +240,10 @@ export const translations = {
     other: '其他',
     age: '年龄',
     goalsAndPrinciples: '目标与原则',
-    therapyGoals: '治疗目标',
-    therapyGoalsPlaceholder: '该来访者的主要治疗目标是什么？',
-    therapyPrinciples: '治疗原则',
-    therapyPrinciplesPlaceholder: '治疗过程中需要遵循的关键原则',
+    therapyGoals: '咨询目标',
+    therapyGoalsPlaceholder: '该来访者的主要咨询目标是什么？',
+    therapyPrinciples: '咨询原则',
+    therapyPrinciplesPlaceholder: '咨询过程中需要遵循的关键原则',
     personalityTraits: '人格特质',
     selectDimensions: '选择人格维度：',
     introverted: '内向',
@@ -283,7 +283,7 @@ export const translations = {
     negative: '消极',
     neurotic: '神经质',
     noMessagesInSession: '该会话暂无消息',
-    hiddenFromPro: '来访者已开启"对治疗师隐藏"。无法查看此对话。',
+    hiddenFromPro: '来访者已开启"对咨询师隐藏"。无法查看此对话。',
     noConversationsYet: '暂无对话记录',
     loadingConversations: '加载对话中...',
 
