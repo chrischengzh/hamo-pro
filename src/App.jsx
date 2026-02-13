@@ -1,9 +1,57 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, BarChart3, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight } from 'lucide-react';
+import { User, Brain, BarChart3, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight, Globe } from 'lucide-react';
 import apiService from './services/api';
+import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.4.8";
+  const APP_VERSION = "1.5.0";
+
+  // Language state - default to browser language or English
+  const [language, setLanguage] = useState(() => {
+    const saved = localStorage.getItem('hamo_pro_language');
+    if (saved) return saved;
+    const browserLang = navigator.language.toLowerCase();
+    return browserLang.startsWith('zh') ? 'zh' : 'en';
+  });
+
+  // Translation helper function
+  const t = useCallback((key) => {
+    return translations[language]?.[key] || translations['en'][key] || key;
+  }, [language]);
+
+  // Save language preference
+  useEffect(() => {
+    localStorage.setItem('hamo_pro_language', language);
+  }, [language]);
+
+  // Language toggle component
+  const LanguageToggle = ({ className = "" }) => (
+    <div className={`flex items-center space-x-2 ${className}`}>
+      <Globe className="w-4 h-4 text-gray-500" />
+      <div className="flex bg-gray-100 rounded-lg p-0.5">
+        <button
+          onClick={() => setLanguage('en')}
+          className={`px-2 py-1 text-xs rounded-md transition-colors ${
+            language === 'en'
+              ? 'bg-white text-blue-600 shadow-sm font-medium'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          EN
+        </button>
+        <button
+          onClick={() => setLanguage('zh')}
+          className={`px-2 py-1 text-xs rounded-md transition-colors ${
+            language === 'zh'
+              ? 'bg-white text-blue-600 shadow-sm font-medium'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          中文
+        </button>
+      </div>
+    </div>
+  );
 
   // Hamo Logo SVG Component (Light theme, no text)
   const HamoLogo = ({ size = 40, className = "" }) => (
@@ -46,7 +94,30 @@ const HamoPro = () => {
     return option ? option.label : value;
   };
 
-  // Avatar form options
+  // Avatar form options - returns translated options
+  const getSpecialtyOptions = useCallback(() => [
+    { value: 'depression_anxiety', label: t('depressionAnxiety') },
+    { value: 'npd_personality', label: t('npdPersonality') },
+    { value: 'family_couples', label: t('familyCouples') },
+    { value: 'child_adolescent', label: t('childAdolescent') },
+    { value: 'stress_burnout', label: t('stressBurnout') },
+    { value: 'ptsd_trauma', label: t('ptsdTrauma') },
+    { value: 'substance_abuse', label: t('substanceAbuse') },
+    { value: 'ocd_anxiety', label: t('ocdAnxiety') }
+  ], [t]);
+
+  const getTherapeuticApproachOptions = useCallback(() => [
+    { value: 'cbt', label: t('cbt') },
+    { value: 'dbt', label: t('dbt') },
+    { value: 'family_systems', label: t('familySystems') },
+    { value: 'play_therapy', label: t('playTherapy') },
+    { value: 'mindfulness', label: t('mindfulness') },
+    { value: 'trauma_focused', label: t('traumaFocused') },
+    { value: 'addiction_recovery', label: t('addictionRecovery') },
+    { value: 'act', label: t('act') }
+  ], [t]);
+
+  // Legacy options for backward compatibility
   const specialtyOptions = [
     'Depression & Anxiety',
     'NPD & Personality Disorders',
@@ -842,24 +913,29 @@ const HamoPro = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-xl p-8">
+            {/* Language Toggle */}
+            <div className="flex justify-end mb-4">
+              <LanguageToggle />
+            </div>
+
             <div className="flex items-center justify-center mb-6">
               <HamoLogo size={72} />
             </div>
-            <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">Hamo Pro</h1>
-            <p className="text-center text-gray-500 mb-8 text-sm">Build Avatar Therapists with an AI Mind</p>
-            
+            <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">{t('appName')}</h1>
+            <p className="text-center text-gray-500 mb-8 text-sm">{t('tagline')}</p>
+
             <div className="flex space-x-2 mb-6">
-              <button 
-                onClick={() => { setAuthMode('signin'); setAuthError(''); }} 
+              <button
+                onClick={() => { setAuthMode('signin'); setAuthError(''); }}
                 className={`flex-1 py-2 rounded-lg font-medium ${authMode === 'signin' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}
               >
-                Sign In
+                {t('signIn')}
               </button>
-              <button 
-                onClick={() => { setAuthMode('signup'); setAuthError(''); }} 
+              <button
+                onClick={() => { setAuthMode('signup'); setAuthError(''); }}
                 className={`flex-1 py-2 rounded-lg font-medium ${authMode === 'signup' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}
               >
-                Sign Up
+                {t('signUp')}
               </button>
             </div>
 
@@ -873,65 +949,63 @@ const HamoPro = () => {
               {authMode === 'signup' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input 
-                      type="text" 
-                      value={authForm.fullName} 
-                      onChange={(e) => setAuthForm({ ...authForm, fullName: e.target.value })} 
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                      placeholder="Dr. Jane Smith"
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('fullName')}</label>
+                    <input
+                      type="text"
+                      value={authForm.fullName}
+                      onChange={(e) => setAuthForm({ ...authForm, fullName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder={t('namePlaceholder')}
                       disabled={authLoading}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Profession</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('profession')}</label>
                     <select
                       value={authForm.profession}
                       onChange={(e) => setAuthForm({ ...authForm, profession: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                       disabled={authLoading}
                     >
-                      <option value="">Select your profession</option>
-                      {professionOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
+                      <option value="">{t('selectProfession')}</option>
+                      <option value="mental_health_professional">{t('mentalHealthProfessional')}</option>
                     </select>
                   </div>
                 </>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input 
-                  type="email" 
-                  value={authForm.email} 
-                  onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                  placeholder="your@email.com"
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
+                <input
+                  type="email"
+                  value={authForm.email}
+                  onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={t('emailPlaceholder')}
                   disabled={authLoading}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input 
-                  type="password" 
-                  value={authForm.password} 
-                  onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('password')}</label>
+                <input
+                  type="password"
+                  value={authForm.password}
+                  onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="••••••••"
                   disabled={authLoading}
                 />
               </div>
-              <button 
-                onClick={authMode === 'signin' ? handleSignIn : handleSignUp} 
+              <button
+                onClick={authMode === 'signin' ? handleSignIn : handleSignUp}
                 className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={authLoading}
               >
-                {authLoading ? 'Processing...' : (authMode === 'signin' ? 'Sign In' : 'Create Account')}
+                {authLoading ? (language === 'zh' ? '处理中...' : 'Processing...') : (authMode === 'signin' ? t('signIn') : t('createAccount'))}
               </button>
             </div>
-            
+
             <div className="text-center mt-6 text-xs text-gray-400">
-              Version {APP_VERSION}
+              {t('version')} {APP_VERSION}
             </div>
           </div>
         </div>
@@ -947,16 +1021,17 @@ const HamoPro = () => {
             <div className="flex items-center space-x-3">
               <HamoLogo size={40} />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Hamo Pro</h1>
-                <p className="text-sm text-gray-500">Build Avatar Therapists with an AI Mind</p>
+                <h1 className="text-2xl font-bold text-gray-900">{t('appName')}</h1>
+                <p className="text-sm text-gray-500">{t('tagline')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageToggle />
               <div className="text-right">
                 <div className="flex items-center space-x-2 text-sm font-medium"><User className="w-4 h-4" /><span>{currentUser?.full_name || currentUser?.fullName}</span></div>
-                <p className="text-xs text-gray-500">{getProfessionLabel(currentUser?.profession)}</p>
+                <p className="text-xs text-gray-500">{language === 'zh' ? t('mentalHealthProfessional') : getProfessionLabel(currentUser?.profession)}</p>
               </div>
-              <button onClick={handleSignOut} className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"><LogOut className="w-4 h-4" /><span className="text-sm">Sign Out</span></button>
+              <button onClick={handleSignOut} className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"><LogOut className="w-4 h-4" /><span className="text-sm">{t('signOut')}</span></button>
               <button onClick={() => setShowDeleteConfirm(true)} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
             </div>
           </div>
@@ -966,11 +1041,11 @@ const HamoPro = () => {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-2">Delete Account</h3>
-            <p className="text-gray-600 mb-6">Are you sure? This will permanently delete all your data.</p>
+            <h3 className="text-lg font-semibold mb-2">{t('deleteConfirmTitle')}</h3>
+            <p className="text-gray-600 mb-6">{t('deleteConfirmMessage')}</p>
             <div className="flex space-x-3">
-              <button onClick={handleDeleteAccount} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg">Delete</button>
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-200 px-4 py-2 rounded-lg">Cancel</button>
+              <button onClick={handleDeleteAccount} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg">{t('confirmDelete')}</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-gray-200 px-4 py-2 rounded-lg">{t('cancel')}</button>
             </div>
           </div>
         </div>
@@ -984,7 +1059,7 @@ const HamoPro = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <Ticket className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Invitation Code</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">{t('invitationCode')}</h3>
                 <p className="text-sm text-blue-500 mb-6">Hamo Pro</p>
 
                 <div className="bg-gray-50 rounded-xl p-4 mb-4">
@@ -993,23 +1068,23 @@ const HamoPro = () => {
 
                 <div className="flex items-center justify-center space-x-2 text-orange-500 mb-6">
                   <Clock className="w-4 h-4" />
-                  <span className="text-sm font-medium">24小时内有效</span>
+                  <span className="text-sm font-medium">{t('expiresIn')}</span>
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="mb-3">
-                    <p className="text-xs text-gray-500">Client</p>
+                    <p className="text-xs text-gray-500">{language === 'zh' ? '来访者' : 'Client'}</p>
                     <p className="font-semibold text-gray-900">{showInvitationCard.name}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">AI Avatar</p>
                     <p className="font-semibold text-gray-900">
-                      {avatars.find(a => String(a.id) === String(showInvitationCard.avatarId) || String(a.id) === String(showInvitationCard.avatar_id))?.name || 'Unknown'}
+                      {avatars.find(a => String(a.id) === String(showInvitationCard.avatarId) || String(a.id) === String(showInvitationCard.avatar_id))?.name || (language === 'zh' ? '未知' : 'Unknown')}
                     </p>
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-400 mb-6">Download Hamo Client App to connect</p>
+                <p className="text-xs text-gray-400 mb-6">{language === 'zh' ? '下载 Hamo Client App 连接' : 'Download Hamo Client App to connect'}</p>
               </div>
 
               <div className="flex space-x-3">
@@ -1018,13 +1093,13 @@ const HamoPro = () => {
                   className="flex-1 bg-blue-500 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-600 flex items-center justify-center space-x-2"
                 >
                   <Download className="w-4 h-4" />
-                  <span>Save</span>
+                  <span>{t('save')}</span>
                 </button>
                 <button
                   onClick={() => setShowInvitationCard(null)}
                   className="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-300"
                 >
-                  Close
+                  {t('done')}
                 </button>
               </div>
             </div>
@@ -1036,12 +1111,12 @@ const HamoPro = () => {
         {activeTab === 'avatars' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Your AI Avatars</h2>
-              <button onClick={() => setShowAvatarForm(!showAvatarForm)} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg"><Plus className="w-5 h-5" /><span>Create Avatar</span></button>
+              <h2 className="text-xl font-semibold">{t('avatarTherapists')}</h2>
+              <button onClick={() => setShowAvatarForm(!showAvatarForm)} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg"><Plus className="w-5 h-5" /><span>{t('createAvatar')}</span></button>
             </div>
             {showAvatarForm && (
               <div className="bg-white rounded-xl shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-5">Create New AI Avatar</h3>
+                <h3 className="text-lg font-semibold mb-5">{t('createAvatar')}</h3>
 
                 <div className="space-y-4">
                   {/* Section 1: Basic Identity - Blue tint */}
@@ -1050,32 +1125,32 @@ const HamoPro = () => {
                       <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                         <User className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <span className="text-sm font-semibold text-blue-700">Basic Identity</span>
+                      <span className="text-sm font-semibold text-blue-700">{t('basicInfo')}</span>
                     </div>
 
                     {/* Avatar Name */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Avatar Name <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('avatarName')} <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         value={avatarForm.name}
                         onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
                         className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
-                        placeholder="e.g., Dr. Emily Chen"
+                        placeholder={language === 'zh' ? '例如：陈医生' : 'e.g., Dr. Emily Chen'}
                       />
                     </div>
 
                     {/* Specialty */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Specialty <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('specialty')} <span className="text-red-500">*</span></label>
                       <select
                         value={avatarForm.specialty}
                         onChange={(e) => setAvatarForm({ ...avatarForm, specialty: e.target.value })}
                         className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
                       >
-                        <option value="">Select Specialty</option>
-                        {specialtyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        <option value="custom">Other (Custom)</option>
+                        <option value="">{t('selectSpecialty')}</option>
+                        {getSpecialtyOptions().map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                        <option value="custom">{language === 'zh' ? '其他（自定义）' : 'Other (Custom)'}</option>
                       </select>
                       {avatarForm.specialty === 'custom' && (
                         <input
@@ -1083,7 +1158,7 @@ const HamoPro = () => {
                           value={avatarForm.customSpecialty}
                           onChange={(e) => setAvatarForm({ ...avatarForm, customSpecialty: e.target.value })}
                           className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white mt-2 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
-                          placeholder="Enter custom specialty"
+                          placeholder={language === 'zh' ? '输入自定义专业领域' : 'Enter custom specialty'}
                         />
                       )}
                     </div>
@@ -1095,25 +1170,25 @@ const HamoPro = () => {
                       <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center">
                         <Brain className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <span className="text-sm font-semibold text-teal-700">Therapeutic Approach</span>
-                      <span className="text-xs text-teal-500 ml-1">(Select 1-3)</span>
+                      <span className="text-sm font-semibold text-teal-700">{t('therapeuticApproaches')}</span>
+                      <span className="text-xs text-teal-500 ml-1">{language === 'zh' ? '（选择1-3项）' : '(Select 1-3)'}</span>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {therapeuticApproachOptions.map(opt => (
+                      {getTherapeuticApproachOptions().map(opt => (
                         <button
-                          key={opt}
+                          key={opt.value}
                           type="button"
                           onClick={() => {
-                            if (avatarForm.therapeuticApproaches.includes(opt)) {
-                              setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt) });
+                            if (avatarForm.therapeuticApproaches.includes(opt.value)) {
+                              setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt.value) });
                             } else if (avatarForm.therapeuticApproaches.length < 3) {
-                              setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt] });
+                              setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt.value] });
                             }
                           }}
-                          className={`px-3 py-1.5 text-sm rounded-full border transition-all ${avatarForm.therapeuticApproaches.includes(opt) ? 'bg-teal-500 text-white border-teal-500 shadow-sm' : 'bg-white text-gray-600 border-teal-200 hover:border-teal-400 hover:bg-teal-50'}`}
+                          className={`px-3 py-1.5 text-sm rounded-full border transition-all ${avatarForm.therapeuticApproaches.includes(opt.value) ? 'bg-teal-500 text-white border-teal-500 shadow-sm' : 'bg-white text-gray-600 border-teal-200 hover:border-teal-400 hover:bg-teal-50'}`}
                         >
-                          {opt}
+                          {opt.label}
                         </button>
                       ))}
                     </div>
@@ -1122,7 +1197,7 @@ const HamoPro = () => {
                       value={avatarForm.customApproach}
                       onChange={(e) => setAvatarForm({ ...avatarForm, customApproach: e.target.value })}
                       className="w-full px-4 py-2.5 border border-teal-200 rounded-lg bg-white focus:ring-2 focus:ring-teal-300 focus:border-teal-300 transition-all"
-                      placeholder="Or add custom approach"
+                      placeholder={language === 'zh' ? '或添加自定义方法' : 'Or add custom approach'}
                     />
                   </div>
 
@@ -1132,7 +1207,7 @@ const HamoPro = () => {
                       <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
                         <MessageSquare className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <span className="text-sm font-semibold text-purple-700">About</span>
+                      <span className="text-sm font-semibold text-purple-700">{t('about')}</span>
                     </div>
 
                     <textarea
@@ -1140,9 +1215,9 @@ const HamoPro = () => {
                       onChange={(e) => setAvatarForm({ ...avatarForm, about: e.target.value.slice(0, 280) })}
                       className="w-full px-4 py-2.5 border border-purple-200 rounded-lg bg-white focus:ring-2 focus:ring-purple-300 focus:border-purple-300 transition-all resize-none"
                       rows="3"
-                      placeholder="Describe the avatar's expertise and approach..."
+                      placeholder={language === 'zh' ? '描述形象的专业知识和方法...' : "Describe the avatar's expertise and approach..."}
                     />
-                    <p className="text-xs text-purple-400 mt-1.5">{avatarForm.about.length}/280 characters</p>
+                    <p className="text-xs text-purple-400 mt-1.5">{avatarForm.about.length}/280 {language === 'zh' ? '字符' : 'characters'}</p>
                   </div>
 
                   {/* Section 4: Experience - Amber tint */}
@@ -1151,28 +1226,28 @@ const HamoPro = () => {
                       <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
                         <Briefcase className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <span className="text-sm font-semibold text-amber-700">Experience</span>
+                      <span className="text-sm font-semibold text-amber-700">{t('experience')}</span>
                     </div>
 
                     <div className="flex space-x-4">
                       <div className="flex-1">
-                        <label className="block text-xs text-amber-600 mb-1">Years</label>
+                        <label className="block text-xs text-amber-600 mb-1">{t('years')}</label>
                         <select
                           value={avatarForm.experienceYears}
                           onChange={(e) => setAvatarForm({ ...avatarForm, experienceYears: parseInt(e.target.value) })}
                           className="w-full px-4 py-2.5 border border-amber-200 rounded-lg bg-white focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-all"
                         >
-                          {[...Array(51)].map((_, i) => <option key={i} value={i}>{i} {i === 1 ? 'year' : 'years'}</option>)}
+                          {[...Array(51)].map((_, i) => <option key={i} value={i}>{i} {language === 'zh' ? '年' : (i === 1 ? 'year' : 'years')}</option>)}
                         </select>
                       </div>
                       <div className="flex-1">
-                        <label className="block text-xs text-amber-600 mb-1">Months</label>
+                        <label className="block text-xs text-amber-600 mb-1">{t('months')}</label>
                         <select
                           value={avatarForm.experienceMonths}
                           onChange={(e) => setAvatarForm({ ...avatarForm, experienceMonths: parseInt(e.target.value) })}
                           className="w-full px-4 py-2.5 border border-amber-200 rounded-lg bg-white focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-all"
                         >
-                          {[...Array(12)].map((_, i) => <option key={i} value={i}>{i} {i === 1 ? 'month' : 'months'}</option>)}
+                          {[...Array(12)].map((_, i) => <option key={i} value={i}>{i} {language === 'zh' ? '月' : (i === 1 ? 'month' : 'months')}</option>)}
                         </select>
                       </div>
                     </div>
@@ -1181,8 +1256,8 @@ const HamoPro = () => {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3 mt-6 pt-4 border-t border-gray-100">
-                  <button onClick={handleCreateAvatar} className="flex-1 bg-gradient-to-r from-blue-500 to-teal-500 text-white px-6 py-2.5 rounded-lg font-medium hover:from-blue-600 hover:to-teal-600 transition-all shadow-sm">Create Avatar</button>
-                  <button onClick={() => setShowAvatarForm(false)} className="px-6 py-2.5 bg-gray-100 text-gray-600 rounded-lg font-medium hover:bg-gray-200 transition-all">Cancel</button>
+                  <button onClick={handleCreateAvatar} className="flex-1 bg-gradient-to-r from-blue-500 to-teal-500 text-white px-6 py-2.5 rounded-lg font-medium hover:from-blue-600 hover:to-teal-600 transition-all shadow-sm">{t('createAvatar')}</button>
+                  <button onClick={() => setShowAvatarForm(false)} className="px-6 py-2.5 bg-gray-100 text-gray-600 rounded-lg font-medium hover:bg-gray-200 transition-all">{t('cancel')}</button>
                 </div>
               </div>
             )}
@@ -1323,7 +1398,7 @@ const HamoPro = () => {
                 <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-5">
-                      <h3 className="text-lg font-semibold">Edit AI Avatar</h3>
+                      <h3 className="text-lg font-semibold">{t('editAvatar')}</h3>
                       <button
                         onClick={() => {
                           setEditingAvatar(null);
@@ -1351,32 +1426,32 @@ const HamoPro = () => {
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <User className="w-3.5 h-3.5 text-white" />
                           </div>
-                          <span className="text-sm font-semibold text-blue-700">Basic Identity</span>
+                          <span className="text-sm font-semibold text-blue-700">{t('basicInfo')}</span>
                         </div>
 
                         {/* Avatar Name */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Avatar Name <span className="text-red-500">*</span></label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('avatarName')} <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             value={avatarForm.name}
                             onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
                             className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
-                            placeholder="e.g., Dr. Emily Chen"
+                            placeholder={language === 'zh' ? '例如：陈医生' : 'e.g., Dr. Emily Chen'}
                           />
                         </div>
 
                         {/* Specialty */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Specialty <span className="text-red-500">*</span></label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('specialty')} <span className="text-red-500">*</span></label>
                           <select
                             value={avatarForm.specialty}
                             onChange={(e) => setAvatarForm({ ...avatarForm, specialty: e.target.value })}
                             className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
                           >
-                            <option value="">Select Specialty</option>
-                            {specialtyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            <option value="custom">Other (Custom)</option>
+                            <option value="">{t('selectSpecialty')}</option>
+                            {getSpecialtyOptions().map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                            <option value="custom">{language === 'zh' ? '其他（自定义）' : 'Other (Custom)'}</option>
                           </select>
                           {avatarForm.specialty === 'custom' && (
                             <input
@@ -1384,7 +1459,7 @@ const HamoPro = () => {
                               value={avatarForm.customSpecialty}
                               onChange={(e) => setAvatarForm({ ...avatarForm, customSpecialty: e.target.value })}
                               className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white mt-2 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
-                              placeholder="Enter custom specialty"
+                              placeholder={language === 'zh' ? '输入自定义专业领域' : 'Enter custom specialty'}
                             />
                           )}
                         </div>
@@ -1396,29 +1471,29 @@ const HamoPro = () => {
                           <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center">
                             <Brain className="w-3.5 h-3.5 text-white" />
                           </div>
-                          <span className="text-sm font-semibold text-teal-700">Therapeutic Approach</span>
-                          <span className="text-xs text-teal-500 ml-1">(Select 1-3)</span>
+                          <span className="text-sm font-semibold text-teal-700">{t('therapeuticApproaches')}</span>
+                          <span className="text-xs text-teal-500 ml-1">{language === 'zh' ? '（选择1-3项）' : '(Select 1-3)'}</span>
                         </div>
 
                         <div className="flex flex-wrap gap-2 mb-3">
-                          {therapeuticApproachOptions.map(opt => (
+                          {getTherapeuticApproachOptions().map(opt => (
                             <button
-                              key={opt}
+                              key={opt.value}
                               type="button"
                               onClick={() => {
-                                if (avatarForm.therapeuticApproaches.includes(opt)) {
-                                  setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt) });
+                                if (avatarForm.therapeuticApproaches.includes(opt.value)) {
+                                  setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt.value) });
                                 } else if (avatarForm.therapeuticApproaches.length < 3) {
-                                  setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt] });
+                                  setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt.value] });
                                 }
                               }}
                               className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                                avatarForm.therapeuticApproaches.includes(opt)
+                                avatarForm.therapeuticApproaches.includes(opt.value)
                                   ? 'bg-teal-500 text-white'
                                   : 'bg-white border border-teal-200 text-gray-700 hover:border-teal-400'
                               }`}
                             >
-                              {opt}
+                              {opt.label}
                             </button>
                           ))}
                         </div>
@@ -1428,7 +1503,7 @@ const HamoPro = () => {
                           value={avatarForm.customApproach}
                           onChange={(e) => setAvatarForm({ ...avatarForm, customApproach: e.target.value })}
                           className="w-full px-4 py-2.5 border border-teal-200 rounded-lg bg-white focus:ring-2 focus:ring-teal-300 focus:border-teal-300 transition-all"
-                          placeholder="Or add custom approach"
+                          placeholder={language === 'zh' ? '或添加自定义方法' : 'Or add custom approach'}
                         />
                       </div>
 
@@ -1438,17 +1513,17 @@ const HamoPro = () => {
                           <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
                             <MessageSquare className="w-3.5 h-3.5 text-white" />
                           </div>
-                          <span className="text-sm font-semibold text-purple-700">About</span>
+                          <span className="text-sm font-semibold text-purple-700">{t('about')}</span>
                         </div>
 
                         <textarea
                           value={avatarForm.about}
                           onChange={(e) => setAvatarForm({ ...avatarForm, about: e.target.value.slice(0, 280) })}
                           className="w-full px-4 py-2.5 border border-purple-200 rounded-lg bg-white h-24 resize-none focus:ring-2 focus:ring-purple-300 focus:border-purple-300 transition-all"
-                          placeholder="Describe the avatar's expertise and approach..."
+                          placeholder={language === 'zh' ? '描述形象的专业知识和方法...' : "Describe the avatar's expertise and approach..."}
                         />
                         <p className={`text-xs mt-1 ${avatarForm.about.length > 250 ? 'text-orange-500' : 'text-gray-400'}`}>
-                          {avatarForm.about.length}/280 characters
+                          {avatarForm.about.length}/280 {language === 'zh' ? '字符' : 'characters'}
                         </p>
                       </div>
 
@@ -1458,28 +1533,28 @@ const HamoPro = () => {
                           <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
                             <Briefcase className="w-3.5 h-3.5 text-white" />
                           </div>
-                          <span className="text-sm font-semibold text-yellow-700">Experience</span>
+                          <span className="text-sm font-semibold text-yellow-700">{t('experience')}</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs text-yellow-600 mb-1">Years</label>
+                            <label className="block text-xs text-yellow-600 mb-1">{t('years')}</label>
                             <select
                               value={avatarForm.experienceYears}
                               onChange={(e) => setAvatarForm({ ...avatarForm, experienceYears: parseInt(e.target.value) })}
                               className="w-full px-4 py-2.5 border border-yellow-200 rounded-lg bg-white focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 transition-all"
                             >
-                              {[...Array(51)].map((_, i) => <option key={i} value={i}>{i} years</option>)}
+                              {[...Array(51)].map((_, i) => <option key={i} value={i}>{i} {language === 'zh' ? '年' : 'years'}</option>)}
                             </select>
                           </div>
                           <div>
-                            <label className="block text-xs text-yellow-600 mb-1">Months</label>
+                            <label className="block text-xs text-yellow-600 mb-1">{t('months')}</label>
                             <select
                               value={avatarForm.experienceMonths}
                               onChange={(e) => setAvatarForm({ ...avatarForm, experienceMonths: parseInt(e.target.value) })}
                               className="w-full px-4 py-2.5 border border-yellow-200 rounded-lg bg-white focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 transition-all"
                             >
-                              {[...Array(12)].map((_, i) => <option key={i} value={i}>{i} months</option>)}
+                              {[...Array(12)].map((_, i) => <option key={i} value={i}>{i} {language === 'zh' ? '月' : 'months'}</option>)}
                             </select>
                           </div>
                         </div>
@@ -1492,7 +1567,7 @@ const HamoPro = () => {
                         onClick={handleUpdateAvatar}
                         className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
                       >
-                        Save Changes
+                        {t('save')}
                       </button>
                       <button
                         onClick={() => {
@@ -1510,7 +1585,7 @@ const HamoPro = () => {
                         }}
                         className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
                       >
-                        Cancel
+                        {t('cancel')}
                       </button>
                     </div>
                   </div>
@@ -1523,42 +1598,42 @@ const HamoPro = () => {
         {activeTab === 'clients' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Client Instances</h2>
-              <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>Invite Client</span></button>
+              <h2 className="text-xl font-semibold">{t('clientInstances')}</h2>
+              <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>{t('inviteClient')}</span></button>
             </div>
-            {!avatars.length && <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">Create an avatar first</div>}
+            {!avatars.length && <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">{language === 'zh' ? '请先创建一个虚拟形象' : 'Create an avatar first'}</div>}
             {showClientForm && avatars.length > 0 && (
               <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                <h3 className="text-lg font-semibold mb-4">Initialize AI Mind for the Client</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('initializeAiMind')}</h3>
 
                 {/* Section 1: Basic Information */}
                 <div className="bg-blue-50 rounded-xl p-4 mb-4 border-l-4 border-blue-400">
                   <div className="flex items-center space-x-2 mb-3">
                     <User className="w-5 h-5 text-blue-600" />
-                    <h4 className="font-semibold text-blue-800">Basic Information</h4>
+                    <h4 className="font-semibold text-blue-800">{t('basicInfo')}</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                      <input type="text" value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder="Client name" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('clientName')}</label>
+                      <input type="text" value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder={language === 'zh' ? '来访者姓名' : 'Client name'} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('sex')}</label>
                       <select value={clientForm.sex} onChange={(e) => setClientForm({ ...clientForm, sex: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white">
-                        <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
+                        <option value="">{language === 'zh' ? '请选择' : 'Select'}</option>
+                        <option value="male">{t('male')}</option>
+                        <option value="female">{t('female')}</option>
+                        <option value="other">{t('other')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                      <input type="number" value={clientForm.age} onChange={(e) => setClientForm({ ...clientForm, age: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder="Age" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('age')}</label>
+                      <input type="number" value={clientForm.age} onChange={(e) => setClientForm({ ...clientForm, age: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder={t('age')} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Avatar</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('selectAvatar')}</label>
                       <select value={clientForm.avatarId} onChange={(e) => setClientForm({ ...clientForm, avatarId: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white">
-                        <option value="">Select Avatar</option>
+                        <option value="">{t('selectAvatarPlaceholder')}</option>
                         {avatars.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                       </select>
                     </div>
@@ -1569,16 +1644,16 @@ const HamoPro = () => {
                 <div className="bg-teal-50 rounded-xl p-4 mb-4 border-l-4 border-teal-400">
                   <div className="flex items-center space-x-2 mb-3">
                     <Star className="w-5 h-5 text-teal-600" />
-                    <h4 className="font-semibold text-teal-800">Therapy Goal & Principles</h4>
+                    <h4 className="font-semibold text-teal-800">{t('goalsAndPrinciples')}</h4>
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Therapy Goals</label>
-                      <textarea value={clientForm.goals} onChange={(e) => setClientForm({ ...clientForm, goals: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder="e.g., Reduce anxiety and depression, improve vitality..." />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('therapyGoals')}</label>
+                      <textarea value={clientForm.goals} onChange={(e) => setClientForm({ ...clientForm, goals: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder={t('therapyGoalsPlaceholder')} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Therapy Principles</label>
-                      <textarea value={clientForm.therapyPrinciples} onChange={(e) => setClientForm({ ...clientForm, therapyPrinciples: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder="e.g., Be kind, empathy first, less suggestion..." />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('therapyPrinciples')}</label>
+                      <textarea value={clientForm.therapyPrinciples} onChange={(e) => setClientForm({ ...clientForm, therapyPrinciples: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder={t('therapyPrinciplesPlaceholder')} />
                     </div>
                   </div>
                 </div>
@@ -1587,15 +1662,15 @@ const HamoPro = () => {
                 <div className="bg-purple-50 rounded-xl p-4 mb-4 border-l-4 border-purple-400">
                   <div className="flex items-center space-x-2 mb-3">
                     <Brain className="w-5 h-5 text-purple-600" />
-                    <h4 className="font-semibold text-purple-800">Personality Traits</h4>
-                    <span className="text-xs text-purple-500">(Select dimensions first)</span>
+                    <h4 className="font-semibold text-purple-800">{t('personalityTraits')}</h4>
+                    <span className="text-xs text-purple-500">({t('selectDimensions')})</span>
                   </div>
 
                   {/* Dimension Selection */}
                   <div className="mb-4">
                     {/* Dimension 1: Introverted vs Extroverted */}
                     <div className="mb-3">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Social Orientation</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{language === 'zh' ? '社交倾向' : 'Social Orientation'}</label>
                       <div className="flex space-x-3">
                         <button
                           type="button"
@@ -1606,7 +1681,7 @@ const HamoPro = () => {
                               : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
                           }`}
                         >
-                          Introverted
+                          {t('introverted')}
                         </button>
                         <button
                           type="button"
@@ -1617,14 +1692,14 @@ const HamoPro = () => {
                               : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
                           }`}
                         >
-                          Extroverted
+                          {t('extroverted')}
                         </button>
                       </div>
                     </div>
 
                     {/* Dimension 2: Rational vs Emotional */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Decision Style</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{language === 'zh' ? '决策风格' : 'Decision Style'}</label>
                       <div className="flex space-x-3">
                         <button
                           type="button"
@@ -1635,7 +1710,7 @@ const HamoPro = () => {
                               : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
                           }`}
                         >
-                          Rational
+                          {t('rational')}
                         </button>
                         <button
                           type="button"
@@ -1646,7 +1721,7 @@ const HamoPro = () => {
                               : 'border-gray-200 bg-white text-gray-600 hover:border-purple-300'
                           }`}
                         >
-                          Emotional
+                          {t('emotional')}
                         </button>
                       </div>
                     </div>
@@ -1730,14 +1805,14 @@ const HamoPro = () => {
                 <div className="bg-yellow-50 rounded-xl p-4 mb-4 border-l-4 border-yellow-400">
                   <div className="flex items-center space-x-2 mb-3">
                     <Sparkles className="w-5 h-5 text-yellow-600" />
-                    <h4 className="font-semibold text-yellow-800">Emotion Patterns</h4>
+                    <h4 className="font-semibold text-yellow-800">{t('emotionPatterns')}</h4>
                   </div>
                   <textarea
                     value={clientForm.emotionPattern}
                     onChange={(e) => setClientForm({ ...clientForm, emotionPattern: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white"
                     rows="2"
-                    placeholder="e.g., Tends toward anxiety in social situations, difficulty expressing anger..."
+                    placeholder={t('emotionPatternsPlaceholder')}
                   />
                 </div>
 
@@ -1745,14 +1820,14 @@ const HamoPro = () => {
                 <div className="bg-indigo-50 rounded-xl p-4 mb-4 border-l-4 border-indigo-400">
                   <div className="flex items-center space-x-2 mb-3">
                     <Brain className="w-5 h-5 text-indigo-600" />
-                    <h4 className="font-semibold text-indigo-800">Cognition & Beliefs</h4>
+                    <h4 className="font-semibold text-indigo-800">{t('cognitionBeliefs')}</h4>
                   </div>
                   <textarea
                     value={clientForm.cognition}
                     onChange={(e) => setClientForm({ ...clientForm, cognition: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white"
                     rows="2"
-                    placeholder="e.g., 'If I perform well, disaster will come to me', black-and-white thinking..."
+                    placeholder={t('cognitionPlaceholder')}
                   />
                 </div>
 
@@ -1760,20 +1835,20 @@ const HamoPro = () => {
                 <div className="bg-rose-50 rounded-xl p-4 mb-4 border-l-4 border-rose-400">
                   <div className="flex items-center space-x-2 mb-3">
                     <User className="w-5 h-5 text-rose-600" />
-                    <h4 className="font-semibold text-rose-800">Relationship Manipulations</h4>
+                    <h4 className="font-semibold text-rose-800">{t('relationshipManipulations')}</h4>
                   </div>
                   <textarea
                     value={clientForm.relationshipManipulations}
                     onChange={(e) => setClientForm({ ...clientForm, relationshipManipulations: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white"
                     rows="2"
-                    placeholder="e.g., Tends to use guilt to control others, avoids conflict at all costs..."
+                    placeholder={t('relationshipPlaceholder')}
                   />
                 </div>
 
                 <div className="flex space-x-3 pt-2">
-                  <button onClick={handleCreateClient} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">Initialize</button>
-                  <button onClick={() => setShowClientForm(false)} className="bg-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">Cancel</button>
+                  <button onClick={handleCreateClient} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">{t('initializeMind')}</button>
+                  <button onClick={() => setShowClientForm(false)} className="bg-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">{t('cancel')}</button>
                 </div>
               </div>
             )}
@@ -1785,12 +1860,12 @@ const HamoPro = () => {
                 return (
                   <div key={c.id} className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                     <div className="flex justify-between mb-3">
-                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{c.sex}, {c.age} years</p></div>
+                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{c.sex}, {c.age} {language === 'zh' ? '岁' : 'years'}</p></div>
                       {isConnected ? (
                         <div className="flex flex-col items-center text-green-500 flex-shrink-0">
                           <Calendar className="w-5 h-5" />
-                          <span className="text-xs mt-1">{new Date(isConnected).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                          <span className="text-xs text-green-600 font-medium">Connected</span>
+                          <span className="text-xs mt-1">{new Date(isConnected).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })}</span>
+                          <span className="text-xs text-green-600 font-medium">{t('connected')}</span>
                         </div>
                       ) : (
                         <button
@@ -1799,18 +1874,18 @@ const HamoPro = () => {
                           className="flex flex-col items-center text-blue-500 hover:text-blue-600 disabled:opacity-50 flex-shrink-0"
                         >
                           <Ticket className="w-5 h-5" />
-                          <span className="text-xs mt-1">邀请码</span>
+                          <span className="text-xs mt-1">{t('invitationCode')}</span>
                         </button>
                       )}
                     </div>
-                    <p className="text-sm mb-2"><span className="font-medium">Avatar:</span> {avatar?.name || '未分配'}</p>
+                    <p className="text-sm mb-2"><span className="font-medium">Avatar:</span> {avatar?.name || (language === 'zh' ? '未分配' : 'Not assigned')}</p>
                     <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-3">
-                      <div className="flex items-center space-x-1"><MessageSquare className="w-4 h-4" /><span>{c.sessions} sessions</span></div>
-                      <div className="flex items-center space-x-1"><Clock className="w-4 h-4" /><span>{c.avgTime} min avg</span></div>
+                      <div className="flex items-center space-x-1"><MessageSquare className="w-4 h-4" /><span>{c.sessions} {t('sessions')}</span></div>
+                      <div className="flex items-center space-x-1"><Clock className="w-4 h-4" /><span>{c.avgTime} {t('avgTime')}</span></div>
                     </div>
                     <div className="flex space-x-2">
-                      <button onClick={() => handleViewMind(c)} className="flex-1 bg-purple-50 text-purple-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-purple-100"><Sparkles className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">AI Mind</span></button>
-                      <button onClick={() => handleViewChats(c)} className="flex-1 bg-blue-50 text-blue-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-blue-100"><Eye className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">Chats & Status</span></button>
+                      <button onClick={() => handleViewMind(c)} className="flex-1 bg-purple-50 text-purple-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-purple-100"><Sparkles className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">{t('aiMind')}</span></button>
+                      <button onClick={() => handleViewChats(c)} className="flex-1 bg-blue-50 text-blue-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-blue-100"><Eye className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">{t('chatsStatus')}</span></button>
                     </div>
                   </div>
                 );
@@ -1829,9 +1904,9 @@ const HamoPro = () => {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-                          <span>AI Mind</span>
+                          <span>{t('aiMind')}</span>
                         </h3>
-                        <p className="text-purple-100 text-sm">Psychological Profile Analysis</p>
+                        <p className="text-purple-100 text-sm">{t('psychologicalProfile')}</p>
                       </div>
                     </div>
                     <button
@@ -1846,7 +1921,7 @@ const HamoPro = () => {
                 {mindLoading ? (
                   <div className="text-center py-12 text-gray-500">
                     <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-                    <p>Loading AI Mind data...</p>
+                    <p>{language === 'zh' ? '加载 AI Mind 数据中...' : 'Loading AI Mind data...'}</p>
                   </div>
                 ) : mindData?.error ? (
                   <div className="text-center py-12 text-red-500">{mindData.error}</div>
@@ -1863,7 +1938,7 @@ const HamoPro = () => {
                             <h4 className="font-semibold text-gray-900 text-lg">{mindData.name || selectedMindClient.name}</h4>
                             <div className="flex items-center space-x-3 text-sm text-gray-500 mt-1">
                               {mindData.sex && <span className="capitalize">{mindData.sex}</span>}
-                              {mindData.age && <span>• {mindData.age} years old</span>}
+                              {mindData.age && <span>• {mindData.age} {language === 'zh' ? '岁' : 'years old'}</span>}
                             </div>
                           </div>
                         </div>
@@ -1878,13 +1953,13 @@ const HamoPro = () => {
                             {mindData.sessions !== undefined && (
                               <span className="flex items-center space-x-1">
                                 <MessageSquare className="w-3 h-3" />
-                                <span>{mindData.sessions} sessions</span>
+                                <span>{mindData.sessions} {t('sessions')}</span>
                               </span>
                             )}
                             {mindData.avg_time !== undefined && (
                               <span className="flex items-center space-x-1">
                                 <Clock className="w-3 h-3" />
-                                <span>{mindData.avg_time} min avg</span>
+                                <span>{mindData.avg_time} {t('avgTime')}</span>
                               </span>
                             )}
                           </div>
@@ -1990,7 +2065,7 @@ const HamoPro = () => {
                                   type="text"
                                   value={supervisionInputs.personality}
                                   onChange={(e) => setSupervisionInputs(prev => ({ ...prev, personality: e.target.value }))}
-                                  placeholder="Enter supervision feedback..."
+                                  placeholder={t('submitFeedback')}
                                   className="flex-1 px-3 py-2 text-sm border border-purple-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                                   onClick={(e) => e.stopPropagation()}
                                 />
@@ -2000,7 +2075,7 @@ const HamoPro = () => {
                                   className="px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-r-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
                                 >
                                   <Send className="w-4 h-4" />
-                                  <span>{supervisionLoading.personality ? '...' : 'Supervise'}</span>
+                                  <span>{supervisionLoading.personality ? '...' : t('supervise')}</span>
                                 </button>
                               </div>
                             </div>
@@ -2088,7 +2163,7 @@ const HamoPro = () => {
                                   type="text"
                                   value={supervisionInputs.emotion_pattern}
                                   onChange={(e) => setSupervisionInputs(prev => ({ ...prev, emotion_pattern: e.target.value }))}
-                                  placeholder="Enter supervision feedback..."
+                                  placeholder={t('submitFeedback')}
                                   className="flex-1 px-3 py-2 text-sm border border-emerald-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
                                   onClick={(e) => e.stopPropagation()}
                                 />
@@ -2098,7 +2173,7 @@ const HamoPro = () => {
                                   className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-r-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
                                 >
                                   <Send className="w-4 h-4" />
-                                  <span>{supervisionLoading.emotion_pattern ? '...' : 'Supervise'}</span>
+                                  <span>{supervisionLoading.emotion_pattern ? '...' : t('supervise')}</span>
                                 </button>
                               </div>
                             </div>
@@ -2204,7 +2279,7 @@ const HamoPro = () => {
                                   type="text"
                                   value={supervisionInputs.cognition_beliefs}
                                   onChange={(e) => setSupervisionInputs(prev => ({ ...prev, cognition_beliefs: e.target.value }))}
-                                  placeholder="Enter supervision feedback..."
+                                  placeholder={t('submitFeedback')}
                                   className="flex-1 px-3 py-2 text-sm border border-amber-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                                   onClick={(e) => e.stopPropagation()}
                                 />
@@ -2214,7 +2289,7 @@ const HamoPro = () => {
                                   className="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-r-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
                                 >
                                   <Send className="w-4 h-4" />
-                                  <span>{supervisionLoading.cognition_beliefs ? '...' : 'Supervise'}</span>
+                                  <span>{supervisionLoading.cognition_beliefs ? '...' : t('supervise')}</span>
                                 </button>
                               </div>
                             </div>
@@ -2295,7 +2370,7 @@ const HamoPro = () => {
                                   type="text"
                                   value={supervisionInputs.relationship_manipulations}
                                   onChange={(e) => setSupervisionInputs(prev => ({ ...prev, relationship_manipulations: e.target.value }))}
-                                  placeholder="Enter supervision feedback..."
+                                  placeholder={t('submitFeedback')}
                                   className="flex-1 px-3 py-2 text-sm border border-blue-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                                   onClick={(e) => e.stopPropagation()}
                                 />
@@ -2305,7 +2380,7 @@ const HamoPro = () => {
                                   className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-r-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
                                 >
                                   <Send className="w-4 h-4" />
-                                  <span>{supervisionLoading.relationship_manipulations ? '...' : 'Supervise'}</span>
+                                  <span>{supervisionLoading.relationship_manipulations ? '...' : t('supervise')}</span>
                                 </button>
                               </div>
                             </div>
@@ -2357,7 +2432,7 @@ const HamoPro = () => {
                           <MessageSquare className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-white">Chats & Status</h3>
+                          <h3 className="text-lg font-semibold text-white">{t('chatsStatus')}</h3>
                           <p className="text-blue-100 text-sm">{selectedClient.name}</p>
                         </div>
                       </div>
@@ -2375,7 +2450,7 @@ const HamoPro = () => {
                     <div className="flex justify-between items-center">
                       {/* Stress Level */}
                       <div className="flex-1 text-center">
-                        <p className="text-xs text-gray-500 mb-1">Stress Level</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('stressLevel')}</p>
                         <div className="flex items-center justify-center space-x-1">
                           <span className={`text-lg font-bold ${
                             currentPsvs?.stress_level >= 7 ? 'text-red-500' :
@@ -2392,7 +2467,7 @@ const HamoPro = () => {
 
                       {/* Energy State */}
                       <div className="flex-1 text-center">
-                        <p className="text-xs text-gray-500 mb-1">Energy State</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('energyState')}</p>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                           currentPsvs?.energy_state === 'neurotic' ? 'bg-red-100 text-red-700' :
                           currentPsvs?.energy_state === 'negative' ? 'bg-yellow-100 text-yellow-700' :
@@ -2406,7 +2481,10 @@ const HamoPro = () => {
                                 currentPsvs.energy_state === 'negative' ? 'bg-yellow-500' :
                                 'bg-green-500'
                               }`}></span>
-                              {currentPsvs.energy_state.charAt(0).toUpperCase() + currentPsvs.energy_state.slice(1)}
+                              {currentPsvs.energy_state === 'positive' ? t('positive') :
+                               currentPsvs.energy_state === 'negative' ? t('negative') :
+                               currentPsvs.energy_state === 'neurotic' ? t('neurotic') :
+                               currentPsvs.energy_state.charAt(0).toUpperCase() + currentPsvs.energy_state.slice(1)}
                             </>
                           ) : '--'}
                         </span>
@@ -2416,7 +2494,7 @@ const HamoPro = () => {
 
                       {/* Distance from Center */}
                       <div className="flex-1 text-center">
-                        <p className="text-xs text-gray-500 mb-1">Distance</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('distance')}</p>
                         <div className="flex items-center justify-center space-x-1">
                           <span className={`text-lg font-bold ${
                             currentPsvs?.distance_from_center >= 0.7 ? 'text-red-500' :
@@ -2439,7 +2517,7 @@ const HamoPro = () => {
                     {conversationsLoading ? (
                       <div className="text-center py-12 text-gray-500">
                         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-                        <p>Loading conversations...</p>
+                        <p>{t('loadingConversations')}</p>
                       </div>
                     ) : conversationsData && conversationsData.length > 0 ? (
                       conversationsData.map((conv, i) => (
@@ -2448,7 +2526,7 @@ const HamoPro = () => {
                           {conv.proVisible === false ? (
                             <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-50">
                               <EyeOff size={16} className="text-gray-400 flex-shrink-0" />
-                              <p className="text-sm text-gray-400 italic">The client has turned on "Hidden from Pro". This conversation is not viewable.</p>
+                              <p className="text-sm text-gray-400 italic">{t('hiddenFromPro')}</p>
                             </div>
                           ) : conv.messages && conv.messages.length > 0 ? (
                             conv.messages.map((msg, j) => (
@@ -2479,12 +2557,12 @@ const HamoPro = () => {
                               </div>
                             ))
                           ) : (
-                            <p className="text-sm text-gray-400 italic">No messages in this session</p>
+                            <p className="text-sm text-gray-400 italic">{t('noMessagesInSession')}</p>
                           )}
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-12 text-gray-500">No conversations yet</div>
+                      <div className="text-center py-12 text-gray-500">{t('noConversationsYet')}</div>
                     )}
                   </div>
                 </div>
@@ -2495,8 +2573,8 @@ const HamoPro = () => {
 
         {activeTab === 'dashboard' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Dashboard</h2>
-            {!clients.length ? <div className="text-center py-12 text-gray-500 bg-white rounded-xl">No client data available</div> : (
+            <h2 className="text-xl font-semibold">{t('dashboard')}</h2>
+            {!clients.length ? <div className="text-center py-12 text-gray-500 bg-white rounded-xl">{t('noClientData')}</div> : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {clients.map(c => (
                   <div key={c.id} className="bg-white rounded-xl shadow-md p-5">
@@ -2504,12 +2582,12 @@ const HamoPro = () => {
                     <div className="flex justify-around items-center">
                       <div className="text-center">
                         <p className="text-3xl font-bold text-gray-800">{c.sessions}</p>
-                        <p className="text-xs text-gray-500 mt-1">Sessions</p>
+                        <p className="text-xs text-gray-500 mt-1">{t('sessions')}</p>
                       </div>
                       <div className="w-px h-12 bg-gray-200"></div>
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-gray-800">{c.avgTime}<span className="text-lg ml-1">min</span></p>
-                        <p className="text-xs text-gray-500 mt-1">Avg Time</p>
+                        <p className="text-3xl font-bold text-gray-800">{c.avgTime}<span className="text-lg ml-1">{language === 'zh' ? '分钟' : 'min'}</span></p>
+                        <p className="text-xs text-gray-500 mt-1">{language === 'zh' ? '平均时长' : 'Avg Time'}</p>
                       </div>
                     </div>
                   </div>
@@ -2519,7 +2597,7 @@ const HamoPro = () => {
 
             {/* Contributors Section */}
             <div className="mt-8 bg-white rounded-xl shadow-md p-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-3">Contributors</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-3">{t('contributors')}</h3>
               <div className="overflow-hidden">
                 <div className="flex animate-marquee whitespace-nowrap">
                   {[...contributors, ...contributors].map((name, index) => (
@@ -2554,21 +2632,21 @@ const HamoPro = () => {
             className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'avatars' ? 'text-blue-500' : 'text-gray-400'}`}
           >
             <Brain className="w-6 h-6" />
-            <span className="text-xs mt-1 font-medium">AI Avatars</span>
+            <span className="text-xs mt-1 font-medium">{t('aiAvatars')}</span>
           </button>
           <button
             onClick={() => setActiveTab('clients')}
             className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'clients' ? 'text-blue-500' : 'text-gray-400'}`}
           >
             <User className="w-6 h-6" />
-            <span className="text-xs mt-1 font-medium">Clients</span>
+            <span className="text-xs mt-1 font-medium">{t('clients')}</span>
           </button>
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'dashboard' ? 'text-blue-500' : 'text-gray-400'}`}
           >
             <BarChart3 className="w-6 h-6" />
-            <span className="text-xs mt-1 font-medium">Dashboard</span>
+            <span className="text-xs mt-1 font-medium">{t('dashboard')}</span>
           </button>
         </div>
       </nav>
