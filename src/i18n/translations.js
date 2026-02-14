@@ -27,7 +27,14 @@ export const translations = {
     // Navigation
     aiAvatars: 'AI Avatars',
     clients: 'Clients',
-    dashboard: 'Dashboard',
+    settings: 'Settings',
+
+    // Settings Page
+    profileSettings: 'Profile Settings',
+    nickname: 'Nickname',
+    currentPassword: 'Current Password',
+    newPassword: 'New Password',
+    saveChanges: 'Save Changes',
 
     // Avatars
     avatarTherapists: 'Avatar Therapists',
@@ -180,7 +187,14 @@ export const translations = {
     // Navigation
     aiAvatars: '虚拟咨询师',
     clients: '来访者',
-    dashboard: '仪表板',
+    settings: '设置',
+
+    // Settings Page
+    profileSettings: '个人设置',
+    nickname: '昵称',
+    currentPassword: '当前密码',
+    newPassword: '新密码',
+    saveChanges: '保存更改',
 
     // Avatars
     avatarTherapists: '虚拟咨询师',

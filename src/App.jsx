@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, BarChart3, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight, Globe } from 'lucide-react';
+import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight, Globe, Upload } from 'lucide-react';
 import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.5.0";
+  const APP_VERSION = "1.5.1";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -1042,13 +1042,11 @@ const HamoPro = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <LanguageToggle />
               <div className="text-right">
-                <div className="flex items-center space-x-2 text-sm font-medium"><User className="w-4 h-4" /><span>{currentUser?.full_name || currentUser?.fullName}</span></div>
+                <div className="flex items-center space-x-2 text-sm font-medium"><span>{currentUser?.full_name || currentUser?.fullName}</span></div>
                 <p className="text-xs text-gray-500">{language === 'zh' ? t('mentalHealthProfessional') : getProfessionLabel(currentUser?.profession)}</p>
               </div>
-              <button onClick={handleSignOut} className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"><LogOut className="w-4 h-4" /><span className="text-sm">{t('signOut')}</span></button>
-              <button onClick={() => setShowDeleteConfirm(true)} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+              <LanguageToggle />
             </div>
           </div>
         </div>
@@ -2587,32 +2585,87 @@ const HamoPro = () => {
           </div>
         )}
 
-        {activeTab === 'dashboard' && (
+        {activeTab === 'settings' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">{t('dashboard')}</h2>
-            {!clients.length ? <div className="text-center py-12 text-gray-500 bg-white rounded-xl">{t('noClientData')}</div> : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {clients.map(c => (
-                  <div key={c.id} className="bg-white rounded-xl shadow-md p-5">
-                    <h3 className="font-semibold text-lg mb-4 text-center">{c.name}</h3>
-                    <div className="flex justify-around items-center">
-                      <div className="text-center">
-                        <p className="text-3xl font-bold text-gray-800">{c.sessions}</p>
-                        <p className="text-xs text-gray-500 mt-1">{t('sessions')}</p>
-                      </div>
-                      <div className="w-px h-12 bg-gray-200"></div>
-                      <div className="text-center">
-                        <p className="text-3xl font-bold text-gray-800">{c.avgTime}<span className="text-lg ml-1">{language === 'zh' ? '分钟' : 'min'}</span></p>
-                        <p className="text-xs text-gray-500 mt-1">{language === 'zh' ? '平均时长' : 'Avg Time'}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <h2 className="text-xl font-semibold">{t('settings')}</h2>
+
+            {/* Profile Settings */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('profileSettings')}</h3>
+
+              <div className="space-y-4">
+                {/* Nickname */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('nickname')}</label>
+                  <input
+                    type="text"
+                    defaultValue={currentUser?.full_name || currentUser?.fullName || ''}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder={t('nickname')}
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
+                  <input
+                    type="email"
+                    defaultValue={currentUser?.email || ''}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                    disabled
+                  />
+                </div>
+
+                {/* Current Password */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('currentPassword')}</label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                {/* New Password */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('newPassword')}</label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                {/* Save Changes Button */}
+                <button className="w-full bg-purple-500 text-white py-3 rounded-lg font-medium hover:bg-purple-600 transition-colors">
+                  {t('saveChanges')}
+                </button>
               </div>
-            )}
+            </div>
+
+            {/* Account Actions */}
+            <div className="bg-white rounded-xl shadow-md p-4 space-y-3">
+              {/* Log Out */}
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center justify-center space-x-2 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>{t('signOut')}</span>
+              </button>
+
+              {/* Delete Account */}
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full flex items-center justify-center space-x-2 py-3 border border-red-300 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <Trash2 className="w-5 h-5" />
+                <span>{t('deleteAccount')}</span>
+              </button>
+            </div>
 
             {/* Contributors Section */}
-            <div className="mt-8 bg-white rounded-xl shadow-md p-4">
+            <div className="bg-white rounded-xl shadow-md p-4">
               <h3 className="text-sm font-medium text-gray-500 mb-3">{t('contributors')}</h3>
               <div className="overflow-hidden">
                 <div className="flex animate-marquee whitespace-nowrap">
@@ -2658,11 +2711,11 @@ const HamoPro = () => {
             <span className="text-xs mt-1 font-medium">{t('clients')}</span>
           </button>
           <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'dashboard' ? 'text-blue-500' : 'text-gray-400'}`}
+            onClick={() => setActiveTab('settings')}
+            className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'settings' ? 'text-purple-500' : 'text-gray-400'}`}
           >
-            <BarChart3 className="w-6 h-6" />
-            <span className="text-xs mt-1 font-medium">{t('dashboard')}</span>
+            <Settings className="w-6 h-6" />
+            <span className="text-xs mt-1 font-medium">{t('settings')}</span>
           </button>
         </div>
       </nav>
