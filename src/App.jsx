@@ -4,7 +4,7 @@ import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.5.8";
+  const APP_VERSION = "1.5.9";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -796,8 +796,17 @@ const HamoPro = () => {
     }
   };
 
+  // Flag to skip scroll handler during initial auto-scroll
+  const isInitialScrollRef = useRef(false);
+
   // Handle scroll to update PSVS based on visible messages
+  // Only triggers on USER manual scroll, not on initial auto-scroll
   const handleChatScroll = useCallback(() => {
+    // Skip if this is the initial auto-scroll
+    if (isInitialScrollRef.current) {
+      return;
+    }
+
     if (!chatScrollRef.current) return;
 
     const container = chatScrollRef.current;
@@ -848,6 +857,7 @@ const HamoPro = () => {
   useEffect(() => {
     if (!selectedClient) {
       hasScrolledRef.current = false;
+      isInitialScrollRef.current = false;
     }
   }, [selectedClient]);
 
@@ -855,11 +865,17 @@ const HamoPro = () => {
   useEffect(() => {
     if (selectedClient && !conversationsLoading && conversationsData.length > 0 && !hasScrolledRef.current) {
       hasScrolledRef.current = true;
+      // Set flag to prevent scroll handler from overriding our PSVS selection
+      isInitialScrollRef.current = true;
       // Small delay to ensure DOM is rendered
       setTimeout(() => {
         if (chatScrollRef.current) {
           chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
         }
+        // Clear the flag after scroll completes, allowing future manual scrolls to work
+        setTimeout(() => {
+          isInitialScrollRef.current = false;
+        }, 200);
       }, 100);
     }
   }, [selectedClient, conversationsLoading, conversationsData]);
