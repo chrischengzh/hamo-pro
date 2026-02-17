@@ -4,7 +4,7 @@ import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.5.10";
+  const APP_VERSION = "1.5.11";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -921,9 +921,12 @@ const HamoPro = () => {
     }
   }, [selectedClient]);
 
-  // Auto-scroll to bottom whenever new conversations/messages are loaded
+  // Auto-scroll to bottom only on FIRST load when dialog opens
+  // After that, user can scroll freely without being interrupted by polling updates
   useEffect(() => {
-    if (selectedClient && !conversationsLoading && conversationsData.length > 0) {
+    if (selectedClient && !conversationsLoading && conversationsData.length > 0 && !hasScrolledRef.current) {
+      // Mark that we've done the initial scroll
+      hasScrolledRef.current = true;
       // Set flag to prevent scroll handler from overriding our PSVS selection
       isInitialScrollRef.current = true;
       // Small delay to ensure DOM is rendered
