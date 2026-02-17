@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight, Globe, Upload } from 'lucide-react';
+import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight, Globe, Upload, RefreshCw, ArrowDown } from 'lucide-react';
 import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.5.13";
+  const APP_VERSION = "1.5.14";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -175,6 +175,9 @@ const HamoPro = () => {
   const [currentPsvs, setCurrentPsvs] = useState(null); // Track current PSVS indicators for status bar
   const [messageRefs, setMessageRefs] = useState({}); // Store refs for each message
   const chatScrollRef = useRef(null); // Ref for the scrollable chat container
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false); // Auto-refresh toggle (default off)
+  const [hasNewMessages, setHasNewMessages] = useState(false); // Show "new messages" indicator
+  const lastMessageCountRef = useRef(0); // Track message count for detecting new messages
   const [selectedMindClient, setSelectedMindClient] = useState(null);
   const [mindData, setMindData] = useState(null);
   const [mindLoading, setMindLoading] = useState(false);
@@ -252,65 +255,96 @@ const HamoPro = () => {
     checkAuth();
   }, []);
 
-  // Auto-refresh conversations and PSVS while modal is open
-  useEffect(() => {
+  // Refresh data function for conversations and PSVS
+  const refreshConversationsData = useCallback(async (isPolling = false) => {
     if (!selectedClient) return;
 
-    const refreshData = async () => {
-      try {
-        // Fetch updated PSVS
-        const psvsResult = await apiService.getPsvsProfile(selectedClient.id);
-        if (psvsResult.success && psvsResult.psvs?.current_position) {
-          const pos = psvsResult.psvs.current_position;
-          setCurrentPsvs(prev => ({
-            stress_level: pos.stress_level,
-            energy_state: pos.energy_state,
-            distance_from_center: pos.distance_from_center || pos.distance,
-            messageId: prev?.messageId || null // Preserve messageId if set
-          }));
-        }
-
-        // Fetch updated sessions
-        const sessionsResult = await apiService.getSessions(selectedClient.id);
-        if (sessionsResult.success && sessionsResult.sessions.length > 0) {
-          const conversationsWithMessages = await Promise.all(
-            sessionsResult.sessions.map(async (session) => {
-              const proVisible = session.pro_visible !== false;
-              let messages = [];
-              if (proVisible) {
-                const messagesResult = await apiService.getSessionMessages(session.id);
-                messages = messagesResult.success ? messagesResult.messages : [];
-              }
-              return {
-                sessionId: session.id,
-                date: new Date(session.started_at || session.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }),
-                messages,
-                proVisible
-              };
-            })
-          );
-          setConversationsData(conversationsWithMessages);
-        }
-      } catch (error) {
-        console.error('Failed to refresh data:', error);
+    try {
+      // Fetch updated PSVS
+      const psvsResult = await apiService.getPsvsProfile(selectedClient.id);
+      if (psvsResult.success && psvsResult.psvs?.current_position) {
+        const pos = psvsResult.psvs.current_position;
+        setCurrentPsvs(prev => ({
+          stress_level: pos.stress_level,
+          energy_state: pos.energy_state,
+          distance_from_center: pos.distance_from_center || pos.distance,
+          messageId: prev?.messageId || null // Preserve messageId if set
+        }));
       }
-    };
 
-    // Initial refresh
-    refreshData();
+      // Fetch updated sessions
+      const sessionsResult = await apiService.getSessions(selectedClient.id);
+      if (sessionsResult.success && sessionsResult.sessions.length > 0) {
+        const conversationsWithMessages = await Promise.all(
+          sessionsResult.sessions.map(async (session) => {
+            const proVisible = session.pro_visible !== false;
+            let messages = [];
+            if (proVisible) {
+              const messagesResult = await apiService.getSessionMessages(session.id);
+              messages = messagesResult.success ? messagesResult.messages : [];
+            }
+            return {
+              sessionId: session.id,
+              date: new Date(session.started_at || session.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }),
+              messages,
+              proVisible
+            };
+          })
+        );
+
+        // Count total messages
+        const newMessageCount = conversationsWithMessages.reduce((total, conv) => total + (conv.messages?.length || 0), 0);
+
+        // If this is a polling refresh and message count increased, show new message indicator
+        if (isPolling && newMessageCount > lastMessageCountRef.current && lastMessageCountRef.current > 0) {
+          setHasNewMessages(true);
+        }
+
+        // Update the message count reference
+        lastMessageCountRef.current = newMessageCount;
+
+        setConversationsData(conversationsWithMessages);
+      }
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+    }
+  }, [selectedClient]);
+
+  // Initial load when dialog opens
+  useEffect(() => {
+    if (selectedClient) {
+      // Reset states when opening dialog
+      lastMessageCountRef.current = 0;
+      setHasNewMessages(false);
+      setAutoRefreshEnabled(false); // Default to off
+      refreshConversationsData(false);
+    }
+  }, [selectedClient, refreshConversationsData]);
+
+  // Auto-refresh polling (only when enabled)
+  useEffect(() => {
+    if (!selectedClient || !autoRefreshEnabled) return;
 
     // Set up polling interval (every 3 seconds)
-    const intervalId = setInterval(refreshData, 3000);
+    const intervalId = setInterval(() => refreshConversationsData(true), 3000);
 
-    // Cleanup on unmount or when selectedClient changes
+    // Cleanup on unmount or when disabled
     return () => clearInterval(intervalId);
-  }, [selectedClient]);
+  }, [selectedClient, autoRefreshEnabled, refreshConversationsData]);
+
+  // Scroll to bottom and clear new message indicator
+  const scrollToLatestMessage = useCallback(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+      setHasNewMessages(false);
+    }
+  }, []);
 
   const generateMockConversations = () => [
     {
@@ -2578,12 +2612,26 @@ const HamoPro = () => {
                           <p className="text-blue-100 text-sm">{selectedClient.name}</p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => { setSelectedClient(null); setCurrentPsvs(null); }}
-                        className="text-white/80 hover:text-white hover:bg-white/20 p-1 rounded-full transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        {/* Auto-refresh toggle button */}
+                        <button
+                          onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+                          className={`p-1.5 rounded-full transition-colors ${
+                            autoRefreshEnabled
+                              ? 'bg-white/30 text-white'
+                              : 'text-white/60 hover:text-white hover:bg-white/20'
+                          }`}
+                          title={autoRefreshEnabled ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
+                        >
+                          <RefreshCw className={`w-4 h-4 ${autoRefreshEnabled ? 'animate-spin' : ''}`} style={autoRefreshEnabled ? { animationDuration: '3s' } : {}} />
+                        </button>
+                        <button
+                          onClick={() => { setSelectedClient(null); setCurrentPsvs(null); }}
+                          className="text-white/80 hover:text-white hover:bg-white/20 p-1 rounded-full transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -2650,12 +2698,13 @@ const HamoPro = () => {
                     </div>
                   </div>
 
-                  {/* Content */}
-                  <div
-                    ref={chatScrollRef}
-                    onScroll={handleChatScroll}
-                    className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]"
-                  >
+                  {/* Content wrapper with new message indicator */}
+                  <div className="relative">
+                    <div
+                      ref={chatScrollRef}
+                      onScroll={handleChatScroll}
+                      className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]"
+                    >
                     {conversationsLoading ? (
                       <div className="text-center py-12 text-gray-500">
                         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
@@ -2705,6 +2754,18 @@ const HamoPro = () => {
                       ))
                     ) : (
                       <div className="text-center py-12 text-gray-500">{t('noConversationsYet')}</div>
+                    )}
+                    </div>
+
+                    {/* New messages indicator */}
+                    {hasNewMessages && (
+                      <button
+                        onClick={scrollToLatestMessage}
+                        className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center space-x-2 hover:bg-blue-600 transition-colors animate-bounce"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                        <span className="text-sm font-medium">{language === 'zh' ? '新消息' : 'New Messages'}</span>
+                      </button>
                     )}
                   </div>
                 </div>
