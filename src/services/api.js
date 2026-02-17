@@ -578,17 +578,15 @@ class ApiService {
       console.log('✅ Messages fetched:', response);
 
       // Debug: Log raw message structure to check PSVS field names and timestamp
-      if (response?.messages?.[0]) {
-        console.log('🔍 Sample message structure:', Object.keys(response.messages[0]));
-        console.log('🔍 PSVS fields check:', {
-          psvs_snapshot: response.messages[0].psvs_snapshot,
-          psvs: response.messages[0].psvs,
-          snapshot: response.messages[0].snapshot,
-        });
+      // Check both array format and object format
+      const sampleMsg = Array.isArray(response) ? response[0] : (response?.messages?.[0] || response?.data?.[0]);
+      if (sampleMsg) {
+        console.log('🔍 Sample message structure:', Object.keys(sampleMsg));
+        console.log('🔍 Sample message data:', sampleMsg);
         console.log('🕐 Timestamp check:', {
-          raw: response.messages[0].timestamp,
-          parsed: new Date(response.messages[0].timestamp).toString(),
-          local: new Date(response.messages[0].timestamp).toLocaleTimeString(),
+          raw: sampleMsg.timestamp,
+          parsed: new Date(sampleMsg.timestamp).toString(),
+          local: new Date(sampleMsg.timestamp).toLocaleTimeString(),
         });
       }
 
