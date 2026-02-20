@@ -2654,46 +2654,51 @@ const HamoPro = () => {
                     }`}
                     onClick={() => setShowStressDetail(!showStressDetail)}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex justify-between items-center">
                       {/* Stress Level */}
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                          currentPsvs?.stress_level >= 7 ? 'bg-red-500' :
-                          currentPsvs?.stress_level >= 4 ? 'bg-yellow-500' :
-                          currentPsvs?.stress_level !== undefined ? 'bg-green-500' : 'bg-gray-300'
-                        }`}>
-                          {currentPsvs?.stress_level !== undefined ? currentPsvs.stress_level.toFixed(1) : '--'}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-800">{t('stressLevel')}</p>
-                          <div className="flex items-center space-x-2">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                              currentPsvs?.energy_state === 'neurotic' ? 'bg-red-100 text-red-700' :
-                              currentPsvs?.energy_state === 'negative' ? 'bg-yellow-100 text-yellow-700' :
-                              currentPsvs?.energy_state === 'positive' ? 'bg-green-100 text-green-700' :
-                              'bg-gray-100 text-gray-400'
-                            }`}>
-                              {currentPsvs?.energy_state ? (
-                                <>
-                                  <span className={`w-1.5 h-1.5 rounded-full mr-1 ${
-                                    currentPsvs.energy_state === 'neurotic' ? 'bg-red-500' :
-                                    currentPsvs.energy_state === 'negative' ? 'bg-yellow-500' :
-                                    'bg-green-500'
-                                  }`}></span>
-                                  {currentPsvs.energy_state === 'positive' ? t('positive') :
-                                   currentPsvs.energy_state === 'negative' ? t('negative') :
-                                   currentPsvs.energy_state === 'neurotic' ? t('neurotic') :
-                                   currentPsvs.energy_state}
-                                </>
-                              ) : '--'}
-                            </span>
-                          </div>
+                      <div className="flex-1 text-center">
+                        <p className="text-xs text-gray-500 mb-1">{t('stressLevel')}</p>
+                        <div className="flex items-center justify-center space-x-1">
+                          <span className={`text-lg font-bold ${
+                            currentPsvs?.stress_level >= 7 ? 'text-red-500' :
+                            currentPsvs?.stress_level >= 4 ? 'text-yellow-500' :
+                            currentPsvs?.stress_level !== undefined ? 'text-green-500' : 'text-gray-300'
+                          }`}>
+                            {currentPsvs?.stress_level !== undefined ? currentPsvs.stress_level.toFixed(1) : '--'}
+                          </span>
+                          <span className="text-xs text-gray-400">/10</span>
                         </div>
                       </div>
 
-                      {/* Expand indicator */}
-                      <div className="flex items-center space-x-1 text-gray-400">
-                        <span className="text-[10px]">{showStressDetail ? t('tapToClose') : (language === 'zh' ? '详情' : 'Details')}</span>
+                      <div className="w-px h-10 bg-gray-200"></div>
+
+                      {/* Energy State */}
+                      <div className="flex-1 text-center">
+                        <p className="text-xs text-gray-500 mb-1">{t('energyState')}</p>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          currentPsvs?.energy_state === 'neurotic' ? 'bg-red-100 text-red-700' :
+                          currentPsvs?.energy_state === 'negative' ? 'bg-yellow-100 text-yellow-700' :
+                          currentPsvs?.energy_state === 'positive' ? 'bg-green-100 text-green-700' :
+                          'bg-gray-100 text-gray-400'
+                        }`}>
+                          {currentPsvs?.energy_state ? (
+                            <>
+                              <span className={`w-2 h-2 rounded-full mr-1 ${
+                                currentPsvs.energy_state === 'neurotic' ? 'bg-red-500' :
+                                currentPsvs.energy_state === 'negative' ? 'bg-yellow-500' :
+                                'bg-green-500'
+                              }`}></span>
+                              {currentPsvs.energy_state === 'positive' ? t('positive') :
+                               currentPsvs.energy_state === 'negative' ? t('negative') :
+                               currentPsvs.energy_state === 'neurotic' ? t('neurotic') :
+                               currentPsvs.energy_state.charAt(0).toUpperCase() + currentPsvs.energy_state.slice(1)}
+                            </>
+                          ) : '--'}
+                        </span>
+                      </div>
+
+                      {/* Expand chevron */}
+                      <div className="pl-2 text-gray-400">
                         {showStressDetail ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </div>
                     </div>
