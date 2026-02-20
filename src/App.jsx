@@ -94,6 +94,8 @@ const HamoPro = () => {
     return option ? option.label : value;
   };
 
+  const [specialtiesMap, setSpecialtiesMap] = useState([]); // From GET /api/specialties
+
   // Avatar form options - use backend specialties if available, with local fallback
   const getSpecialtyOptions = useCallback(() => {
     if (specialtiesMap.length > 0) {
@@ -178,8 +180,6 @@ const HamoPro = () => {
   const [authForm, setAuthForm] = useState({ email: '', password: '', fullName: '', profession: '' });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
-  
-  const [specialtiesMap, setSpecialtiesMap] = useState([]); // From GET /api/specialties
 
   const [activeTab, setActiveTab] = useState('avatars');
   const [avatars, setAvatars] = useState([]);
