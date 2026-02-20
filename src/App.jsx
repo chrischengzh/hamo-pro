@@ -557,7 +557,9 @@ const HamoPro = () => {
   // Open edit mode for an avatar
   const handleEditAvatar = (avatar) => {
     // Check if specialty is custom (not in the predefined list)
-    const isCustomSpecialty = !specialtyOptions.includes(avatar.specialty);
+    // Check both new ID-format values and legacy English name values
+    const knownSpecialtyIds = getSpecialtyOptions().map(opt => opt.value);
+    const isCustomSpecialty = avatar.specialty && !knownSpecialtyIds.includes(avatar.specialty) && !specialtyOptions.includes(avatar.specialty);
 
     setAvatarForm({
       name: avatar.name || '',
