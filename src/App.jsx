@@ -86,6 +86,7 @@ const HamoPro = () => {
   // Profession options for sign up
   const professionOptions = [
     { value: 'mental_health_professional', label: t('mentalHealthProfessional') },
+    { value: 'astrologer', label: t('astrologer'), disabled: true },
   ];
 
   // Helper function to get profession label
@@ -1188,7 +1189,11 @@ const HamoPro = () => {
                       disabled={authLoading}
                     >
                       <option value="">{t('selectProfession')}</option>
-                      <option value="mental_health_professional">{t('mentalHealthProfessional')}</option>
+                      {professionOptions.map(opt => (
+                        <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                          {opt.label}{opt.disabled ? ` (${t('comingSoon')})` : ''}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </>
