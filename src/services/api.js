@@ -608,6 +608,19 @@ class ApiService {
       };
     }
   }
+
+  // Get messages with stress indicators via portal API (includes A/W/E/H/B data)
+  async getPortalMessages(mindId) {
+    try {
+      const response = await fetch(`https://api.hamo.ai/api/portal/mind/${mindId}/messages`);
+      if (!response.ok) throw new Error('Portal messages not found');
+      const data = await response.json();
+      return { success: true, sessions: data };
+    } catch (error) {
+      console.error('❌ Failed to fetch portal messages:', error.message);
+      return { success: false, error: error.message, sessions: [] };
+    }
+  }
 }
 
 // Export singleton instance

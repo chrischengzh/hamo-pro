@@ -4,7 +4,7 @@ import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.5.15";
+  const APP_VERSION = "1.5.16";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -179,6 +179,7 @@ const HamoPro = () => {
   const [hasNewMessages, setHasNewMessages] = useState(false); // Show "new messages" indicator
   const lastMessageCountRef = useRef(0); // Track message count for detecting new messages
   const [showStressDetail, setShowStressDetail] = useState(false); // Toggle stress detail panel
+  const [stressIndicatorsData, setStressIndicatorsData] = useState(null); // A/W/E/H/B from portal API
   const [selectedMindClient, setSelectedMindClient] = useState(null);
   const [mindData, setMindData] = useState(null);
   const [mindLoading, setMindLoading] = useState(false);
@@ -795,15 +796,25 @@ const HamoPro = () => {
     setCurrentPsvs(null);
 
     try {
-      // Fetch sessions and PSVS profile in parallel
-      // PSVS API is not affected by pro_visible - Pro can always see the 3 core indicators
-      const [sessionsResult, psvsResult] = await Promise.all([
+      // Fetch sessions, PSVS profile, and portal messages (for A/W/E/H/B) in parallel
+      const [sessionsResult, psvsResult, portalResult] = await Promise.all([
         apiService.getSessions(client.id),
-        apiService.getPsvsProfile(client.id)
+        apiService.getPsvsProfile(client.id),
+        apiService.getPortalMessages(client.id)
       ]);
 
-      console.log('🔵 Sessions result:', sessionsResult);
-      console.log('🔵 PSVS result:', psvsResult);
+      // Extract last A/W/E/H/B indicators from portal messages
+      if (portalResult.success && portalResult.sessions) {
+        let lastIndicators = null;
+        const sessions = Array.isArray(portalResult.sessions) ? portalResult.sessions : [];
+        for (const session of sessions) {
+          const userMsgs = (session.messages || []).filter(m => m.role === 'user' && m.stress_indicators);
+          if (userMsgs.length > 0) {
+            lastIndicators = userMsgs[userMsgs.length - 1].stress_indicators;
+          }
+        }
+        setStressIndicatorsData(lastIndicators);
+      }
 
       // Set PSVS from the dedicated API (always available regardless of pro_visible)
       if (psvsResult.success && psvsResult.psvs?.current_position) {
@@ -2714,18 +2725,10 @@ const HamoPro = () => {
                         if (conv.messages) {
                           conv.messages.forEach(msg => {
                             if (msg.role === 'user' && msg.psvs_snapshot && msg.psvs_snapshot.stress_level !== undefined) {
-                              const snap = msg.psvs_snapshot;
-                              // Support A/W/E/H/B indicators if available (from nested or flat fields)
-                              const indicators = snap.indicators || snap.stress_indicators || snap.awehb || {};
                               stressDataPoints.push({
-                                stress: snap.stress_level,
-                                energy: snap.energy_state,
+                                stress: msg.psvs_snapshot.stress_level,
+                                energy: msg.psvs_snapshot.energy_state,
                                 timestamp: msg.timestamp,
-                                agency: snap.agency ?? indicators.agency ?? indicators.A ?? null,
-                                withdrawal: snap.withdrawal ?? indicators.withdrawal ?? indicators.W ?? null,
-                                extremity: snap.extremity ?? indicators.extremity ?? indicators.E ?? null,
-                                hostility: snap.hostility ?? indicators.hostility ?? indicators.H ?? null,
-                                boundary: snap.boundary ?? indicators.boundary ?? indicators.B ?? null,
                               });
                             }
                           });
@@ -2756,16 +2759,17 @@ const HamoPro = () => {
                     // Color for each dot
                     const dotColor = (val) => val >= 7 ? '#ef4444' : val >= 4 ? '#f59e0b' : '#22c55e';
 
-                    // A/W/E/H/B indicator config
+                    // A/W/E/H/B indicator config - use data from portal API (stressIndicatorsData)
+                    const ind = stressIndicatorsData || {};
                     const indicators = [
-                      { key: 'agency', label: t('agency'), letter: 'A', color: '#22c55e', effect: `\u2193 ${t('reducesStress')}`, val: latestPoint?.agency },
-                      { key: 'withdrawal', label: t('withdrawal'), letter: 'W', color: '#f59e0b', effect: `\u2191 ${t('raisesStress')}`, val: latestPoint?.withdrawal },
-                      { key: 'extremity', label: t('extremity'), letter: 'E', color: '#f59e0b', effect: `\u2191\u2191 ${t('raisesStress')}`, val: latestPoint?.extremity },
-                      { key: 'hostility', label: t('hostility'), letter: 'H', color: '#ef4444', effect: `\u2191\u2191\u2191 ${t('stronglyRaises')}`, val: latestPoint?.hostility },
-                      { key: 'boundary', label: t('boundary'), letter: 'B', color: '#22c55e', effect: `\u2193\u2193 ${t('reducesStress')}`, val: latestPoint?.boundary },
+                      { key: 'A', label: t('agency'), letter: 'A', color: '#10b981', effect: `\u2193 ${t('reducesStress')}`, val: ind.A },
+                      { key: 'W', label: t('withdrawal'), letter: 'W', color: '#ef4444', effect: `\u2191 ${t('raisesStress')}`, val: ind.W },
+                      { key: 'E', label: t('extremity'), letter: 'E', color: '#f97316', effect: `\u2191\u2191 ${t('raisesStress')}`, val: ind.E },
+                      { key: 'H', label: t('hostility'), letter: 'H', color: '#dc2626', effect: `\u2191\u2191\u2191 ${t('stronglyRaises')}`, val: ind.H },
+                      { key: 'B', label: t('boundary'), letter: 'B', color: '#06b6d4', effect: `\u2193\u2193 ${t('reducesStress')}`, val: ind.B },
                     ];
 
-                    const hasAWEHB = indicators.some(ind => ind.val !== undefined && ind.val !== null);
+                    const hasAWEHB = stressIndicatorsData !== null;
 
                     return (
                       <div className="bg-white border-b px-4 py-3 max-h-[50vh] overflow-y-auto">
@@ -2844,34 +2848,41 @@ const HamoPro = () => {
                         </div>
 
                         {/* Stress Indicators (A/W/E/H/B) */}
-                        {hasAWEHB && (
-                          <div className="border-t pt-3">
-                            <h4 className="text-xs font-bold text-gray-700 uppercase mb-1">{t('stressIndicators')}</h4>
-                            <p className="text-[10px] text-gray-400 mb-3">{t('fromLatestMsg')}</p>
+                        <div className="border-t pt-3">
+                          <h4 className="text-xs font-bold text-gray-700 uppercase mb-1">{t('stressIndicators')}</h4>
+                          <p className="text-[10px] text-gray-400 mb-3">
+                            {hasAWEHB
+                              ? `${t('fromLatestMsg')} — Gemini AI (0-3)`
+                              : (language === 'zh' ? '暂无指标数据 — 发送新消息后显示' : 'No indicator data yet — send a new message to see scores')}
+                          </p>
 
-                            <div className="space-y-2.5">
-                              {indicators.map(ind => (
-                                ind.val !== undefined && ind.val !== null && (
-                                  <div key={ind.key} className="flex items-center space-x-2">
-                                    <span className="text-xs font-bold w-4" style={{ color: ind.color }}>{ind.letter}</span>
-                                    <span className="text-xs text-gray-600 w-20 truncate">{ind.label}</span>
-                                    <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
-                                      <div
-                                        className="h-full rounded-full transition-all"
-                                        style={{
-                                          width: `${Math.min((ind.val / 3) * 100, 100)}%`,
-                                          backgroundColor: ind.val > 1.5 ? ind.color : '#d1d5db',
-                                        }}
-                                      />
-                                    </div>
-                                    <span className="text-xs font-mono font-bold w-8 text-right">{ind.val.toFixed(1)}</span>
-                                    <span className="text-[10px] text-gray-400 w-16 truncate">{ind.effect}</span>
+                          <div className="space-y-2.5">
+                            {indicators.map(item => {
+                              const val = item.val ?? 0;
+                              const pct = Math.min((val / 3) * 100, 100);
+                              const isPositive = item.key === 'A' || item.key === 'B';
+                              return (
+                                <div key={item.key} className="flex items-center gap-2">
+                                  <span className="text-xs font-bold w-4" style={{ color: item.color }}>{item.letter}</span>
+                                  <span className="text-xs text-gray-500 w-20 truncate">{item.label}</span>
+                                  <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full transition-all"
+                                      style={{ width: `${pct}%`, backgroundColor: val === 0 ? '#d1d5db' : item.color }}
+                                    />
                                   </div>
-                                )
-                              ))}
-                            </div>
+                                  <span className="w-8 text-right font-mono text-xs font-semibold"
+                                    style={{ color: val === 0 ? '#9ca3af' : item.color }}>
+                                    {val.toFixed(1)}
+                                  </span>
+                                  <span className={`text-[10px] w-16 truncate ${isPositive ? 'text-emerald-600' : 'text-red-500'}`}>
+                                    {item.effect}
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
-                        )}
+                        </div>
 
                         {/* Tap to close hint */}
                         <p className="text-[10px] text-gray-400 text-center mt-3 cursor-pointer" onClick={() => setShowStressDetail(false)}>
