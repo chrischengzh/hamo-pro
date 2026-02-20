@@ -2709,33 +2709,24 @@ const HamoPro = () => {
                   {showStressDetail && (() => {
                     // Collect all client messages with psvs_snapshot from conversations
                     const stressDataPoints = [];
-                    let debugLogged = false;
                     if (conversationsData && conversationsData.length > 0) {
                       conversationsData.forEach(conv => {
                         if (conv.messages) {
                           conv.messages.forEach(msg => {
-                            if (msg.role === 'user' && msg.psvs_snapshot) {
-                              // Debug: log full psvs_snapshot structure once
-                              if (!debugLogged) {
-                                console.log('🔍 Full psvs_snapshot keys:', Object.keys(msg.psvs_snapshot));
-                                console.log('🔍 Full psvs_snapshot data:', JSON.stringify(msg.psvs_snapshot));
-                                debugLogged = true;
-                              }
-                              if (msg.psvs_snapshot.stress_level !== undefined) {
-                                const snap = msg.psvs_snapshot;
-                                // Try multiple possible field names for A/W/E/H/B indicators
-                                const indicators = snap.indicators || snap.stress_indicators || snap.awehb || {};
-                                stressDataPoints.push({
-                                  stress: snap.stress_level,
-                                  energy: snap.energy_state,
-                                  timestamp: msg.timestamp,
-                                  agency: snap.agency ?? indicators.agency ?? indicators.A ?? null,
-                                  withdrawal: snap.withdrawal ?? indicators.withdrawal ?? indicators.W ?? null,
-                                  extremity: snap.extremity ?? indicators.extremity ?? indicators.E ?? null,
-                                  hostility: snap.hostility ?? indicators.hostility ?? indicators.H ?? null,
-                                  boundary: snap.boundary ?? indicators.boundary ?? indicators.B ?? null,
-                                });
-                              }
+                            if (msg.role === 'user' && msg.psvs_snapshot && msg.psvs_snapshot.stress_level !== undefined) {
+                              const snap = msg.psvs_snapshot;
+                              // Support A/W/E/H/B indicators if available (from nested or flat fields)
+                              const indicators = snap.indicators || snap.stress_indicators || snap.awehb || {};
+                              stressDataPoints.push({
+                                stress: snap.stress_level,
+                                energy: snap.energy_state,
+                                timestamp: msg.timestamp,
+                                agency: snap.agency ?? indicators.agency ?? indicators.A ?? null,
+                                withdrawal: snap.withdrawal ?? indicators.withdrawal ?? indicators.W ?? null,
+                                extremity: snap.extremity ?? indicators.extremity ?? indicators.E ?? null,
+                                hostility: snap.hostility ?? indicators.hostility ?? indicators.H ?? null,
+                                boundary: snap.boundary ?? indicators.boundary ?? indicators.B ?? null,
+                              });
                             }
                           });
                         }
