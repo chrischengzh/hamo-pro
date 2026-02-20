@@ -95,17 +95,6 @@ const HamoPro = () => {
   };
 
   // Avatar form options - use backend specialties if available, with local fallback
-  const localSpecialtyFallback = [
-    { value: 'depression_anxiety', label: t('depressionAnxiety') },
-    { value: 'npd_personality', label: t('npdPersonality') },
-    { value: 'family_couples', label: t('familyCouples') },
-    { value: 'child_adolescent', label: t('childAdolescent') },
-    { value: 'stress_burnout', label: t('stressBurnout') },
-    { value: 'ptsd_trauma', label: t('ptsdTrauma') },
-    { value: 'substance_abuse', label: t('substanceAbuse') },
-    { value: 'ocd_anxiety', label: t('ocdAnxiety') }
-  ];
-
   const getSpecialtyOptions = useCallback(() => {
     if (specialtiesMap.length > 0) {
       return specialtiesMap.map(s => ({
@@ -113,7 +102,17 @@ const HamoPro = () => {
         label: language === 'zh' ? s.zh : s.en,
       }));
     }
-    return localSpecialtyFallback;
+    // Fallback to local translations
+    return [
+      { value: 'depression_anxiety', label: t('depressionAnxiety') },
+      { value: 'npd_personality', label: t('npdPersonality') },
+      { value: 'family_couples', label: t('familyCouples') },
+      { value: 'child_adolescent', label: t('childAdolescent') },
+      { value: 'stress_burnout', label: t('stressBurnout') },
+      { value: 'ptsd_trauma', label: t('ptsdTrauma') },
+      { value: 'substance_abuse', label: t('substanceAbuse') },
+      { value: 'ocd_anxiety', label: t('ocdAnxiety') }
+    ];
   }, [specialtiesMap, language, t]);
 
   const getTherapeuticApproachOptions = useCallback(() => [
