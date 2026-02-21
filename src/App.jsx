@@ -3294,7 +3294,7 @@ const HamoPro = () => {
 
         {/* Version number at the bottom of scrollable content */}
         <div className="text-center py-6">
-          <p className="text-xs text-gray-400">Hamo Pro {t('version')} {APP_VERSION}</p>
+          <p className="text-xs text-gray-400">{t('version')} {APP_VERSION}</p>
         </div>
       </div>
 
