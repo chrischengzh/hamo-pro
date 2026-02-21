@@ -2206,7 +2206,7 @@ const HamoPro = () => {
                 return (
                   <div key={c.id} className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                     <div className="flex justify-between mb-3">
-                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{c.sex}, {c.age} {language === 'zh' ? '岁' : 'years'}</p></div>
+                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{t(c.sex) || c.sex}, {c.age} {language === 'zh' ? '岁' : 'years'}</p></div>
                       {isConnected ? (
                         <div className="flex flex-col items-center text-green-500 flex-shrink-0">
                           <Calendar className="w-5 h-5" />
@@ -2283,7 +2283,7 @@ const HamoPro = () => {
                           <div>
                             <h4 className="font-semibold text-gray-900 text-lg">{mindData.name || selectedMindClient.name}</h4>
                             <div className="flex items-center space-x-3 text-sm text-gray-500 mt-1">
-                              {mindData.sex && <span className="capitalize">{mindData.sex}</span>}
+                              {mindData.sex && <span className="capitalize">{t(mindData.sex) || mindData.sex}</span>}
                               {mindData.age && <span>• {mindData.age} {language === 'zh' ? '岁' : 'years old'}</span>}
                             </div>
                           </div>
@@ -3294,7 +3294,7 @@ const HamoPro = () => {
 
         {/* Version number at the bottom of scrollable content */}
         <div className="text-center py-6">
-          <p className="text-xs text-gray-400">Hamo Pro Version {APP_VERSION}</p>
+          <p className="text-xs text-gray-400">Hamo Pro {t('version')} {APP_VERSION}</p>
         </div>
       </div>
 
