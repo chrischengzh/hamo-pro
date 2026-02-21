@@ -267,6 +267,7 @@ class ApiService {
           about: response.about,
           experienceYears: response.experience_years,
           experienceMonths: response.experience_months,
+          avatarPicture: response.avatar_picture || null,
           specializations: response.specializations,
         },
       };
@@ -309,6 +310,7 @@ class ApiService {
           about: response.about,
           experienceYears: response.experience_years,
           experienceMonths: response.experience_months,
+          avatarPicture: response.avatar_picture || null,
         },
       };
     } catch (error) {
@@ -317,6 +319,27 @@ class ApiService {
         success: false,
         error: error.message,
       };
+    }
+  }
+
+  // Upload avatar picture (multipart/form-data)
+  async uploadAvatarPicture(avatarId, file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const accessToken = this.getAccessToken();
+      const response = await fetch(`${this.baseURL}/avatars/${avatarId}/picture`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Failed to upload avatar picture');
+      console.log('✅ Avatar picture uploaded:', data);
+      return { success: true, url: data.url };
+    } catch (error) {
+      console.error('❌ Failed to upload avatar picture:', error.message);
+      return { success: false, error: error.message };
     }
   }
 
@@ -348,6 +371,7 @@ class ApiService {
           about: avatar.about,
           experienceYears: avatar.experience_years || avatar.experienceYears,
           experienceMonths: avatar.experience_months || avatar.experienceMonths,
+          avatarPicture: avatar.avatar_picture || null,
           specializations: avatar.specializations,
           // Legacy fields for backward compatibility
           theory: avatar.theory,

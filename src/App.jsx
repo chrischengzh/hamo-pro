@@ -232,6 +232,9 @@ const HamoPro = () => {
     experienceYears: 0,
     experienceMonths: 0,
   });
+  const [avatarPictureFile, setAvatarPictureFile] = useState(null);
+  const [avatarPicturePreview, setAvatarPicturePreview] = useState(null);
+  const avatarPictureInputRef = useRef(null);
   const [clientForm, setClientForm] = useState({
     name: '',
     sex: '',
@@ -597,6 +600,16 @@ const HamoPro = () => {
     }
   };
 
+  const handleAvatarPictureSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) return;
+    if (file.size > 2 * 1024 * 1024) return;
+    setAvatarPictureFile(file);
+    setAvatarPicturePreview(URL.createObjectURL(file));
+  };
+
   const handleCreateAvatar = async () => {
     // Validate required fields
     const specialty = avatarForm.specialty === 'custom' ? avatarForm.customSpecialty : avatarForm.specialty;
@@ -630,7 +643,12 @@ const HamoPro = () => {
     });
 
     if (result.success) {
-      // Use backend-generated avatar ID
+      let avatarPictureUrl = null;
+      // Upload avatar picture if one was selected
+      if (avatarPictureFile) {
+        const pictureResult = await apiService.uploadAvatarPicture(result.avatar.id, avatarPictureFile);
+        if (pictureResult.success) avatarPictureUrl = pictureResult.url;
+      }
       setAvatars([...avatars, {
         id: result.avatar.id,
         name: avatarForm.name,
@@ -639,10 +657,10 @@ const HamoPro = () => {
         about: avatarForm.about,
         experienceYears: avatarForm.experienceYears,
         experienceMonths: avatarForm.experienceMonths,
+        avatarPicture: avatarPictureUrl,
       }]);
       console.log('✅ Avatar created with backend ID:', result.avatar.id);
     } else {
-      // Fallback to local ID if API fails
       console.warn('⚠️ API failed, using local ID:', result.error);
       setAvatars([...avatars, {
         id: Date.now(),
@@ -665,6 +683,8 @@ const HamoPro = () => {
       experienceYears: 0,
       experienceMonths: 0,
     });
+    setAvatarPictureFile(null);
+    setAvatarPicturePreview(null);
     setShowAvatarForm(false);
   };
 
@@ -687,6 +707,8 @@ const HamoPro = () => {
       experienceYears: avatar.experienceYears || 0,
       experienceMonths: avatar.experienceMonths || 0,
     });
+    setAvatarPictureFile(null);
+    setAvatarPicturePreview(avatar.avatarPicture || null);
     setEditingAvatar(avatar);
     setSelectedAvatar(null);
   };
@@ -725,7 +747,12 @@ const HamoPro = () => {
     });
 
     if (result.success) {
-      // Update local state
+      let avatarPictureUrl = editingAvatar.avatarPicture || null;
+      // Upload new picture if one was selected
+      if (avatarPictureFile) {
+        const pictureResult = await apiService.uploadAvatarPicture(editingAvatar.id, avatarPictureFile);
+        if (pictureResult.success) avatarPictureUrl = pictureResult.url;
+      }
       setAvatars(avatars.map(a => a.id === editingAvatar.id ? {
         ...a,
         name: avatarForm.name,
@@ -734,11 +761,11 @@ const HamoPro = () => {
         about: avatarForm.about,
         experienceYears: avatarForm.experienceYears,
         experienceMonths: avatarForm.experienceMonths,
+        avatarPicture: avatarPictureUrl,
       } : a));
       console.log('✅ Avatar updated:', editingAvatar.id);
     } else {
       console.warn('⚠️ API failed to update avatar:', result.error);
-      // Still update local state for better UX
       setAvatars(avatars.map(a => a.id === editingAvatar.id ? {
         ...a,
         name: avatarForm.name,
@@ -761,6 +788,8 @@ const HamoPro = () => {
       experienceYears: 0,
       experienceMonths: 0,
     });
+    setAvatarPictureFile(null);
+    setAvatarPicturePreview(null);
     setEditingAvatar(null);
   };
 
@@ -1676,16 +1705,38 @@ const HamoPro = () => {
                       <span className="text-sm font-semibold text-blue-700">{t('basicInfo')}</span>
                     </div>
 
-                    {/* Avatar Name */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('avatarName')} <span className="text-red-500">*</span></label>
-                      <input
-                        type="text"
-                        value={avatarForm.name}
-                        onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
-                        className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
-                        placeholder={language === 'zh' ? '例如：陈医生' : 'e.g., Dr. Emily Chen'}
-                      />
+                    {/* Avatar Name + Picture */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('avatarName')} <span className="text-red-500">*</span></label>
+                        <input
+                          type="text"
+                          value={avatarForm.name}
+                          onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
+                          className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
+                          placeholder={language === 'zh' ? '例如：陈医生' : 'e.g., Dr. Emily Chen'}
+                        />
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => avatarPictureInputRef.current?.click()}
+                          className="w-20 h-20 rounded-full border-2 border-dashed border-blue-300 flex items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all overflow-hidden"
+                        >
+                          {avatarPicturePreview ? (
+                            <img src={avatarPicturePreview} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <Upload className="w-6 h-6 text-blue-400" />
+                          )}
+                        </div>
+                        <span className="text-xs text-blue-500 mt-1">{language === 'zh' ? '上传头像' : 'Upload Photo'}</span>
+                        <input
+                          ref={avatarPictureInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          onChange={handleAvatarPictureSelect}
+                          className="hidden"
+                        />
+                      </div>
                     </div>
 
                     {/* Specialty */}
@@ -1950,6 +2001,8 @@ const HamoPro = () => {
                       <button
                         onClick={() => {
                           setEditingAvatar(null);
+                          setAvatarPictureFile(null);
+                          setAvatarPicturePreview(null);
                           setAvatarForm({
                             name: '',
                             specialty: '',
@@ -1977,16 +2030,38 @@ const HamoPro = () => {
                           <span className="text-sm font-semibold text-blue-700">{t('basicInfo')}</span>
                         </div>
 
-                        {/* Avatar Name */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('avatarName')} <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
-                            value={avatarForm.name}
-                            onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
-                            placeholder={language === 'zh' ? '例如：陈医生' : 'e.g., Dr. Emily Chen'}
-                          />
+                        {/* Avatar Name + Picture */}
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('avatarName')} <span className="text-red-500">*</span></label>
+                            <input
+                              type="text"
+                              value={avatarForm.name}
+                              onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
+                              className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
+                              placeholder={language === 'zh' ? '例如：陈医生' : 'e.g., Dr. Emily Chen'}
+                            />
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div
+                              onClick={() => avatarPictureInputRef.current?.click()}
+                              className="w-20 h-20 rounded-full border-2 border-dashed border-blue-300 flex items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all overflow-hidden"
+                            >
+                              {avatarPicturePreview ? (
+                                <img src={avatarPicturePreview} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <Upload className="w-6 h-6 text-blue-400" />
+                              )}
+                            </div>
+                            <span className="text-xs text-blue-500 mt-1">{language === 'zh' ? '更换头像' : 'Change Photo'}</span>
+                            <input
+                              ref={avatarPictureInputRef}
+                              type="file"
+                              accept="image/jpeg,image/png,image/gif,image/webp"
+                              onChange={handleAvatarPictureSelect}
+                              className="hidden"
+                            />
+                          </div>
                         </div>
 
                         {/* Specialty */}
