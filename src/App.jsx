@@ -2343,7 +2343,7 @@ const HamoPro = () => {
                             className="flex items-center space-x-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm font-medium"
                           >
                             <Save className="w-4 h-4" />
-                            <span>{mindSaving ? '...' : (language === 'zh' ? '保存' : 'Save')}</span>
+                            <span>{mindSaving ? '...' : t('save')}</span>
                           </button>
                         ) : (
                           <button
@@ -2351,7 +2351,7 @@ const HamoPro = () => {
                             className="flex items-center space-x-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm font-medium"
                           >
                             <Edit3 className="w-4 h-4" />
-                            <span>{language === 'zh' ? '编辑' : 'Edit'}</span>
+                            <span>{t('edit')}</span>
                           </button>
                         )
                       )}
@@ -2429,7 +2429,7 @@ const HamoPro = () => {
                             <div>
                               <h4 className="text-white font-bold text-lg">{language === 'zh' ? '目标与原则' : 'Goals & Principles'}</h4>
                               <p className="text-white/90 text-sm mt-1 line-clamp-1">
-                                {mindData.goals || mindData.therapy_principles || (mindEditMode ? (language === 'zh' ? '点击编辑...' : 'Click to edit...') : '')}
+                                {mindData.goals || mindData.therapy_principles || (mindEditMode ? t('clickToEdit') : '')}
                               </p>
                             </div>
                             <div className={`w-10 h-10 bg-black rounded-full flex items-center justify-center transition-transform duration-300 ${expandedMindSection === 'goals' ? 'rotate-90' : ''}`}>
@@ -2482,7 +2482,7 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-white font-bold text-lg">Personality Traits</h4>
+                              <h4 className="text-white font-bold text-lg">{t('mindPersonalityTraits')}</h4>
                               {mindData.personality?.primary_traits?.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {mindData.personality.primary_traits.slice(0, 3).map((trait, idx) => (
@@ -2506,11 +2506,11 @@ const HamoPro = () => {
                               {mindEditMode ? (
                                 <div className="space-y-3">
                                   <div>
-                                    <label className="text-xs font-medium text-purple-600 uppercase tracking-wide">{language === 'zh' ? '主要特征（逗号分隔）' : 'Primary Traits (comma separated)'}</label>
-                                    <input type="text" value={(mindEditData?.personality?.primary_traits || []).join(', ')} onChange={(e) => updateMindEditArray('personality', 'primary_traits', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="e.g. introverted, emotional, empathetic" />
+                                    <label className="text-xs font-medium text-purple-600 uppercase tracking-wide">{t('primaryTraitsLabel')}</label>
+                                    <input type="text" value={(mindEditData?.personality?.primary_traits || []).join(', ')} onChange={(e) => updateMindEditArray('personality', 'primary_traits', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder={language === 'zh' ? '例如：内向, 感性, 善解人意' : 'e.g. introverted, emotional, empathetic'} />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-purple-600 uppercase tracking-wide">{language === 'zh' ? '描述' : 'Description'}</label>
+                                    <label className="text-xs font-medium text-purple-600 uppercase tracking-wide">{t('descriptionLabel')}</label>
                                     <textarea value={mindEditData?.personality?.description || ''} onChange={(e) => updateMindEditString('personality', 'description', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:outline-none" rows={2} />
                                   </div>
                                 </div>
@@ -2518,7 +2518,7 @@ const HamoPro = () => {
                                 <>
                                   {mindData.personality?.primary_traits?.length > 0 && (
                                     <div className="mb-4">
-                                      <span className="text-xs font-medium text-purple-600 uppercase tracking-wide">All Traits</span>
+                                      <span className="text-xs font-medium text-purple-600 uppercase tracking-wide">{t('allTraits')}</span>
                                       <div className="flex flex-wrap gap-2 mt-2">
                                         {mindData.personality.primary_traits.map((trait, idx) => (
                                           <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">{trait}</span>
@@ -2553,7 +2553,7 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-white font-bold text-lg">Emotion Patterns</h4>
+                              <h4 className="text-white font-bold text-lg">{t('mindEmotionPatterns')}</h4>
                               {mindData.emotion_pattern?.dominant_emotions?.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {mindData.emotion_pattern.dominant_emotions.slice(0, 3).map((emotion, idx) => (
@@ -2577,19 +2577,19 @@ const HamoPro = () => {
                               {mindEditMode ? (
                                 <div className="space-y-3">
                                   <div>
-                                    <label className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{language === 'zh' ? '主要情绪（逗号分隔）' : 'Dominant Emotions (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{t('dominantEmotionsLabel')}</label>
                                     <input type="text" value={(mindEditData?.emotion_pattern?.dominant_emotions || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'dominant_emotions', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-amber-600 uppercase tracking-wide">{language === 'zh' ? '触发因素（逗号分隔）' : 'Triggers (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-amber-600 uppercase tracking-wide">{t('triggersLabel')}</label>
                                     <input type="text" value={(mindEditData?.emotion_pattern?.triggers || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'triggers', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-green-600 uppercase tracking-wide">{language === 'zh' ? '应对机制（逗号分隔）' : 'Coping Mechanisms (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-green-600 uppercase tracking-wide">{t('copingMechanismsLabel')}</label>
                                     <input type="text" value={(mindEditData?.emotion_pattern?.coping_mechanisms || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'coping_mechanisms', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{language === 'zh' ? '描述' : 'Description'}</label>
+                                    <label className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{t('descriptionLabel')}</label>
                                     <textarea value={mindEditData?.emotion_pattern?.description || ''} onChange={(e) => updateMindEditString('emotion_pattern', 'description', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none" rows={2} />
                                   </div>
                                 </div>
@@ -2598,19 +2598,19 @@ const HamoPro = () => {
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     {mindData.emotion_pattern?.dominant_emotions?.length > 0 && (
                                       <div className="bg-emerald-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">Dominant Emotions</span>
+                                        <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{t('dominantEmotions')}</span>
                                         <div className="flex flex-wrap gap-1 mt-2">{mindData.emotion_pattern.dominant_emotions.map((emotion, idx) => (<span key={idx} className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs">{emotion}</span>))}</div>
                                       </div>
                                     )}
                                     {mindData.emotion_pattern?.triggers?.length > 0 && (
                                       <div className="bg-amber-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-amber-600 uppercase tracking-wide">Triggers</span>
+                                        <span className="text-xs font-medium text-amber-600 uppercase tracking-wide">{t('triggers')}</span>
                                         <div className="flex flex-wrap gap-1 mt-2">{mindData.emotion_pattern.triggers.map((trigger, idx) => (<span key={idx} className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">{trigger}</span>))}</div>
                                       </div>
                                     )}
                                     {mindData.emotion_pattern?.coping_mechanisms?.length > 0 && (
                                       <div className="bg-green-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-green-600 uppercase tracking-wide">Coping Mechanisms</span>
+                                        <span className="text-xs font-medium text-green-600 uppercase tracking-wide">{t('copingMechanisms')}</span>
                                         <div className="flex flex-wrap gap-1 mt-2">{mindData.emotion_pattern.coping_mechanisms.map((mechanism, idx) => (<span key={idx} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">{mechanism}</span>))}</div>
                                       </div>
                                     )}
@@ -2640,7 +2640,7 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-white font-bold text-lg">Cognition & Beliefs</h4>
+                              <h4 className="text-white font-bold text-lg">{t('mindCognitionBeliefs')}</h4>
                               {mindData.cognition_beliefs?.core_beliefs?.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {mindData.cognition_beliefs.core_beliefs.slice(0, 2).map((belief, idx) => (
@@ -2664,28 +2664,28 @@ const HamoPro = () => {
                               {mindEditMode ? (
                                 <div className="space-y-3">
                                   <div>
-                                    <label className="text-xs font-medium text-amber-700 uppercase tracking-wide">{language === 'zh' ? '核心信念（逗号分隔）' : 'Core Beliefs (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-amber-700 uppercase tracking-wide">{t('corebeliefsLabel')}</label>
                                     <input type="text" value={(mindEditData?.cognition_beliefs?.core_beliefs || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'core_beliefs', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-red-600 uppercase tracking-wide">{language === 'zh' ? '认知偏差（逗号分隔）' : 'Cognitive Distortions (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-red-600 uppercase tracking-wide">{t('cognitiveDistortionsLabel')}</label>
                                     <input type="text" value={(mindEditData?.cognition_beliefs?.cognitive_distortions || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'cognitive_distortions', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-red-200 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-amber-700 uppercase tracking-wide">{language === 'zh' ? '思维模式（逗号分隔）' : 'Thinking Patterns (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-amber-700 uppercase tracking-wide">{t('thinkingPatternsLabel')}</label>
                                     <input type="text" value={(mindEditData?.cognition_beliefs?.thinking_patterns || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'thinking_patterns', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
                                   </div>
                                   <div className="grid grid-cols-3 gap-3">
                                     <div>
-                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{language === 'zh' ? '自我认知' : 'Self'}</label>
+                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('selfPerception')}</label>
                                       <input type="text" value={mindEditData?.cognition_beliefs?.self_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'self_perception', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
                                     </div>
                                     <div>
-                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{language === 'zh' ? '世界认知' : 'World'}</label>
+                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('worldPerception')}</label>
                                       <input type="text" value={mindEditData?.cognition_beliefs?.world_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'world_perception', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
                                     </div>
                                     <div>
-                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{language === 'zh' ? '未来认知' : 'Future'}</label>
+                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('futurePerception')}</label>
                                       <input type="text" value={mindEditData?.cognition_beliefs?.future_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'future_perception', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
                                     </div>
                                   </div>
@@ -2695,28 +2695,28 @@ const HamoPro = () => {
                                   <div className="space-y-3 mb-4">
                                     {mindData.cognition_beliefs?.core_beliefs?.length > 0 && (
                                       <div className="bg-amber-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">Core Beliefs</span>
+                                        <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">{t('coreBeliefs')}</span>
                                         <div className="mt-2 space-y-1">{mindData.cognition_beliefs.core_beliefs.map((belief, idx) => (<div key={idx} className="flex items-start space-x-2"><span className="text-amber-500 mt-1">•</span><span className="text-sm text-gray-700">{belief}</span></div>))}</div>
                                       </div>
                                     )}
                                     {mindData.cognition_beliefs?.cognitive_distortions?.length > 0 && (
                                       <div className="bg-red-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-red-600 uppercase tracking-wide">Cognitive Distortions</span>
+                                        <span className="text-xs font-medium text-red-600 uppercase tracking-wide">{t('cognitiveDistortions')}</span>
                                         <div className="flex flex-wrap gap-2 mt-2">{mindData.cognition_beliefs.cognitive_distortions.map((d, idx) => (<span key={idx} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">{d}</span>))}</div>
                                       </div>
                                     )}
                                     {mindData.cognition_beliefs?.thinking_patterns?.length > 0 && (
                                       <div className="bg-amber-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">Thinking Patterns</span>
+                                        <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">{t('thinkingPatterns')}</span>
                                         <div className="flex flex-wrap gap-2 mt-2">{mindData.cognition_beliefs.thinking_patterns.map((p, idx) => (<span key={idx} className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">{p}</span>))}</div>
                                       </div>
                                     )}
                                   </div>
                                   {(mindData.cognition_beliefs?.self_perception || mindData.cognition_beliefs?.world_perception || mindData.cognition_beliefs?.future_perception) && (
                                     <div className="grid grid-cols-3 gap-3 mb-4">
-                                      {mindData.cognition_beliefs.self_perception && (<div className="bg-gray-50 rounded-lg p-3 text-center"><div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Self</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.self_perception}</div></div>)}
-                                      {mindData.cognition_beliefs.world_perception && (<div className="bg-gray-50 rounded-lg p-3 text-center"><div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">World</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.world_perception}</div></div>)}
-                                      {mindData.cognition_beliefs.future_perception && (<div className="bg-gray-50 rounded-lg p-3 text-center"><div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Future</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.future_perception}</div></div>)}
+                                      {mindData.cognition_beliefs.self_perception && (<div className="bg-gray-50 rounded-lg p-3 text-center"><div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">{t('selfPerception')}</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.self_perception}</div></div>)}
+                                      {mindData.cognition_beliefs.world_perception && (<div className="bg-gray-50 rounded-lg p-3 text-center"><div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">{t('worldPerception')}</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.world_perception}</div></div>)}
+                                      {mindData.cognition_beliefs.future_perception && (<div className="bg-gray-50 rounded-lg p-3 text-center"><div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">{t('futurePerception')}</div><div className="text-sm text-gray-700">{mindData.cognition_beliefs.future_perception}</div></div>)}
                                     </div>
                                   )}
                                   <div className="flex pt-3 border-t border-amber-100">
@@ -2743,11 +2743,11 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-white font-bold text-lg">Relationship Patterns</h4>
+                              <h4 className="text-white font-bold text-lg">{t('mindRelationshipPatterns')}</h4>
                               <div className="flex flex-wrap gap-2 mt-2">
                                 {mindData.relationship_manipulations?.attachment_style && (
                                   <span className="px-2 py-0.5 bg-white/20 text-white/90 rounded-full text-xs border border-white/30 capitalize">
-                                    {mindData.relationship_manipulations.attachment_style}
+                                    {t(`attachment${mindData.relationship_manipulations.attachment_style.charAt(0).toUpperCase() + mindData.relationship_manipulations.attachment_style.slice(1)}`) || mindData.relationship_manipulations.attachment_style}
                                   </span>
                                 )}
                                 {mindData.relationship_manipulations?.relationship_patterns?.slice(0, 2).map((pattern, idx) => (
@@ -2767,25 +2767,25 @@ const HamoPro = () => {
                               {mindEditMode ? (
                                 <div className="space-y-3">
                                   <div>
-                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{language === 'zh' ? '依附类型' : 'Attachment Style'}</label>
+                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('attachmentStyle')}</label>
                                     <select value={mindEditData?.relationship_manipulations?.attachment_style || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'attachment_style', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white">
                                       <option value="">--</option>
-                                      <option value="secure">{language === 'zh' ? '安全型' : 'Secure'}</option>
-                                      <option value="anxious">{language === 'zh' ? '焦虑型' : 'Anxious'}</option>
-                                      <option value="avoidant">{language === 'zh' ? '回避型' : 'Avoidant'}</option>
-                                      <option value="disorganized">{language === 'zh' ? '混乱型' : 'Disorganized'}</option>
+                                      <option value="secure">{t('attachmentSecure')}</option>
+                                      <option value="anxious">{t('attachmentAnxious')}</option>
+                                      <option value="avoidant">{t('attachmentAvoidant')}</option>
+                                      <option value="disorganized">{t('attachmentDisorganized')}</option>
                                     </select>
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{language === 'zh' ? '关系模式（逗号分隔）' : 'Relationship Patterns (comma separated)'}</label>
+                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('relationshipPatternsLabel')}</label>
                                     <input type="text" value={(mindEditData?.relationship_manipulations?.relationship_patterns || []).join(', ')} onChange={(e) => updateMindEditArray('relationship_manipulations', 'relationship_patterns', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{language === 'zh' ? '沟通风格' : 'Communication Style'}</label>
+                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('communicationStyle')}</label>
                                     <input type="text" value={mindEditData?.relationship_manipulations?.communication_style || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'communication_style', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{language === 'zh' ? '冲突解决方式' : 'Conflict Resolution'}</label>
+                                    <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('conflictResolution')}</label>
                                     <input type="text" value={mindEditData?.relationship_manipulations?.conflict_resolution || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'conflict_resolution', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
                                   </div>
                                 </div>
@@ -2794,26 +2794,26 @@ const HamoPro = () => {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     {mindData.relationship_manipulations?.attachment_style && (
                                       <div className="bg-blue-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">Attachment Style</span>
-                                        <div className="mt-1"><span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-semibold capitalize">{mindData.relationship_manipulations.attachment_style}</span></div>
+                                        <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('attachmentStyle')}</span>
+                                        <div className="mt-1"><span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-semibold capitalize">{t(`attachment${mindData.relationship_manipulations.attachment_style.charAt(0).toUpperCase() + mindData.relationship_manipulations.attachment_style.slice(1)}`) || mindData.relationship_manipulations.attachment_style}</span></div>
                                       </div>
                                     )}
                                     {mindData.relationship_manipulations?.communication_style && (
                                       <div className="bg-blue-50 rounded-lg p-3">
-                                        <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">Communication Style</span>
+                                        <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('communicationStyle')}</span>
                                         <div className="text-sm text-gray-700 mt-1">{mindData.relationship_manipulations.communication_style}</div>
                                       </div>
                                     )}
                                   </div>
                                   {mindData.relationship_manipulations?.relationship_patterns?.length > 0 && (
                                     <div className="bg-blue-50 rounded-lg p-3 mb-4">
-                                      <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">Relationship Patterns</span>
+                                      <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('mindRelationshipPatterns')}</span>
                                       <div className="flex flex-wrap gap-2 mt-2">{mindData.relationship_manipulations.relationship_patterns.map((pattern, idx) => (<span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{pattern}</span>))}</div>
                                     </div>
                                   )}
                                   {mindData.relationship_manipulations?.conflict_resolution && (
                                     <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                                      <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">Conflict Resolution</span>
+                                      <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('conflictResolution')}</span>
                                       <div className="text-sm text-gray-700 mt-1">{mindData.relationship_manipulations.conflict_resolution}</div>
                                     </div>
                                   )}
@@ -2838,13 +2838,13 @@ const HamoPro = () => {
                         {mindData.connected_at && (
                           <span className="flex items-center space-x-1">
                             <Calendar className="w-3 h-3" />
-                            <span>Connected: {new Date(mindData.connected_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            <span>{t('connectedOn')}: {new Date(mindData.connected_at).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                           </span>
                         )}
                         {mindData.created_at && (
                           <span className="flex items-center space-x-1">
                             <Clock className="w-3 h-3" />
-                            <span>Created: {new Date(mindData.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            <span>{t('createdOn')}: {new Date(mindData.created_at).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                           </span>
                         )}
                       </div>
@@ -2857,7 +2857,7 @@ const HamoPro = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500">No AI Mind data available</div>
+                  <div className="text-center py-12 text-gray-500">{t('noAiMindData')}</div>
                 )}
                 </div>
               </div>

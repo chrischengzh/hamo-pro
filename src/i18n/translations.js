@@ -129,6 +129,56 @@ export const translations = {
     submitFeedback: 'Submit feedback to guide AI Mind learning...',
     submit: 'Submit',
     submitting: 'Submitting...',
+    edit: 'Edit',
+    saving: 'Saving...',
+    noAiMindData: 'No AI Mind data available',
+    clickToEdit: 'Click to edit...',
+
+    // AI Mind Section Headers
+    mindPersonalityTraits: 'Personality Traits',
+    mindEmotionPatterns: 'Emotion Patterns',
+    mindCognitionBeliefs: 'Cognition & Beliefs',
+    mindRelationshipPatterns: 'Relationship Patterns',
+
+    // AI Mind Personality Section
+    allTraits: 'All Traits',
+    primaryTraitsLabel: 'Primary Traits (comma separated)',
+    descriptionLabel: 'Description',
+
+    // AI Mind Emotion Section
+    dominantEmotions: 'Dominant Emotions',
+    triggers: 'Triggers',
+    copingMechanisms: 'Coping Mechanisms',
+    dominantEmotionsLabel: 'Dominant Emotions (comma separated)',
+    triggersLabel: 'Triggers (comma separated)',
+    copingMechanismsLabel: 'Coping Mechanisms (comma separated)',
+
+    // AI Mind Cognition Section
+    coreBeliefs: 'Core Beliefs',
+    cognitiveDistortions: 'Cognitive Distortions',
+    thinkingPatterns: 'Thinking Patterns',
+    corebeliefsLabel: 'Core Beliefs (comma separated)',
+    cognitiveDistortionsLabel: 'Cognitive Distortions (comma separated)',
+    thinkingPatternsLabel: 'Thinking Patterns (comma separated)',
+    selfPerception: 'Self',
+    worldPerception: 'World',
+    futurePerception: 'Future',
+
+    // AI Mind Relationship Section
+    attachmentStyle: 'Attachment Style',
+    relationshipPatternsLabel: 'Relationship Patterns (comma separated)',
+    communicationStyle: 'Communication Style',
+    conflictResolution: 'Conflict Resolution',
+
+    // AI Mind Attachment Options
+    attachmentSecure: 'Secure',
+    attachmentAnxious: 'Anxious',
+    attachmentAvoidant: 'Avoidant',
+    attachmentDisorganized: 'Disorganized',
+
+    // AI Mind Footer
+    connectedOn: 'Connected',
+    createdOn: 'Created',
 
     // Chats & Status
     conversations: 'Conversations',
@@ -314,6 +364,56 @@ export const translations = {
     submitFeedback: '提交反馈以指导 AI Mind 学习...',
     submit: '提交',
     submitting: '提交中...',
+    edit: '编辑',
+    saving: '保存中...',
+    noAiMindData: '暂无 AI Mind 数据',
+    clickToEdit: '点击编辑...',
+
+    // AI Mind Section Headers
+    mindPersonalityTraits: '人格特质',
+    mindEmotionPatterns: '情绪模式',
+    mindCognitionBeliefs: '认知与信念',
+    mindRelationshipPatterns: '关系互动',
+
+    // AI Mind Personality Section
+    allTraits: '所有特质',
+    primaryTraitsLabel: '主要特征（逗号分隔）',
+    descriptionLabel: '描述',
+
+    // AI Mind Emotion Section
+    dominantEmotions: '主要情绪',
+    triggers: '触发因素',
+    copingMechanisms: '应对机制',
+    dominantEmotionsLabel: '主要情绪（逗号分隔）',
+    triggersLabel: '触发因素（逗号分隔）',
+    copingMechanismsLabel: '应对机制（逗号分隔）',
+
+    // AI Mind Cognition Section
+    coreBeliefs: '核心信念',
+    cognitiveDistortions: '认知偏差',
+    thinkingPatterns: '思维模式',
+    corebeliefsLabel: '核心信念（逗号分隔）',
+    cognitiveDistortionsLabel: '认知偏差（逗号分隔）',
+    thinkingPatternsLabel: '思维模式（逗号分隔）',
+    selfPerception: '自我认知',
+    worldPerception: '世界认知',
+    futurePerception: '未来认知',
+
+    // AI Mind Relationship Section
+    attachmentStyle: '依附类型',
+    relationshipPatternsLabel: '关系模式（逗号分隔）',
+    communicationStyle: '沟通风格',
+    conflictResolution: '冲突解决方式',
+
+    // AI Mind Attachment Options
+    attachmentSecure: '安全型',
+    attachmentAnxious: '焦虑型',
+    attachmentAvoidant: '回避型',
+    attachmentDisorganized: '混乱型',
+
+    // AI Mind Footer
+    connectedOn: '连接于',
+    createdOn: '创建于',
 
     // Chats & Status
     conversations: '对话记录',
