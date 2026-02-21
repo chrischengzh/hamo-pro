@@ -284,6 +284,11 @@ const HamoPro = () => {
     const checkAuth = async () => {
       if (apiService.isAuthenticated()) {
         setIsAuthenticated(true);
+        // Fetch current user profile
+        const profileResult = await apiService.getProProfile();
+        if (profileResult.success) {
+          setCurrentUser(profileResult.user);
+        }
         // Load user data after confirming authentication
         await loadUserData();
       }

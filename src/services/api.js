@@ -212,6 +212,16 @@ class ApiService {
     return !!this.getAccessToken();
   }
 
+  // Get current Pro user profile
+  async getProProfile() {
+    try {
+      const response = await this.request('/users/me/pro');
+      return { success: true, user: response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   // Update Pro profile (name, sex, age, password)
   async updateProProfile(data) {
     try {
