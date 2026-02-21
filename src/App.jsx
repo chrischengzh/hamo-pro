@@ -2374,6 +2374,170 @@ const HamoPro = () => {
                   <div className="text-center py-12 text-red-500">{mindData.error}</div>
                 ) : mindData ? (
                   <div className="p-6 space-y-5">
+                    {mindEditMode ? (
+                      /* ===== EDIT MODE: Init-form-style layout ===== */
+                      <div className="space-y-4">
+                        {/* Basic Info (read-only) */}
+                        <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <User className="w-5 h-5 text-blue-600" />
+                            <h4 className="font-semibold text-blue-800">{t('basicInfo')}</h4>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('clientName')}</label>
+                              <div className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700">{mindData.name || selectedMindClient.name}</div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('sex')}</label>
+                              <div className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700">{t(mindData.sex) || mindData.sex || '-'}</div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('age')}</label>
+                              <div className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700">{mindData.age || '-'}</div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('selectAvatar')}</label>
+                              <div className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700">{mindData.avatar_name || '-'}</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Goals & Principles */}
+                        <div className="bg-teal-50 rounded-xl p-4 border-l-4 border-teal-400">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Star className="w-5 h-5 text-teal-600" />
+                            <h4 className="font-semibold text-teal-800">{t('goalsAndPrinciples')}</h4>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('therapyGoals')}</label>
+                              <textarea value={mindEditData?.goals || ''} onChange={(e) => updateMindEditString(null, 'goals', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder={t('therapyGoalsPlaceholder')} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('therapyPrinciples')}</label>
+                              <textarea value={mindEditData?.therapy_principles || ''} onChange={(e) => updateMindEditString(null, 'therapy_principles', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder={t('therapyPrinciplesPlaceholder')} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Personality Traits */}
+                        <div className="bg-purple-50 rounded-xl p-4 border-l-4 border-purple-400">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Brain className="w-5 h-5 text-purple-600" />
+                            <h4 className="font-semibold text-purple-800">{t('mindPersonalityTraits')}</h4>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('primaryTraitsLabel')}</label>
+                              <input type="text" value={(mindEditData?.personality?.primary_traits || []).join(', ')} onChange={(e) => updateMindEditArray('personality', 'primary_traits', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder={language === 'zh' ? '例如：内向, 感性, 善解人意' : 'e.g. introverted, emotional, empathetic'} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('descriptionLabel')}</label>
+                              <textarea value={mindEditData?.personality?.description || ''} onChange={(e) => updateMindEditString('personality', 'description', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" rows="2" placeholder={language === 'zh' ? '描述人格特征...' : 'Describe personality traits...'} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Emotion Patterns */}
+                        <div className="bg-yellow-50 rounded-xl p-4 border-l-4 border-yellow-400">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Sparkles className="w-5 h-5 text-yellow-600" />
+                            <h4 className="font-semibold text-yellow-800">{t('mindEmotionPatterns')}</h4>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('dominantEmotionsLabel')}</label>
+                              <input type="text" value={(mindEditData?.emotion_pattern?.dominant_emotions || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'dominant_emotions', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder={t('emotionPatternsPlaceholder')} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('triggersLabel')}</label>
+                              <input type="text" value={(mindEditData?.emotion_pattern?.triggers || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'triggers', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('copingMechanismsLabel')}</label>
+                              <input type="text" value={(mindEditData?.emotion_pattern?.coping_mechanisms || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'coping_mechanisms', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Cognition & Beliefs */}
+                        <div className="bg-indigo-50 rounded-xl p-4 border-l-4 border-indigo-400">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Brain className="w-5 h-5 text-indigo-600" />
+                            <h4 className="font-semibold text-indigo-800">{t('mindCognitionBeliefs')}</h4>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('corebeliefsLabel')}</label>
+                              <input type="text" value={(mindEditData?.cognition_beliefs?.core_beliefs || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'core_beliefs', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder={t('cognitionPlaceholder')} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('cognitiveDistortionsLabel')}</label>
+                              <input type="text" value={(mindEditData?.cognition_beliefs?.cognitive_distortions || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'cognitive_distortions', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('thinkingPatternsLabel')}</label>
+                              <input type="text" value={(mindEditData?.cognition_beliefs?.thinking_patterns || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'thinking_patterns', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('selfPerception')}</label>
+                                <input type="text" value={mindEditData?.cognition_beliefs?.self_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'self_perception', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('worldPerception')}</label>
+                                <input type="text" value={mindEditData?.cognition_beliefs?.world_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'world_perception', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('futurePerception')}</label>
+                                <input type="text" value={mindEditData?.cognition_beliefs?.future_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'future_perception', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Relationship Patterns */}
+                        <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <User className="w-5 h-5 text-rose-600" />
+                            <h4 className="font-semibold text-rose-800">{t('mindRelationshipPatterns')}</h4>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('attachmentStyle')}</label>
+                              <select value={mindEditData?.relationship_manipulations?.attachment_style || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'attachment_style', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white">
+                                <option value="">--</option>
+                                <option value="secure">{t('attachmentSecure')}</option>
+                                <option value="anxious">{t('attachmentAnxious')}</option>
+                                <option value="avoidant">{t('attachmentAvoidant')}</option>
+                                <option value="disorganized">{t('attachmentDisorganized')}</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('relationshipPatternsLabel')}</label>
+                              <input type="text" value={(mindEditData?.relationship_manipulations?.relationship_patterns || []).join(', ')} onChange={(e) => updateMindEditArray('relationship_manipulations', 'relationship_patterns', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" placeholder={t('relationshipPlaceholder')} />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('communicationStyle')}</label>
+                              <input type="text" value={mindEditData?.relationship_manipulations?.communication_style || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'communication_style', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">{t('conflictResolution')}</label>
+                              <input type="text" value={mindEditData?.relationship_manipulations?.conflict_resolution || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'conflict_resolution', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Save / Cancel buttons */}
+                        <div className="flex space-x-3 pt-2">
+                          <button onClick={saveMindEdits} disabled={mindSaving} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50">{mindSaving ? t('saving') : t('save')}</button>
+                          <button onClick={() => { setMindEditMode(false); setMindEditData(null); }} className="bg-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">{t('cancel')}</button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ===== READ MODE: Collapsible card layout ===== */
+                      <>
                     {/* Client Info Card */}
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-100">
                       <div className="flex items-center justify-between">
@@ -2417,7 +2581,7 @@ const HamoPro = () => {
                     {/* Collapsible Mind Sections */}
                     <div className="space-y-3">
                       {/* Goals & Therapy Principles Section */}
-                      {(mindData.goals || mindData.therapy_principles || mindEditMode) && (
+                      {(mindData.goals || mindData.therapy_principles) && (
                         <div
                           className={`bg-green-400 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'goals' ? 'ring-2 ring-green-300' : ''}`}
                           onClick={(e) => {
@@ -2427,9 +2591,9 @@ const HamoPro = () => {
                         >
                           <div className="px-5 py-4 flex items-center justify-between">
                             <div>
-                              <h4 className="text-white font-bold text-lg">{language === 'zh' ? '目标与原则' : 'Goals & Principles'}</h4>
+                              <h4 className="text-white font-bold text-lg">{t('goalsAndPrinciples')}</h4>
                               <p className="text-white/90 text-sm mt-1 line-clamp-1">
-                                {mindData.goals || mindData.therapy_principles || (mindEditMode ? t('clickToEdit') : '')}
+                                {mindData.goals || mindData.therapy_principles}
                               </p>
                             </div>
                             <div className={`w-10 h-10 bg-black rounded-full flex items-center justify-center transition-transform duration-300 ${expandedMindSection === 'goals' ? 'rotate-90' : ''}`}>
@@ -2439,40 +2603,27 @@ const HamoPro = () => {
 
                           {expandedMindSection === 'goals' && (
                             <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
-                              {mindEditMode ? (
-                                <div className="space-y-3">
-                                  <div>
-                                    <label className="text-xs font-medium text-green-700 uppercase tracking-wide">{language === 'zh' ? '咨询目标' : 'Therapy Goals'}</label>
-                                    <textarea value={mindEditData?.goals || ''} onChange={(e) => updateMindEditString(null, 'goals', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none" rows={2} placeholder={language === 'zh' ? '输入咨询目标...' : 'Enter therapy goals...'} />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-green-700 uppercase tracking-wide">{language === 'zh' ? '咨询原则' : 'Therapy Principles'}</label>
-                                    <textarea value={mindEditData?.therapy_principles || ''} onChange={(e) => updateMindEditString(null, 'therapy_principles', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none" rows={2} placeholder={language === 'zh' ? '输入咨询原则...' : 'Enter therapy principles...'} />
-                                  </div>
-                                </div>
-                              ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {mindData.goals && (
                                     <div className="bg-green-50 rounded-lg p-3">
-                                      <span className="text-xs font-medium text-green-700 uppercase tracking-wide">{language === 'zh' ? '咨询目标' : 'Therapy Goals'}</span>
+                                      <span className="text-xs font-medium text-green-700 uppercase tracking-wide">{t('therapyGoals')}</span>
                                       <p className="text-sm text-gray-700 mt-2">{mindData.goals}</p>
                                     </div>
                                   )}
                                   {mindData.therapy_principles && (
                                     <div className="bg-green-50 rounded-lg p-3">
-                                      <span className="text-xs font-medium text-green-700 uppercase tracking-wide">{language === 'zh' ? '咨询原则' : 'Therapy Principles'}</span>
+                                      <span className="text-xs font-medium text-green-700 uppercase tracking-wide">{t('therapyPrinciples')}</span>
                                       <p className="text-sm text-gray-700 mt-2">{mindData.therapy_principles}</p>
                                     </div>
                                   )}
                                 </div>
-                              )}
                             </div>
                           )}
                         </div>
                       )}
 
                       {/* Personality Section */}
-                      {(mindData.personality || mindEditMode) && (
+                      {mindData.personality && (
                         <div
                           className={`bg-purple-500 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'personality' ? 'ring-2 ring-purple-300' : ''}`}
                           onClick={(e) => {
@@ -2503,18 +2654,6 @@ const HamoPro = () => {
 
                           {expandedMindSection === 'personality' && (
                             <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
-                              {mindEditMode ? (
-                                <div className="space-y-3">
-                                  <div>
-                                    <label className="text-xs font-medium text-purple-600 uppercase tracking-wide">{t('primaryTraitsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.personality?.primary_traits || []).join(', ')} onChange={(e) => updateMindEditArray('personality', 'primary_traits', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder={language === 'zh' ? '例如：内向, 感性, 善解人意' : 'e.g. introverted, emotional, empathetic'} />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-purple-600 uppercase tracking-wide">{t('descriptionLabel')}</label>
-                                    <textarea value={mindEditData?.personality?.description || ''} onChange={(e) => updateMindEditString('personality', 'description', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:outline-none" rows={2} />
-                                  </div>
-                                </div>
-                              ) : (
                                 <>
                                   {mindData.personality?.primary_traits?.length > 0 && (
                                     <div className="mb-4">
@@ -2536,14 +2675,13 @@ const HamoPro = () => {
                                     </button>
                                   </div>
                                 </>
-                              )}
                             </div>
                           )}
                         </div>
                       )}
 
                       {/* Emotion Pattern Section */}
-                      {(mindData.emotion_pattern || mindEditMode) && (
+                      {mindData.emotion_pattern && (
                         <div
                           className={`bg-emerald-500 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'emotion_pattern' ? 'ring-2 ring-emerald-300' : ''}`}
                           onClick={(e) => {
@@ -2574,26 +2712,6 @@ const HamoPro = () => {
 
                           {expandedMindSection === 'emotion_pattern' && (
                             <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
-                              {mindEditMode ? (
-                                <div className="space-y-3">
-                                  <div>
-                                    <label className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{t('dominantEmotionsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.emotion_pattern?.dominant_emotions || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'dominant_emotions', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-amber-600 uppercase tracking-wide">{t('triggersLabel')}</label>
-                                    <input type="text" value={(mindEditData?.emotion_pattern?.triggers || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'triggers', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-green-600 uppercase tracking-wide">{t('copingMechanismsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.emotion_pattern?.coping_mechanisms || []).join(', ')} onChange={(e) => updateMindEditArray('emotion_pattern', 'coping_mechanisms', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-emerald-600 uppercase tracking-wide">{t('descriptionLabel')}</label>
-                                    <textarea value={mindEditData?.emotion_pattern?.description || ''} onChange={(e) => updateMindEditString('emotion_pattern', 'description', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none" rows={2} />
-                                  </div>
-                                </div>
-                              ) : (
                                 <>
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     {mindData.emotion_pattern?.dominant_emotions?.length > 0 && (
@@ -2623,14 +2741,13 @@ const HamoPro = () => {
                                     </button>
                                   </div>
                                 </>
-                              )}
                             </div>
                           )}
                         </div>
                       )}
 
                       {/* Cognition & Beliefs Section */}
-                      {(mindData.cognition_beliefs || mindEditMode) && (
+                      {mindData.cognition_beliefs && (
                         <div
                           className={`bg-amber-400 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'cognition_beliefs' ? 'ring-2 ring-amber-300' : ''}`}
                           onClick={(e) => {
@@ -2661,36 +2778,6 @@ const HamoPro = () => {
 
                           {expandedMindSection === 'cognition_beliefs' && (
                             <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
-                              {mindEditMode ? (
-                                <div className="space-y-3">
-                                  <div>
-                                    <label className="text-xs font-medium text-amber-700 uppercase tracking-wide">{t('corebeliefsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.cognition_beliefs?.core_beliefs || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'core_beliefs', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-red-600 uppercase tracking-wide">{t('cognitiveDistortionsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.cognition_beliefs?.cognitive_distortions || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'cognitive_distortions', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-red-200 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-amber-700 uppercase tracking-wide">{t('thinkingPatternsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.cognition_beliefs?.thinking_patterns || []).join(', ')} onChange={(e) => updateMindEditArray('cognition_beliefs', 'thinking_patterns', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-                                  </div>
-                                  <div className="grid grid-cols-3 gap-3">
-                                    <div>
-                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('selfPerception')}</label>
-                                      <input type="text" value={mindEditData?.cognition_beliefs?.self_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'self_perception', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-                                    </div>
-                                    <div>
-                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('worldPerception')}</label>
-                                      <input type="text" value={mindEditData?.cognition_beliefs?.world_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'world_perception', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-                                    </div>
-                                    <div>
-                                      <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('futurePerception')}</label>
-                                      <input type="text" value={mindEditData?.cognition_beliefs?.future_perception || ''} onChange={(e) => updateMindEditString('cognition_beliefs', 'future_perception', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
                                 <>
                                   <div className="space-y-3 mb-4">
                                     {mindData.cognition_beliefs?.core_beliefs?.length > 0 && (
@@ -2726,14 +2813,13 @@ const HamoPro = () => {
                                     </button>
                                   </div>
                                 </>
-                              )}
                             </div>
                           )}
                         </div>
                       )}
 
                       {/* Relationship Patterns Section */}
-                      {(mindData.relationship_manipulations || mindEditMode) && (
+                      {mindData.relationship_manipulations && (
                         <div
                           className={`bg-blue-500 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${expandedMindSection === 'relationship_manipulations' ? 'ring-2 ring-blue-300' : ''}`}
                           onClick={(e) => {
@@ -2764,32 +2850,6 @@ const HamoPro = () => {
 
                           {expandedMindSection === 'relationship_manipulations' && (
                             <div className="bg-white mx-2 mb-2 rounded-xl p-4" onClick={(e) => e.stopPropagation()}>
-                              {mindEditMode ? (
-                                <div className="space-y-3">
-                                  <div>
-                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('attachmentStyle')}</label>
-                                    <select value={mindEditData?.relationship_manipulations?.attachment_style || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'attachment_style', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white">
-                                      <option value="">--</option>
-                                      <option value="secure">{t('attachmentSecure')}</option>
-                                      <option value="anxious">{t('attachmentAnxious')}</option>
-                                      <option value="avoidant">{t('attachmentAvoidant')}</option>
-                                      <option value="disorganized">{t('attachmentDisorganized')}</option>
-                                    </select>
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('relationshipPatternsLabel')}</label>
-                                    <input type="text" value={(mindEditData?.relationship_manipulations?.relationship_patterns || []).join(', ')} onChange={(e) => updateMindEditArray('relationship_manipulations', 'relationship_patterns', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">{t('communicationStyle')}</label>
-                                    <input type="text" value={mindEditData?.relationship_manipulations?.communication_style || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'communication_style', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">{t('conflictResolution')}</label>
-                                    <input type="text" value={mindEditData?.relationship_manipulations?.conflict_resolution || ''} onChange={(e) => updateMindEditString('relationship_manipulations', 'conflict_resolution', e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-                                  </div>
-                                </div>
-                              ) : (
                                 <>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     {mindData.relationship_manipulations?.attachment_style && (
@@ -2824,7 +2884,6 @@ const HamoPro = () => {
                                     </button>
                                   </div>
                                 </>
-                              )}
                             </div>
                           )}
                         </div>
@@ -2855,6 +2914,8 @@ const HamoPro = () => {
                         </span>
                       )}
                     </div>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-12 text-gray-500">{t('noAiMindData')}</div>
