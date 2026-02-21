@@ -1175,11 +1175,9 @@ const HamoPro = () => {
 
         if (latestClientMessage) {
           const latestMsgId = String(latestClientMessage.id);
-          if (latestClientMessage.psvs_snapshot) {
-            setCurrentPsvs({ ...latestClientMessage.psvs_snapshot, messageId: latestMsgId });
-          } else {
-            setCurrentPsvs(prev => prev ? { ...prev, messageId: latestMsgId } : null);
-          }
+          // Only update messageId for highlighting, keep stress_level from PSVS API (current_position)
+          // Message psvs_snapshot may be stale if Pro updated AI Mind after the message was sent
+          setCurrentPsvs(prev => prev ? { ...prev, messageId: latestMsgId } : null);
         }
       }
     } catch (error) {
