@@ -151,31 +151,31 @@ export const translations = {
 
     // AI Mind Personality Section
     allTraits: 'All Traits',
-    primaryTraitsLabel: 'Primary Traits (comma separated)',
+    primaryTraitsLabel: 'Primary Traits',
     descriptionLabel: 'Description',
 
     // AI Mind Emotion Section
     dominantEmotions: 'Dominant Emotions',
     triggers: 'Triggers',
     copingMechanisms: 'Coping Mechanisms',
-    dominantEmotionsLabel: 'Dominant Emotions (comma separated)',
-    triggersLabel: 'Triggers (comma separated)',
-    copingMechanismsLabel: 'Coping Mechanisms (comma separated)',
+    dominantEmotionsLabel: 'Dominant Emotions',
+    triggersLabel: 'Triggers',
+    copingMechanismsLabel: 'Coping Mechanisms',
 
     // AI Mind Cognition Section
     coreBeliefs: 'Core Beliefs',
     cognitiveDistortions: 'Cognitive Distortions',
     thinkingPatterns: 'Thinking Patterns',
-    corebeliefsLabel: 'Core Beliefs (comma separated)',
-    cognitiveDistortionsLabel: 'Cognitive Distortions (comma separated)',
-    thinkingPatternsLabel: 'Thinking Patterns (comma separated)',
+    corebeliefsLabel: 'Core Beliefs',
+    cognitiveDistortionsLabel: 'Cognitive Distortions',
+    thinkingPatternsLabel: 'Thinking Patterns',
     selfPerception: 'Self',
     worldPerception: 'World',
     futurePerception: 'Future',
 
     // AI Mind Relationship Section
     attachmentStyle: 'Attachment Style',
-    relationshipPatternsLabel: 'Relationship Patterns (comma separated)',
+    relationshipPatternsLabel: 'Relationship Patterns',
     communicationStyle: 'Communication Style',
     conflictResolution: 'Conflict Resolution',
 
@@ -451,31 +451,31 @@ export const translations = {
 
     // AI Mind Personality Section
     allTraits: '所有特质',
-    primaryTraitsLabel: '主要特征（逗号分隔）',
+    primaryTraitsLabel: '主要特征',
     descriptionLabel: '描述',
 
     // AI Mind Emotion Section
     dominantEmotions: '主要情绪',
     triggers: '触发因素',
     copingMechanisms: '应对机制',
-    dominantEmotionsLabel: '主要情绪（逗号分隔）',
-    triggersLabel: '触发因素（逗号分隔）',
-    copingMechanismsLabel: '应对机制（逗号分隔）',
+    dominantEmotionsLabel: '主要情绪',
+    triggersLabel: '触发因素',
+    copingMechanismsLabel: '应对机制',
 
     // AI Mind Cognition Section
     coreBeliefs: '核心信念',
     cognitiveDistortions: '认知偏差',
     thinkingPatterns: '思维模式',
-    corebeliefsLabel: '核心信念（逗号分隔）',
-    cognitiveDistortionsLabel: '认知偏差（逗号分隔）',
-    thinkingPatternsLabel: '思维模式（逗号分隔）',
+    corebeliefsLabel: '核心信念',
+    cognitiveDistortionsLabel: '认知偏差',
+    thinkingPatternsLabel: '思维模式',
     selfPerception: '自我认知',
     worldPerception: '世界认知',
     futurePerception: '未来认知',
 
     // AI Mind Relationship Section
     attachmentStyle: '依附类型',
-    relationshipPatternsLabel: '关系模式（逗号分隔）',
+    relationshipPatternsLabel: '关系模式',
     communicationStyle: '沟通风格',
     conflictResolution: '冲突解决方式',
 
