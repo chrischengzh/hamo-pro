@@ -191,6 +191,7 @@ const HamoPro = () => {
   const [conversationsData, setConversationsData] = useState([]);
   const [conversationsLoading, setConversationsLoading] = useState(false);
   const [currentPsvs, setCurrentPsvs] = useState(null); // Track current PSVS indicators for status bar
+  const [psvsTrajectory, setPsvsTrajectory] = useState([]); // Full PSVS trajectory history for chart
   const [messageRefs, setMessageRefs] = useState({}); // Store refs for each message
   const chatScrollRef = useRef(null); // Ref for the scrollable chat container
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false); // Auto-refresh toggle (default off)
@@ -302,6 +303,10 @@ const HamoPro = () => {
           distance_from_center: pos.distance_from_center || pos.distance,
           messageId: prev?.messageId || null // Preserve messageId if set
         }));
+        // Update trajectory history for chart
+        if (psvsResult.psvs.recent_trajectory) {
+          setPsvsTrajectory(psvsResult.psvs.recent_trajectory);
+        }
       }
 
       // Fetch updated sessions
@@ -1023,6 +1028,7 @@ const HamoPro = () => {
     setConversationsLoading(true);
     setConversationsData([]);
     setCurrentPsvs(null);
+    setPsvsTrajectory([]);
     setExpandedMiniSessions(new Set());
 
     try {
@@ -1055,6 +1061,10 @@ const HamoPro = () => {
           distance_from_center: pos.distance_from_center || pos.distance,
           messageId: null
         });
+        // Store trajectory history for chart
+        if (psvsResult.psvs.recent_trajectory) {
+          setPsvsTrajectory(psvsResult.psvs.recent_trajectory);
+        }
       }
 
       if (sessionsResult.success && sessionsResult.sessions.length > 0) {
@@ -3173,9 +3183,16 @@ const HamoPro = () => {
 
                   {/* Stress Detail Panel - Expandable */}
                   {showStressDetail && (() => {
-                    // Collect all client messages with psvs_snapshot from conversations
-                    const stressDataPoints = [];
-                    if (conversationsData && conversationsData.length > 0) {
+                    // Use PSVS trajectory from API (consistent with Portal)
+                    // Fallback to message psvs_snapshots if trajectory not available
+                    let stressDataPoints = [];
+                    if (psvsTrajectory && psvsTrajectory.length > 0) {
+                      stressDataPoints = psvsTrajectory.map(t => ({
+                        stress: t.stress_level,
+                        energy: t.energy_state,
+                        timestamp: t.timestamp,
+                      }));
+                    } else if (conversationsData && conversationsData.length > 0) {
                       conversationsData.forEach(conv => {
                         if (conv.messages) {
                           conv.messages.forEach(msg => {
