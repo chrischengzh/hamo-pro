@@ -902,6 +902,12 @@ const HamoPro = () => {
       const result = await apiService.getMind(client.id);
       if (result.success) {
         setMindData(result.mind);
+        // Sync client card with fresh backend data (name/sex/age may have been updated by Discover user)
+        setClients(prev => prev.map(c =>
+          c.id === client.id
+            ? { ...c, name: result.mind.name || c.name, sex: result.mind.sex ?? c.sex, age: result.mind.age ?? c.age }
+            : c
+        ));
       } else {
         setMindData({ error: result.error || 'Failed to load AI Mind data' });
       }
@@ -2389,7 +2395,7 @@ const HamoPro = () => {
                 return (
                   <div key={c.id} className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                     <div className="flex justify-between mb-3">
-                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{t(c.sex) || c.sex}, {c.age} {language === 'zh' ? '岁' : 'years'}</p></div>
+                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{c.sex ? (t(c.sex) || c.sex) : ''}{c.sex && c.age ? ', ' : ''}{c.age ? `${c.age} ${language === 'zh' ? '岁' : 'years'}` : ''}</p></div>
                       {isConnected ? (
                         <div className="flex flex-col items-center text-green-500 flex-shrink-0">
                           <Calendar className="w-5 h-5" />
@@ -3612,7 +3618,7 @@ const HamoPro = () => {
             <span className="text-xs mt-1 font-medium">{t('aiAvatars')}</span>
           </button>
           <button
-            onClick={() => setActiveTab('clients')}
+            onClick={() => { setActiveTab('clients'); loadUserData(); }}
             className={`flex flex-col items-center justify-center py-2 px-6 ${activeTab === 'clients' ? 'text-blue-500' : 'text-gray-400'}`}
           >
             <User className="w-6 h-6" />
