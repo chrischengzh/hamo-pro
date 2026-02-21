@@ -494,6 +494,23 @@ class ApiService {
     }
   }
 
+  // Update AI Mind data (PUT /api/mind/{mind_id})
+  async updateMind(mindId, updateData) {
+    try {
+      console.log('🔵 Updating AI Mind:', mindId, updateData);
+      const response = await this.request(`/mind/${mindId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+      });
+
+      console.log('✅ AI Mind updated:', response);
+      return { success: true, mind: response };
+    } catch (error) {
+      console.error('❌ Failed to update AI Mind:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Submit supervision feedback for a specific AI Mind section
   async submitSupervision(mindId, section, feedback) {
     try {
