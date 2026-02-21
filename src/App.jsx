@@ -3598,9 +3598,16 @@ const HamoPro = () => {
                                                   </div>
                                                 )
                                               ) : (
-                                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
-                                                  <Brain className="w-4 h-4 text-blue-500" />
-                                                </div>
+                                                (() => {
+                                                  const avatar = avatars.find(a => String(a.id) === String(selectedClient.avatarId));
+                                                  return avatar?.avatarPicture ? (
+                                                    <img src={avatar.avatarPicture} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" />
+                                                  ) : (
+                                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                                                      <Brain className="w-4 h-4 text-blue-500" />
+                                                    </div>
+                                                  );
+                                                })()
                                               )}
                                               {/* Message bubble */}
                                               <div
