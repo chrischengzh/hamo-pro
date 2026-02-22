@@ -327,7 +327,7 @@ export const translations = {
     // Professions
     mentalHealthProfessional: '心理健康专业人士',
     astrologer: '占星师',
-    comingSoon: '稍后推出',
+    comingSoon: '敬请期待',
 
     // Navigation
     aiAvatars: '虚拟咨询师',
