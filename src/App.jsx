@@ -4,7 +4,7 @@ import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.5.19";
+  const APP_VERSION = "1.5.20";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -2534,41 +2534,73 @@ const HamoPro = () => {
                 const isConnected = c.connectedAt || c.connected_at;
                 // Connection date now formatted inline in English
                 return (
-                  <div key={c.id} className="bg-white rounded-xl shadow-md p-4 sm:p-6">
-                    {/* Profile Picture */}
-                    <div className="flex justify-center mb-3">
-                      {c.profilePicture ? (
-                        <img src={c.profilePicture} alt={c.name} className="w-16 h-16 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                          <User className="w-8 h-8 text-purple-400" />
+                  <div key={c.id} className="bg-white rounded-xl shadow-md p-4">
+                    {/* Top Row: Avatar (left) + Client (right) */}
+                    <div className="flex justify-between items-start mb-3">
+                      {/* Left: Avatar picture + name + experience */}
+                      <div className="flex items-start space-x-2 min-w-0 flex-1">
+                        {avatar?.avatarPicture ? (
+                          <img src={avatar.avatarPicture} alt={avatar.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <Brain className="w-5 h-5 text-blue-400" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{avatar?.name || (language === 'zh' ? '未分配' : 'N/A')}</p>
+                          <p className="text-xs text-gray-400">
+                            {avatar ? `${avatar.experienceYears || 0}${t('years')} ${avatar.experienceMonths || 0}${t('months')}` : ''}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex justify-between mb-3">
-                      <div><h3 className="font-semibold">{c.name}</h3><p className="text-sm text-gray-500">{c.sex ? (t(c.sex) || c.sex) : ''}{c.sex && c.age ? ', ' : ''}{c.age ? `${c.age} ${language === 'zh' ? '岁' : 'years'}` : ''}</p></div>
-                      {isConnected ? (
-                        <div className="flex flex-col items-center text-green-500 flex-shrink-0">
-                          <Calendar className="w-5 h-5" />
-                          <span className="text-xs mt-1">{new Date(isConnected).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })}</span>
-                          <span className="text-xs text-green-600 font-medium">{t('connected')}</span>
+                      </div>
+                      {/* Right: Client picture (with connection status) + name + age/sex */}
+                      <div className="flex items-start space-x-2 min-w-0 flex-1 justify-end">
+                        <div className="text-right min-w-0">
+                          <p className="font-semibold text-sm truncate">{c.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {c.sex ? (t(c.sex) || c.sex) : ''}
+                            {c.sex && c.age ? ', ' : ''}
+                            {c.age ? `${c.age}${language === 'zh' ? '岁' : ''}` : ''}
+                          </p>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => handleGenerateInvitation(c)}
-                          disabled={invitationLoading}
-                          className="flex flex-col items-center text-blue-500 hover:text-blue-600 disabled:opacity-50 flex-shrink-0"
-                        >
-                          <Ticket className="w-5 h-5" />
-                          <span className="text-xs mt-1">{t('invitationCode')}</span>
-                        </button>
-                      )}
+                        <div className="relative flex-shrink-0">
+                          {c.profilePicture ? (
+                            <img src={c.profilePicture} alt={c.name} className={`w-10 h-10 rounded-full object-cover ${isConnected ? 'ring-2 ring-green-400' : ''}`} />
+                          ) : (
+                            <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center ${isConnected ? 'ring-2 ring-green-400' : ''}`}>
+                              <User className="w-5 h-5 text-purple-400" />
+                            </div>
+                          )}
+                          {!isConnected && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleGenerateInvitation(c); }}
+                              disabled={invitationLoading}
+                              className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 disabled:opacity-50"
+                            >
+                              <Ticket className="w-3 h-3 text-white" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm mb-2"><span className="font-medium">Avatar:</span> {avatar?.name || (language === 'zh' ? '未分配' : 'Not assigned')}</p>
-                    <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-3">
-                      <div className="flex items-center space-x-1"><MessageSquare className="w-4 h-4" /><span>{c.sessions} {t('sessions')}</span></div>
-                      <div className="flex items-center space-x-1"><Clock className="w-4 h-4" /><span>{c.avgTime} {t('avgTime')}</span></div>
+
+                    {/* Middle Row: Mini session count (left) + Last active (right) */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3 py-2 border-t border-b border-gray-100">
+                      <div className="flex items-center space-x-1">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>{c.totalMiniSessions} {t('totalMiniSessions')}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>
+                          {c.lastActive
+                            ? `${t('lastActive')} ${new Date(c.lastActive).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })}`
+                            : t('noActivity')}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Bottom Row: AI Mind + Chats & Status buttons */}
                     <div className="flex space-x-2">
                       <button onClick={() => handleViewMind(c)} className="flex-1 bg-purple-50 text-purple-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-purple-100"><Sparkles className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">{t('aiMind')}</span></button>
                       <button onClick={() => handleViewChats(c)} className="flex-1 bg-blue-50 text-blue-600 px-2 sm:px-3 py-2 rounded-lg flex items-center justify-center space-x-1 sm:space-x-2 hover:bg-blue-100"><Eye className="w-4 h-4 flex-shrink-0" /><span className="text-xs sm:text-sm whitespace-nowrap">{t('chatsStatus')}</span></button>

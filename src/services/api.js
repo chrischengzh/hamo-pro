@@ -417,6 +417,8 @@ class ApiService {
           avgTime: client.avg_time || client.avgTime || 0,
           conversations: client.conversations || [],
           profilePicture: client.profile_picture || null,
+          lastActive: client.last_active || null,
+          totalMiniSessions: client.total_mini_sessions || 0,
         })),
       };
     } catch (error) {

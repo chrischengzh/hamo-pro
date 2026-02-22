@@ -81,6 +81,9 @@ export const translations = {
     connected: 'Connected',
     sessions: 'Sessions',
     avgTime: 'min avg',
+    totalMiniSessions: 'sessions',
+    lastActive: 'Last active',
+    noActivity: 'No activity yet',
     aiMind: 'AI Mind',
     chatsStatus: 'Chats & Status',
 
@@ -381,6 +384,9 @@ export const translations = {
     connected: '已连接',
     sessions: '次会话',
     avgTime: '分钟/次',
+    totalMiniSessions: '次会话',
+    lastActive: '最近活跃',
+    noActivity: '暂无活跃',
     aiMind: 'AI Mind',
     chatsStatus: '对话与状态',
 
