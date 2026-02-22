@@ -24,7 +24,7 @@ export const translations = {
     // Professions
     mentalHealthProfessional: 'Mental Health Professional',
     astrologer: 'Astrologer',
-    comingSoon: 'Coming Soon',
+    comingSoon: 'Idea Stage',
 
     // Navigation
     aiAvatars: 'AI Avatars',
@@ -327,7 +327,7 @@ export const translations = {
     // Professions
     mentalHealthProfessional: '心理健康专业人士',
     astrologer: '占星师',
-    comingSoon: '敬请期待',
+    comingSoon: '想法阶段',
 
     // Navigation
     aiAvatars: '虚拟咨询师',
