@@ -1429,11 +1429,13 @@ const HamoPro = () => {
     ctx.roundRect(10, 10, 380, 480, 16);
     ctx.fill();
 
+    const isZh = language === 'zh';
+
     // Draw title
     ctx.fillStyle = '#1F2937';
     ctx.font = 'bold 24px system-ui, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Invitation Code', 200, 60);
+    ctx.fillText(isZh ? '邀请码' : 'Invitation Code', 200, 60);
 
     // Draw Hamo Pro badge
     ctx.fillStyle = '#3B82F6';
@@ -1448,7 +1450,7 @@ const HamoPro = () => {
     // Draw validity notice
     ctx.fillStyle = '#F97316';
     ctx.font = '16px system-ui, sans-serif';
-    ctx.fillText('Valid for 24 hours', 200, 230);
+    ctx.fillText(isZh ? '24小时内有效' : 'Valid for 24 hours', 200, 230);
 
     // Draw divider line
     ctx.strokeStyle = '#E5E7EB';
@@ -1462,7 +1464,7 @@ const HamoPro = () => {
     const avatar = avatars.find(a => String(a.id) === String(showInvitationCard.avatarId) || String(a.id) === String(showInvitationCard.avatar_id));
     ctx.fillStyle = '#6B7280';
     ctx.font = '14px system-ui, sans-serif';
-    ctx.fillText('Client', 200, 310);
+    ctx.fillText(isZh ? '来访者' : 'Client', 200, 310);
     ctx.fillStyle = '#1F2937';
     ctx.font = 'bold 18px system-ui, sans-serif';
     ctx.fillText(showInvitationCard.name, 200, 340);
@@ -1472,12 +1474,12 @@ const HamoPro = () => {
     ctx.fillText('AI Avatar', 200, 390);
     ctx.fillStyle = '#1F2937';
     ctx.font = 'bold 18px system-ui, sans-serif';
-    ctx.fillText(avatar?.name || 'Unknown', 200, 420);
+    ctx.fillText(avatar?.name || (isZh ? '未知' : 'Unknown'), 200, 420);
 
     // Draw footer
     ctx.fillStyle = '#9CA3AF';
     ctx.font = '12px system-ui, sans-serif';
-    ctx.fillText('Download Hamo Client App to connect', 200, 470);
+    ctx.fillText(isZh ? '访问 client.hamo.ai 连接' : 'Visit client.hamo.ai to connect', 200, 470);
 
     // Download the image
     const link = document.createElement('a');
@@ -1661,7 +1663,7 @@ const HamoPro = () => {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-400 mb-6">{language === 'zh' ? '下载 Hamo Client App 连接' : 'Download Hamo Client App to connect'}</p>
+                <p className="text-xs text-gray-400 mb-6">{language === 'zh' ? '访问 client.hamo.ai 连接' : 'Visit client.hamo.ai to connect'}</p>
               </div>
 
               <div className="flex space-x-3">
