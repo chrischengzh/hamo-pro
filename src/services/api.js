@@ -372,6 +372,7 @@ class ApiService {
           experienceYears: avatar.experience_years || avatar.experienceYears,
           experienceMonths: avatar.experience_months || avatar.experienceMonths,
           avatarPicture: avatar.avatar_picture || null,
+          likeCount: avatar.like_count || 0,
           specializations: avatar.specializations,
           // Legacy fields for backward compatibility
           theory: avatar.theory,

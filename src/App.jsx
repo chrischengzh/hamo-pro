@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save } from 'lucide-react';
+import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save } from 'lucide-react';
 import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.6.0";
+  const APP_VERSION = "1.6.1";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -1948,10 +1948,9 @@ const HamoPro = () => {
                           <h3 className="text-lg font-semibold text-gray-900">{a.name}</h3>
                           <p className="text-sm text-blue-600">{getSpecialtyLabel(a.specialty) || a.specialty || a.theory}</p>
                         </div>
-                        {/* Rating placeholder - can be removed if not needed */}
-                        <div className="flex items-center space-x-1 text-yellow-500">
-                          <Star className="w-4 h-4 fill-current" />
-                          <span className="text-sm font-medium">5.0</span>
+                        <div className="flex items-center space-x-1 text-red-500">
+                          <Heart className="w-4 h-4 fill-current" />
+                          <span className="text-sm font-medium">{a.likeCount || 0}</span>
                         </div>
                       </div>
 
@@ -2000,12 +1999,10 @@ const HamoPro = () => {
                       <h2 className="text-2xl font-bold text-white">{selectedAvatar.name}</h2>
                       <p className="text-blue-100 mt-1">{getSpecialtyLabel(selectedAvatar.specialty) || selectedAvatar.specialty || selectedAvatar.theory}</p>
 
-                      {/* Rating */}
+                      {/* Like Count */}
                       <div className="flex items-center space-x-1 mt-2">
-                        {[1, 2, 3, 4, 5].map(i => (
-                          <Star key={i} className="w-5 h-5 text-yellow-300 fill-current" />
-                        ))}
-                        <span className="text-white ml-2 text-sm">5.0</span>
+                        <Heart className="w-5 h-5 text-red-400 fill-current" />
+                        <span className="text-white text-sm">{selectedAvatar.likeCount || 0}</span>
                       </div>
                     </div>
                   </div>
