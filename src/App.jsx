@@ -1948,9 +1948,9 @@ const HamoPro = () => {
                           <h3 className="text-lg font-semibold text-gray-900">{a.name}</h3>
                           <p className="text-sm text-blue-600">{getSpecialtyLabel(a.specialty) || a.specialty || a.theory}</p>
                         </div>
-                        <div className="flex items-center space-x-1 text-red-500">
-                          <Heart className="w-4 h-4 fill-current" />
-                          <span className="text-sm font-medium">{a.likeCount || 0}</span>
+                        <div className="flex items-center space-x-1">
+                          <Heart className={`w-4 h-4 ${a.likeCount > 0 ? 'text-gray-400 fill-current' : 'text-gray-300'}`} />
+                          <span className="text-sm font-medium text-gray-500">{a.likeCount || 0}</span>
                         </div>
                       </div>
 
@@ -2001,7 +2001,7 @@ const HamoPro = () => {
 
                       {/* Like Count */}
                       <div className="flex items-center space-x-1 mt-2">
-                        <Heart className="w-5 h-5 text-red-400 fill-current" />
+                        <Heart className={`w-5 h-5 ${selectedAvatar.likeCount > 0 ? 'text-gray-200 fill-current' : 'text-gray-400'}`} />
                         <span className="text-white text-sm">{selectedAvatar.likeCount || 0}</span>
                       </div>
                     </div>
