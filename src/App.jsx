@@ -2100,13 +2100,13 @@ const HamoPro = () => {
                       onClick={() => handleEditAvatar(selectedAvatar)}
                       className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors"
                     >
-                      Edit AI Avatar
+                      {t('editAvatar')}
                     </button>
                     <button
                       onClick={() => setSelectedAvatar(null)}
                       className={`flex-1 ${tc('bg-gray-100 text-gray-700 hover:bg-gray-200', 'bg-slate-700 text-slate-300 hover:bg-slate-600')} py-3 rounded-xl font-medium transition-colors`}
                     >
-                      Close
+                      {t('close')}
                     </button>
                   </div>
                 </div>
