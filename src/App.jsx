@@ -1904,7 +1904,7 @@ const HamoPro = () => {
                           onClick={() => {
                             if (avatarForm.therapeuticApproaches.includes(opt.value)) {
                               setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt.value) });
-                            } else if (avatarForm.therapeuticApproaches.length < 3) {
+                            } else if (avatarForm.therapeuticApproaches.length + (avatarForm.customApproach ? 1 : 0) < 3) {
                               setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt.value] });
                             }
                           }}
@@ -2234,7 +2234,7 @@ const HamoPro = () => {
                               onClick={() => {
                                 if (avatarForm.therapeuticApproaches.includes(opt.value)) {
                                   setAvatarForm({ ...avatarForm, therapeuticApproaches: avatarForm.therapeuticApproaches.filter(a => a !== opt.value) });
-                                } else if (avatarForm.therapeuticApproaches.length < 3) {
+                                } else if (avatarForm.therapeuticApproaches.length + (avatarForm.customApproach ? 1 : 0) < 3) {
                                   setAvatarForm({ ...avatarForm, therapeuticApproaches: [...avatarForm.therapeuticApproaches, opt.value] });
                                 }
                               }}
