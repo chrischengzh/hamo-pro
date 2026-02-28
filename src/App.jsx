@@ -2018,7 +2018,7 @@ const HamoPro = () => {
                         {(a.experienceYears !== undefined || a.experienceMonths !== undefined) && (
                           <div className="flex items-center space-x-1">
                             <Briefcase className="w-4 h-4" />
-                            <span>{a.experienceYears || 0}y {a.experienceMonths || 0}m</span>
+                            <span>{a.experienceYears || 0}{t('years')} {a.experienceMonths || 0}{t('months')}</span>
                           </div>
                         )}
                       </div>
@@ -2082,11 +2082,11 @@ const HamoPro = () => {
                     {/* Experience */}
                     {(selectedAvatar.experienceYears !== undefined || selectedAvatar.experienceMonths !== undefined) && (
                       <div>
-                        <h4 className={`text-sm font-medium ${tc('text-gray-500', 'text-slate-400')} mb-2`}>Experience</h4>
+                        <h4 className={`text-sm font-medium ${tc('text-gray-500', 'text-slate-400')} mb-2`}>{t('experience')}</h4>
                         <div className="flex items-center space-x-2">
                           <Briefcase className="w-5 h-5 text-blue-500" />
                           <span className={`${tc('text-gray-800', 'text-white')} font-medium`}>
-                            {selectedAvatar.experienceYears || 0} years {selectedAvatar.experienceMonths || 0} months
+                            {selectedAvatar.experienceYears || 0}{t('years')} {selectedAvatar.experienceMonths || 0}{t('months')}
                           </span>
                         </div>
                       </div>
