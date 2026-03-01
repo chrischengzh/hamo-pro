@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save, Sun, Moon } from 'lucide-react';
+import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save, Sun, Moon, Mic, Volume2, Square, Play, Pause } from 'lucide-react';
 import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.7.0";
+  const APP_VERSION = "1.8.0";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -285,6 +285,17 @@ const HamoPro = () => {
   const [avatarPictureFile, setAvatarPictureFile] = useState(null);
   const [avatarPicturePreview, setAvatarPicturePreview] = useState(null);
   const avatarPictureInputRef = useRef(null);
+  // Voice clone state
+  const [avatarVoiceFile, setAvatarVoiceFile] = useState(null);
+  const [avatarVoiceStatus, setAvatarVoiceStatus] = useState(null); // null | "recording" | "recorded" | "cloning" | "ready" | "failed"
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [mediaRecorderRef, setMediaRecorderRef] = useState(null);
+  const avatarVoiceInputRef = useRef(null);
+  // Audio playback state
+  const [playingAudioId, setPlayingAudioId] = useState(null);
+  const [loadingAudioId, setLoadingAudioId] = useState(null);
+  const [audioCache, setAudioCache] = useState({});
+  const audioRef = useRef(null);
   const [clientForm, setClientForm] = useState({
     name: '',
     sex: '',
@@ -668,6 +679,118 @@ const HamoPro = () => {
     setAvatarPicturePreview(URL.createObjectURL(file));
   };
 
+  // Voice recording handlers
+  const handleStartVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4' });
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const mimeType = recorder.mimeType || 'audio/webm';
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(chunks, { type: mimeType });
+        const file = new File([blob], `voice-sample.${ext}`, { type: mimeType });
+        setAvatarVoiceFile(file);
+        setAvatarVoiceStatus('recorded');
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      setMediaRecorderRef(recorder);
+      recorder.start();
+      setIsRecordingVoice(true);
+      setAvatarVoiceStatus('recording');
+    } catch (err) {
+      alert(t('microphoneAccessDenied'));
+    }
+  };
+
+  const handleStopVoiceRecording = () => {
+    if (mediaRecorderRef && mediaRecorderRef.state !== 'inactive') {
+      mediaRecorderRef.stop();
+      setIsRecordingVoice(false);
+    }
+  };
+
+  const handleVoiceFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/x-wav'];
+    if (!allowedTypes.includes(file.type)) {
+      alert(t('invalidAudioType'));
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert(t('audioTooLarge'));
+      e.target.value = '';
+      return;
+    }
+    setAvatarVoiceFile(file);
+    setAvatarVoiceStatus('recorded');
+  };
+
+  const handleDeleteVoice = async (avatarId) => {
+    if (!confirm(t('confirmDeleteVoice'))) return;
+    const result = await apiService.deleteAvatarVoice(avatarId);
+    if (result.success) {
+      setAvatarVoiceStatus(null);
+      setAvatarVoiceFile(null);
+      setAvatars(avatars.map(a => a.id === avatarId ? { ...a, voiceId: null, voiceStatus: null } : a));
+    }
+  };
+
+  const handlePreviewVoice = async (avatarId) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setPlayingAudioId('preview');
+    const result = await apiService.previewAvatarVoice(avatarId);
+    if (result.success) {
+      const url = URL.createObjectURL(result.audioBlob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { setPlayingAudioId(null); URL.revokeObjectURL(url); };
+      audio.onerror = () => { setPlayingAudioId(null); URL.revokeObjectURL(url); };
+      audio.play();
+    } else {
+      setPlayingAudioId(null);
+      alert(t('audioGenerationFailed'));
+    }
+  };
+
+  const handlePlayMessageAudio = async (messageId) => {
+    if (playingAudioId === messageId && audioRef.current) {
+      audioRef.current.pause();
+      setPlayingAudioId(null);
+      return;
+    }
+    let audioUrl = audioCache[messageId];
+    if (!audioUrl) {
+      setLoadingAudioId(messageId);
+      const result = await apiService.generateMessageAudio(messageId);
+      setLoadingAudioId(null);
+      if (!result.success) {
+        alert(t('audioGenerationFailed'));
+        return;
+      }
+      audioUrl = result.audioUrl;
+      setAudioCache(prev => ({ ...prev, [messageId]: audioUrl }));
+    }
+    if (audioRef.current) audioRef.current.pause();
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    audio.onended = () => setPlayingAudioId(null);
+    audio.onerror = () => { setPlayingAudioId(null); alert(t('audioGenerationFailed')); };
+    audio.play();
+    setPlayingAudioId(messageId);
+  };
+
   const handleCreateAvatar = async () => {
     // Validate required fields
     const specialty = avatarForm.specialty === 'custom' ? avatarForm.customSpecialty : avatarForm.specialty;
@@ -707,6 +830,19 @@ const HamoPro = () => {
         const pictureResult = await apiService.uploadAvatarPicture(result.avatar.id, avatarPictureFile);
         if (pictureResult.success) avatarPictureUrl = pictureResult.url;
       }
+      // Upload voice sample if one was recorded/selected
+      let voiceId = null;
+      let voiceStatus = null;
+      if (avatarVoiceFile) {
+        setAvatarVoiceStatus('cloning');
+        const voiceResult = await apiService.uploadAvatarVoice(result.avatar.id, avatarVoiceFile);
+        if (voiceResult.success) {
+          voiceId = voiceResult.voiceId;
+          voiceStatus = 'ready';
+        } else {
+          alert(t('voiceCloningFailed') + ': ' + voiceResult.error);
+        }
+      }
       setAvatars([...avatars, {
         id: result.avatar.id,
         name: avatarForm.name,
@@ -716,6 +852,8 @@ const HamoPro = () => {
         experienceYears: avatarForm.experienceYears,
         experienceMonths: avatarForm.experienceMonths,
         avatarPicture: avatarPictureUrl,
+        voiceId: voiceId,
+        voiceStatus: voiceStatus,
       }]);
       console.log('✅ Avatar created with backend ID:', result.avatar.id);
     } else {
@@ -743,6 +881,9 @@ const HamoPro = () => {
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(null);
+    setAvatarVoiceFile(null);
+    setAvatarVoiceStatus(null);
+    setIsRecordingVoice(false);
     setShowAvatarForm(false);
   };
 
@@ -773,6 +914,9 @@ const HamoPro = () => {
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(avatar.avatarPicture || null);
+    setAvatarVoiceFile(null);
+    setAvatarVoiceStatus(avatar.voiceId ? 'ready' : null);
+    setIsRecordingVoice(false);
     setEditingAvatar(avatar);
     setSelectedAvatar(null);
   };
@@ -817,6 +961,19 @@ const HamoPro = () => {
         const pictureResult = await apiService.uploadAvatarPicture(editingAvatar.id, avatarPictureFile);
         if (pictureResult.success) avatarPictureUrl = pictureResult.url;
       }
+      // Upload voice sample if one was recorded/selected
+      let voiceId = editingAvatar.voiceId || null;
+      let voiceStatus = editingAvatar.voiceStatus || null;
+      if (avatarVoiceFile) {
+        setAvatarVoiceStatus('cloning');
+        const voiceResult = await apiService.uploadAvatarVoice(editingAvatar.id, avatarVoiceFile);
+        if (voiceResult.success) {
+          voiceId = voiceResult.voiceId;
+          voiceStatus = 'ready';
+        } else {
+          alert(t('voiceCloningFailed') + ': ' + voiceResult.error);
+        }
+      }
       setAvatars(avatars.map(a => a.id === editingAvatar.id ? {
         ...a,
         name: avatarForm.name,
@@ -826,6 +983,8 @@ const HamoPro = () => {
         experienceYears: avatarForm.experienceYears,
         experienceMonths: avatarForm.experienceMonths,
         avatarPicture: avatarPictureUrl,
+        voiceId: voiceId,
+        voiceStatus: voiceStatus,
       } : a));
       console.log('✅ Avatar updated:', editingAvatar.id);
     } else {
@@ -847,6 +1006,9 @@ const HamoPro = () => {
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(null);
+    setAvatarVoiceFile(null);
+    setAvatarVoiceStatus(null);
+    setIsRecordingVoice(false);
     setEditingAvatar(null);
   };
 
@@ -1968,6 +2130,80 @@ const HamoPro = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Section 5: Voice Clone - Rose tint */}
+                  <div className={`${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                        <Mic className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
+                      <span className={`text-xs ${tc('text-rose-400', 'text-rose-500')}`}>{t('optional')}</span>
+                    </div>
+                    <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
+
+                    {isRecordingVoice ? (
+                      /* State B: Recording in progress */
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                          <span className={`text-sm font-medium ${tc('text-red-600', 'text-red-400')}`}>{t('recording')}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleStopVoiceRecording}
+                          className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                        >
+                          <Square className="w-3.5 h-3.5" />
+                          <span>{t('stopRecording')}</span>
+                        </button>
+                      </div>
+                    ) : avatarVoiceFile ? (
+                      /* State C: Voice sample recorded/selected, pending upload */
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                          <span className={`text-sm ${tc('text-green-700', 'text-green-300')}`}>{t('voiceReady')}</span>
+                          <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>({avatarVoiceFile.name})</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAvatarVoiceFile(null)}
+                          className={`text-xs ${tc('text-rose-500 hover:text-rose-700', 'text-rose-400 hover:text-rose-300')} transition-colors`}
+                        >
+                          {t('removeVoice')}
+                        </button>
+                      </div>
+                    ) : (
+                      /* State A: No voice recorded yet */
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={handleStartVoiceRecording}
+                          className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                        >
+                          <Mic className="w-3.5 h-3.5" />
+                          <span>{t('recordVoice')}</span>
+                        </button>
+                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('or')}</span>
+                        <button
+                          type="button"
+                          onClick={() => avatarVoiceInputRef.current?.click()}
+                          className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                        >
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>{t('uploadVoice')}</span>
+                        </button>
+                        <input
+                          ref={avatarVoiceInputRef}
+                          type="file"
+                          accept="audio/mpeg,audio/wav,audio/webm,audio/ogg,audio/mp4"
+                          onChange={handleVoiceFileSelect}
+                          className="hidden"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
@@ -2019,6 +2255,11 @@ const HamoPro = () => {
                           <div className="flex items-center space-x-1">
                             <Briefcase className="w-4 h-4" />
                             <span>{a.experienceYears || 0}{t('years')} {a.experienceMonths || 0}{t('months')}</span>
+                          </div>
+                        )}
+                        {a.voiceStatus === 'ready' && (
+                          <div className="flex items-center space-x-1">
+                            <Mic className="w-3.5 h-3.5 text-rose-500" />
                           </div>
                         )}
                       </div>
@@ -2304,6 +2545,106 @@ const HamoPro = () => {
                             </select>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Section 5: Voice Clone - Rose tint */}
+                      <div className={`${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                            <Mic className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
+                          <span className={`text-xs ${tc('text-rose-400', 'text-rose-500')}`}>{t('optional')}</span>
+                        </div>
+                        <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
+
+                        {avatarVoiceStatus === 'ready' && !avatarVoiceFile ? (
+                          /* State D: Voice already cloned (edit mode) */
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                              <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>{t('voiceCloneReady')}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={() => handlePreviewVoice(editingAvatar)}
+                                className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                              >
+                                <Play className="w-3.5 h-3.5" />
+                                <span>{t('previewVoice')}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteVoice(editingAvatar)}
+                                className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-red-100 text-red-600 hover:bg-red-200', 'bg-red-900/30 text-red-400 hover:bg-red-900/50')}`}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>{t('deleteVoice')}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ) : isRecordingVoice ? (
+                          /* State B: Recording in progress */
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                              <span className={`text-sm font-medium ${tc('text-red-600', 'text-red-400')}`}>{t('recording')}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleStopVoiceRecording}
+                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                              <Square className="w-3.5 h-3.5" />
+                              <span>{t('stopRecording')}</span>
+                            </button>
+                          </div>
+                        ) : avatarVoiceFile ? (
+                          /* State C: Voice sample recorded/selected, pending upload */
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                              <span className={`text-sm ${tc('text-green-700', 'text-green-300')}`}>{t('voiceReady')}</span>
+                              <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>({avatarVoiceFile.name})</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => { setAvatarVoiceFile(null); setAvatarVoiceStatus(avatars.find(a => a.id === editingAvatar)?.voiceId ? 'ready' : null); }}
+                              className={`text-xs ${tc('text-rose-500 hover:text-rose-700', 'text-rose-400 hover:text-rose-300')} transition-colors`}
+                            >
+                              {t('removeVoice')}
+                            </button>
+                          </div>
+                        ) : (
+                          /* State A: No voice recorded yet */
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={handleStartVoiceRecording}
+                              className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                              <span>{t('recordVoice')}</span>
+                            </button>
+                            <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('or')}</span>
+                            <button
+                              type="button"
+                              onClick={() => avatarVoiceInputRef.current?.click()}
+                              className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{t('uploadVoice')}</span>
+                            </button>
+                            <input
+                              ref={avatarVoiceInputRef}
+                              type="file"
+                              accept="audio/mpeg,audio/wav,audio/webm,audio/ogg,audio/mp4"
+                              onChange={handleVoiceFileSelect}
+                              className="hidden"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -3786,9 +4127,35 @@ const HamoPro = () => {
                                                     </div>
                                                   </div>
                                                   <p className={`text-sm ${tc('', 'text-slate-200')}`}>{msg.content}</p>
-                                                  {/* Supervise button - only on avatar messages */}
+                                                  {/* Play audio + Supervise button - only on avatar messages */}
                                                   {msg.role !== 'user' && (
-                                                    <div className="flex justify-end mt-1">
+                                                    <div className="flex justify-end mt-1 space-x-3">
+                                                      {avatars.find(a => String(a.id) === String(selectedClient?.avatarId))?.voiceId && (
+                                                        <button
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handlePlayMessageAudio(msg.id);
+                                                          }}
+                                                          disabled={loadingAudioId === msg.id}
+                                                          className={`text-xs flex items-center space-x-1 transition-colors ${
+                                                            loadingAudioId === msg.id
+                                                              ? tc('text-gray-300', 'text-slate-600')
+                                                              : playingAudioId === msg.id
+                                                                ? 'text-rose-500 hover:text-rose-600'
+                                                                : tc('text-gray-400 hover:text-rose-500', 'text-slate-500 hover:text-rose-400')
+                                                          }`}
+                                                          title={playingAudioId === msg.id ? t('pause') : t('playAudio')}
+                                                        >
+                                                          {loadingAudioId === msg.id ? (
+                                                            <RefreshCw className="w-3 h-3 animate-spin" />
+                                                          ) : playingAudioId === msg.id ? (
+                                                            <Pause className="w-3 h-3" />
+                                                          ) : (
+                                                            <Play className="w-3 h-3" />
+                                                          )}
+                                                          <span>{loadingAudioId === msg.id ? '...' : playingAudioId === msg.id ? t('pause') : t('playAudio')}</span>
+                                                        </button>
+                                                      )}
                                                       <button
                                                         onClick={(e) => {
                                                           e.stopPropagation();

@@ -343,6 +343,78 @@ class ApiService {
     }
   }
 
+  // Upload voice sample for voice cloning
+  async uploadAvatarVoice(avatarId, file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const accessToken = this.getAccessToken();
+      const response = await fetch(`${this.baseURL}/avatars/${avatarId}/voice`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Failed to clone voice');
+      console.log('✅ Voice cloned:', data);
+      return { success: true, voiceId: data.voice_id, voiceStatus: data.voice_status };
+    } catch (error) {
+      console.error('❌ Failed to clone voice:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Delete cloned voice from avatar
+  async deleteAvatarVoice(avatarId) {
+    try {
+      const response = await this.request(`/avatars/${avatarId}/voice`, {
+        method: 'DELETE',
+      });
+      console.log('✅ Voice deleted');
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Failed to delete voice:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Preview cloned voice with sample text
+  async previewAvatarVoice(avatarId, text) {
+    try {
+      const accessToken = this.getAccessToken();
+      const response = await fetch(`${this.baseURL}/avatars/${avatarId}/voice/preview`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: text || null }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to preview voice');
+      }
+      const blob = await response.blob();
+      return { success: true, audioBlob: blob };
+    } catch (error) {
+      console.error('❌ Failed to preview voice:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Generate TTS audio for a message
+  async generateMessageAudio(messageId) {
+    try {
+      const response = await this.request(`/messages/${messageId}/audio`, {
+        method: 'POST',
+      });
+      return { success: true, audioUrl: response.audio_url, cached: response.cached };
+    } catch (error) {
+      console.error('❌ Failed to generate audio:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get all avatars for the current Pro user
   async getAvatars() {
     try {
@@ -373,6 +445,8 @@ class ApiService {
           experienceMonths: avatar.experience_months || avatar.experienceMonths,
           avatarPicture: avatar.avatar_picture || null,
           likeCount: avatar.like_count || 0,
+          voiceId: avatar.voice_id || null,
+          voiceStatus: avatar.voice_status || null,
           specializations: avatar.specializations,
           // Legacy fields for backward compatibility
           theory: avatar.theory,
