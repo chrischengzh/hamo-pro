@@ -402,6 +402,30 @@ class ApiService {
     }
   }
 
+  // Preview standard voice (standard_female / standard_male)
+  async previewStandardVoice(voiceType, text) {
+    try {
+      const accessToken = this.getAccessToken();
+      const response = await fetch(`${this.baseURL}/voices/preview?voice_type=${voiceType}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: text || null }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to preview voice');
+      }
+      const blob = await response.blob();
+      return { success: true, audioBlob: blob };
+    } catch (error) {
+      console.error('❌ Failed to preview standard voice:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Generate TTS audio for a message
   async generateMessageAudio(messageId) {
     try {

@@ -745,6 +745,26 @@ const HamoPro = () => {
     }
   };
 
+  const handlePreviewStandardVoice = async (voiceType) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setPlayingAudioId('preview-standard');
+    const result = await apiService.previewStandardVoice(voiceType);
+    if (result.success) {
+      const url = URL.createObjectURL(result.audioBlob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { setPlayingAudioId(null); URL.revokeObjectURL(url); };
+      audio.onerror = () => { setPlayingAudioId(null); URL.revokeObjectURL(url); };
+      audio.play();
+    } else {
+      setPlayingAudioId(null);
+      alert(t('audioGenerationFailed'));
+    }
+  };
+
   const handlePreviewVoice = async (avatarId) => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -2063,12 +2083,23 @@ const HamoPro = () => {
 
                       {/* Voice status / clone UI - directly below dropdown */}
                       {avatarForm.voiceType !== 'clone' ? (
-                        /* Standard voice: green active indicator */
-                        <div className={`flex items-center space-x-2 mt-2 px-3 py-2 ${tc('bg-green-50', 'bg-green-900/20')} rounded-lg`}>
-                          <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
-                          <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>
-                            {avatarForm.voiceType === 'standard_male' ? t('standardMaleVoice') : t('standardFemaleVoice')}
-                          </span>
+                        /* Standard voice: green active indicator with preview */
+                        <div className={`flex items-center justify-between mt-2 px-3 py-2 ${tc('bg-green-50', 'bg-green-900/20')} rounded-lg`}>
+                          <div className="flex items-center space-x-2">
+                            <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                            <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>
+                              {avatarForm.voiceType === 'standard_male' ? t('standardMaleVoice') : t('standardFemaleVoice')}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handlePreviewStandardVoice(avatarForm.voiceType)}
+                            disabled={playingAudioId === 'preview-standard'}
+                            className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${playingAudioId === 'preview-standard' ? 'opacity-50 cursor-not-allowed' : ''} ${tc('bg-green-100 text-green-700 hover:bg-green-200', 'bg-green-900/40 text-green-300 hover:bg-green-900/60')}`}
+                          >
+                            {playingAudioId === 'preview-standard' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                            <span>{playingAudioId === 'preview-standard' ? t('pause') : t('previewVoice')}</span>
+                          </button>
                         </div>
                       ) : (
                         /* Clone mode: rose section with record/upload */
@@ -2499,12 +2530,23 @@ const HamoPro = () => {
 
                           {/* Voice status / clone UI - directly below dropdown */}
                           {avatarForm.voiceType !== 'clone' ? (
-                            /* Standard voice: green active indicator */
-                            <div className={`flex items-center space-x-2 mt-2 px-3 py-2 ${tc('bg-green-50', 'bg-green-900/20')} rounded-lg`}>
-                              <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
-                              <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>
-                                {avatarForm.voiceType === 'standard_male' ? t('standardMaleVoice') : t('standardFemaleVoice')}
-                              </span>
+                            /* Standard voice: green active indicator with preview */
+                            <div className={`flex items-center justify-between mt-2 px-3 py-2 ${tc('bg-green-50', 'bg-green-900/20')} rounded-lg`}>
+                              <div className="flex items-center space-x-2">
+                                <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                                <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>
+                                  {avatarForm.voiceType === 'standard_male' ? t('standardMaleVoice') : t('standardFemaleVoice')}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handlePreviewStandardVoice(avatarForm.voiceType)}
+                                disabled={playingAudioId === 'preview-standard'}
+                                className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${playingAudioId === 'preview-standard' ? 'opacity-50 cursor-not-allowed' : ''} ${tc('bg-green-100 text-green-700 hover:bg-green-200', 'bg-green-900/40 text-green-300 hover:bg-green-900/60')}`}
+                              >
+                                {playingAudioId === 'preview-standard' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                                <span>{playingAudioId === 'preview-standard' ? t('pause') : t('previewVoice')}</span>
+                              </button>
                             </div>
                           ) : (
                             /* Clone mode: rose section */
