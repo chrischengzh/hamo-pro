@@ -2060,6 +2060,90 @@ const HamoPro = () => {
                         <option value="standard_male">{t('standardMaleVoice')}</option>
                         <option value="clone">{t('cloneProVoice')}</option>
                       </select>
+
+                      {/* Voice status / clone UI - directly below dropdown */}
+                      {avatarForm.voiceType !== 'clone' ? (
+                        /* Standard voice: green active indicator */
+                        <div className={`flex items-center space-x-2 mt-2 px-3 py-2 ${tc('bg-green-50', 'bg-green-900/20')} rounded-lg`}>
+                          <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                          <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>
+                            {avatarForm.voiceType === 'standard_male' ? t('standardMaleVoice') : t('standardFemaleVoice')}
+                          </span>
+                        </div>
+                      ) : (
+                        /* Clone mode: rose section with record/upload */
+                        <div className={`mt-3 ${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                              <Mic className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
+                          </div>
+                          <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
+
+                          {isRecordingVoice ? (
+                            /* State B: Recording in progress */
+                            <div className="flex items-center space-x-3">
+                              <div className="flex items-center space-x-2">
+                                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                                <span className={`text-sm font-medium ${tc('text-red-600', 'text-red-400')}`}>{t('recording')}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={handleStopVoiceRecording}
+                                className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                              >
+                                <Square className="w-3.5 h-3.5" />
+                                <span>{t('stopRecording')}</span>
+                              </button>
+                            </div>
+                          ) : avatarVoiceFile ? (
+                            /* State C: Voice sample recorded/selected, pending upload */
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                                <span className={`text-sm ${tc('text-green-700', 'text-green-300')}`}>{t('voiceReady')}</span>
+                                <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>({avatarVoiceFile.name})</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setAvatarVoiceFile(null)}
+                                className={`text-xs ${tc('text-rose-500 hover:text-rose-700', 'text-rose-400 hover:text-rose-300')} transition-colors`}
+                              >
+                                {t('removeVoice')}
+                              </button>
+                            </div>
+                          ) : (
+                            /* State A: No voice recorded yet */
+                            <div className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={handleStartVoiceRecording}
+                                className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                              >
+                                <Mic className="w-3.5 h-3.5" />
+                                <span>{t('recordVoice')}</span>
+                              </button>
+                              <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('or')}</span>
+                              <button
+                                type="button"
+                                onClick={() => avatarVoiceInputRef.current?.click()}
+                                className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                              >
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>{t('uploadVoice')}</span>
+                              </button>
+                              <input
+                                ref={avatarVoiceInputRef}
+                                type="file"
+                                accept="audio/mpeg,audio/wav,audio/webm,audio/ogg,audio/mp4"
+                                onChange={handleVoiceFileSelect}
+                                className="hidden"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -2153,80 +2237,6 @@ const HamoPro = () => {
                     </div>
                   </div>
 
-                  {/* Section 5: Voice Clone - Rose tint (only when clone mode) */}
-                  {avatarForm.voiceType === 'clone' && (
-                  <div className={`${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
-                        <Mic className="w-3.5 h-3.5 text-white" />
-                      </div>
-                      <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
-                    </div>
-                    <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
-
-                    {isRecordingVoice ? (
-                      /* State B: Recording in progress */
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-                          <span className={`text-sm font-medium ${tc('text-red-600', 'text-red-400')}`}>{t('recording')}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleStopVoiceRecording}
-                          className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                        >
-                          <Square className="w-3.5 h-3.5" />
-                          <span>{t('stopRecording')}</span>
-                        </button>
-                      </div>
-                    ) : avatarVoiceFile ? (
-                      /* State C: Voice sample recorded/selected, pending upload */
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
-                          <span className={`text-sm ${tc('text-green-700', 'text-green-300')}`}>{t('voiceReady')}</span>
-                          <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>({avatarVoiceFile.name})</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setAvatarVoiceFile(null)}
-                          className={`text-xs ${tc('text-rose-500 hover:text-rose-700', 'text-rose-400 hover:text-rose-300')} transition-colors`}
-                        >
-                          {t('removeVoice')}
-                        </button>
-                      </div>
-                    ) : (
-                      /* State A: No voice recorded yet */
-                      <div className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={handleStartVoiceRecording}
-                          className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
-                        >
-                          <Mic className="w-3.5 h-3.5" />
-                          <span>{t('recordVoice')}</span>
-                        </button>
-                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('or')}</span>
-                        <button
-                          type="button"
-                          onClick={() => avatarVoiceInputRef.current?.click()}
-                          className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
-                        >
-                          <Upload className="w-3.5 h-3.5" />
-                          <span>{t('uploadVoice')}</span>
-                        </button>
-                        <input
-                          ref={avatarVoiceInputRef}
-                          type="file"
-                          accept="audio/mpeg,audio/wav,audio/webm,audio/ogg,audio/mp4"
-                          onChange={handleVoiceFileSelect}
-                          className="hidden"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  )}
                 </div>
 
                 {/* Action Buttons */}
@@ -2486,6 +2496,116 @@ const HamoPro = () => {
                             <option value="standard_male">{t('standardMaleVoice')}</option>
                             <option value="clone">{t('cloneProVoice')}</option>
                           </select>
+
+                          {/* Voice status / clone UI - directly below dropdown */}
+                          {avatarForm.voiceType !== 'clone' ? (
+                            /* Standard voice: green active indicator */
+                            <div className={`flex items-center space-x-2 mt-2 px-3 py-2 ${tc('bg-green-50', 'bg-green-900/20')} rounded-lg`}>
+                              <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                              <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>
+                                {avatarForm.voiceType === 'standard_male' ? t('standardMaleVoice') : t('standardFemaleVoice')}
+                              </span>
+                            </div>
+                          ) : (
+                            /* Clone mode: rose section */
+                            <div className={`mt-3 ${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
+                              <div className="flex items-center space-x-2 mb-2">
+                                <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                                  <Mic className="w-3.5 h-3.5 text-white" />
+                                </div>
+                                <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
+                              </div>
+                              <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
+
+                              {avatarVoiceStatus === 'ready' && !avatarVoiceFile ? (
+                                /* State D: Voice already cloned */
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-2">
+                                    <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                                    <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>{t('cloneProVoice')}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handlePreviewVoice(editingAvatar.id)}
+                                      className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                                    >
+                                      <Play className="w-3.5 h-3.5" />
+                                      <span>{t('previewVoice')}</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteVoice(editingAvatar.id)}
+                                      className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-red-100 text-red-600 hover:bg-red-200', 'bg-red-900/30 text-red-400 hover:bg-red-900/50')}`}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span>{t('deleteVoice')}</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : isRecordingVoice ? (
+                                /* State B: Recording in progress */
+                                <div className="flex items-center space-x-3">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                                    <span className={`text-sm font-medium ${tc('text-red-600', 'text-red-400')}`}>{t('recording')}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={handleStopVoiceRecording}
+                                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                                  >
+                                    <Square className="w-3.5 h-3.5" />
+                                    <span>{t('stopRecording')}</span>
+                                  </button>
+                                </div>
+                              ) : avatarVoiceFile ? (
+                                /* State C: Voice sample recorded/selected, pending upload */
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-2">
+                                    <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
+                                    <span className={`text-sm ${tc('text-green-700', 'text-green-300')}`}>{t('voiceReady')}</span>
+                                    <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>({avatarVoiceFile.name})</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => { setAvatarVoiceFile(null); setAvatarVoiceStatus(avatars.find(a => a.id === editingAvatar)?.voiceId ? 'ready' : null); }}
+                                    className={`text-xs ${tc('text-rose-500 hover:text-rose-700', 'text-rose-400 hover:text-rose-300')} transition-colors`}
+                                  >
+                                    {t('removeVoice')}
+                                  </button>
+                                </div>
+                              ) : (
+                                /* State A: No voice recorded yet */
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={handleStartVoiceRecording}
+                                    className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                                  >
+                                    <Mic className="w-3.5 h-3.5" />
+                                    <span>{t('recordVoice')}</span>
+                                  </button>
+                                  <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('or')}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => avatarVoiceInputRef.current?.click()}
+                                    className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
+                                  >
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>{t('uploadVoice')}</span>
+                                  </button>
+                                  <input
+                                    ref={avatarVoiceInputRef}
+                                    type="file"
+                                    accept="audio/mpeg,audio/wav,audio/webm,audio/ogg,audio/mp4"
+                                    onChange={handleVoiceFileSelect}
+                                    className="hidden"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -2585,106 +2705,6 @@ const HamoPro = () => {
                         </div>
                       </div>
 
-                      {/* Section 5: Voice Clone - Rose tint (only when clone mode) */}
-                      {avatarForm.voiceType === 'clone' && (
-                      <div className={`${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
-                            <Mic className="w-3.5 h-3.5 text-white" />
-                          </div>
-                          <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
-                        </div>
-                        <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
-
-                        {avatarVoiceStatus === 'ready' && !avatarVoiceFile ? (
-                          /* State D: Voice already cloned (edit mode) */
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
-                              <span className={`text-sm font-medium ${tc('text-green-700', 'text-green-300')}`}>{t('voiceCloneReady')}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <button
-                                type="button"
-                                onClick={() => handlePreviewVoice(editingAvatar.id)}
-                                className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
-                              >
-                                <Play className="w-3.5 h-3.5" />
-                                <span>{t('previewVoice')}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteVoice(editingAvatar.id)}
-                                className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-red-100 text-red-600 hover:bg-red-200', 'bg-red-900/30 text-red-400 hover:bg-red-900/50')}`}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>{t('deleteVoice')}</span>
-                              </button>
-                            </div>
-                          </div>
-                        ) : isRecordingVoice ? (
-                          /* State B: Recording in progress */
-                          <div className="flex items-center space-x-3">
-                            <div className="flex items-center space-x-2">
-                              <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-                              <span className={`text-sm font-medium ${tc('text-red-600', 'text-red-400')}`}>{t('recording')}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={handleStopVoiceRecording}
-                              className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                            >
-                              <Square className="w-3.5 h-3.5" />
-                              <span>{t('stopRecording')}</span>
-                            </button>
-                          </div>
-                        ) : avatarVoiceFile ? (
-                          /* State C: Voice sample recorded/selected, pending upload */
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Volume2 className={`w-4 h-4 ${tc('text-green-600', 'text-green-400')}`} />
-                              <span className={`text-sm ${tc('text-green-700', 'text-green-300')}`}>{t('voiceReady')}</span>
-                              <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>({avatarVoiceFile.name})</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => { setAvatarVoiceFile(null); setAvatarVoiceStatus(avatars.find(a => a.id === editingAvatar)?.voiceId ? 'ready' : null); }}
-                              className={`text-xs ${tc('text-rose-500 hover:text-rose-700', 'text-rose-400 hover:text-rose-300')} transition-colors`}
-                            >
-                              {t('removeVoice')}
-                            </button>
-                          </div>
-                        ) : (
-                          /* State A: No voice recorded yet */
-                          <div className="flex items-center space-x-2">
-                            <button
-                              type="button"
-                              onClick={handleStartVoiceRecording}
-                              className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
-                            >
-                              <Mic className="w-3.5 h-3.5" />
-                              <span>{t('recordVoice')}</span>
-                            </button>
-                            <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('or')}</span>
-                            <button
-                              type="button"
-                              onClick={() => avatarVoiceInputRef.current?.click()}
-                              className={`flex items-center space-x-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${tc('bg-rose-100 text-rose-700 hover:bg-rose-200', 'bg-rose-900/40 text-rose-300 hover:bg-rose-900/60')}`}
-                            >
-                              <Upload className="w-3.5 h-3.5" />
-                              <span>{t('uploadVoice')}</span>
-                            </button>
-                            <input
-                              ref={avatarVoiceInputRef}
-                              type="file"
-                              accept="audio/mpeg,audio/wav,audio/webm,audio/ogg,audio/mp4"
-                              onChange={handleVoiceFileSelect}
-                              className="hidden"
-                            />
-                          </div>
-                        )}
-                      </div>
-                      )}
                     </div>
 
                     {/* Action Buttons */}
