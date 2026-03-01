@@ -281,6 +281,7 @@ const HamoPro = () => {
     about: '',
     experienceYears: 0,
     experienceMonths: 0,
+    voiceType: 'standard_female',
   });
   const [avatarPictureFile, setAvatarPictureFile] = useState(null);
   const [avatarPicturePreview, setAvatarPicturePreview] = useState(null);
@@ -821,6 +822,7 @@ const HamoPro = () => {
       about: avatarForm.about,
       experience_years: avatarForm.experienceYears,
       experience_months: avatarForm.experienceMonths,
+      voice_type: avatarForm.voiceType,
     });
 
     if (result.success) {
@@ -830,10 +832,10 @@ const HamoPro = () => {
         const pictureResult = await apiService.uploadAvatarPicture(result.avatar.id, avatarPictureFile);
         if (pictureResult.success) avatarPictureUrl = pictureResult.url;
       }
-      // Upload voice sample if one was recorded/selected
+      // Upload voice sample if clone mode and one was recorded/selected
       let voiceId = null;
       let voiceStatus = null;
-      if (avatarVoiceFile) {
+      if (avatarForm.voiceType === 'clone' && avatarVoiceFile) {
         setAvatarVoiceStatus('cloning');
         const voiceResult = await apiService.uploadAvatarVoice(result.avatar.id, avatarVoiceFile);
         if (voiceResult.success) {
@@ -854,6 +856,7 @@ const HamoPro = () => {
         avatarPicture: avatarPictureUrl,
         voiceId: voiceId,
         voiceStatus: voiceStatus,
+        voiceType: avatarForm.voiceType,
       }]);
       console.log('✅ Avatar created with backend ID:', result.avatar.id);
     } else {
@@ -878,6 +881,7 @@ const HamoPro = () => {
       about: '',
       experienceYears: 0,
       experienceMonths: 0,
+      voiceType: 'standard_female',
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(null);
@@ -911,6 +915,7 @@ const HamoPro = () => {
       about: avatar.about || '',
       experienceYears: avatar.experienceYears || 0,
       experienceMonths: avatar.experienceMonths || 0,
+      voiceType: avatar.voiceType || (avatar.voiceId ? 'clone' : 'standard_female'),
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(avatar.avatarPicture || null);
@@ -952,6 +957,7 @@ const HamoPro = () => {
       about: avatarForm.about,
       experience_years: avatarForm.experienceYears,
       experience_months: avatarForm.experienceMonths,
+      voice_type: avatarForm.voiceType,
     });
 
     if (result.success) {
@@ -961,10 +967,10 @@ const HamoPro = () => {
         const pictureResult = await apiService.uploadAvatarPicture(editingAvatar.id, avatarPictureFile);
         if (pictureResult.success) avatarPictureUrl = pictureResult.url;
       }
-      // Upload voice sample if one was recorded/selected
+      // Upload voice sample if clone mode and one was recorded/selected
       let voiceId = editingAvatar.voiceId || null;
       let voiceStatus = editingAvatar.voiceStatus || null;
-      if (avatarVoiceFile) {
+      if (avatarForm.voiceType === 'clone' && avatarVoiceFile) {
         setAvatarVoiceStatus('cloning');
         const voiceResult = await apiService.uploadAvatarVoice(editingAvatar.id, avatarVoiceFile);
         if (voiceResult.success) {
@@ -985,6 +991,7 @@ const HamoPro = () => {
         avatarPicture: avatarPictureUrl,
         voiceId: voiceId,
         voiceStatus: voiceStatus,
+        voiceType: avatarForm.voiceType,
       } : a));
       console.log('✅ Avatar updated:', editingAvatar.id);
     } else {
@@ -1003,6 +1010,7 @@ const HamoPro = () => {
       about: '',
       experienceYears: 0,
       experienceMonths: 0,
+      voiceType: 'standard_female',
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(null);
@@ -2039,6 +2047,20 @@ const HamoPro = () => {
                         />
                       )}
                     </div>
+
+                    {/* Avatar Voice Type */}
+                    <div>
+                      <label className={`block text-sm font-medium ${tc('text-gray-700', 'text-slate-300')} mb-1`}>{t('avatarVoice')}</label>
+                      <select
+                        value={avatarForm.voiceType}
+                        onChange={(e) => setAvatarForm({ ...avatarForm, voiceType: e.target.value })}
+                        className={`w-full px-4 py-2.5 border ${tc('border-blue-200 bg-white text-gray-900', 'border-blue-800 bg-slate-900 text-white')} rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all`}
+                      >
+                        <option value="standard_female">{t('standardFemaleVoice')}</option>
+                        <option value="standard_male">{t('standardMaleVoice')}</option>
+                        <option value="clone">{t('cloneProVoice')}</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Section 2: Therapeutic Approach - Teal tint */}
@@ -2131,14 +2153,14 @@ const HamoPro = () => {
                     </div>
                   </div>
 
-                  {/* Section 5: Voice Clone - Rose tint */}
+                  {/* Section 5: Voice Clone - Rose tint (only when clone mode) */}
+                  {avatarForm.voiceType === 'clone' && (
                   <div className={`${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
                     <div className="flex items-center space-x-2 mb-2">
                       <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
                         <Mic className="w-3.5 h-3.5 text-white" />
                       </div>
                       <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
-                      <span className={`text-xs ${tc('text-rose-400', 'text-rose-500')}`}>{t('optional')}</span>
                     </div>
                     <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
 
@@ -2204,6 +2226,7 @@ const HamoPro = () => {
                       </div>
                     )}
                   </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
@@ -2375,6 +2398,7 @@ const HamoPro = () => {
                             about: '',
                             experienceYears: 0,
                             experienceMonths: 0,
+                            voiceType: 'standard_female',
                           });
                         }}
                         className={tc('text-gray-400 hover:text-gray-600', 'text-slate-500 hover:text-slate-300')}
@@ -2448,6 +2472,20 @@ const HamoPro = () => {
                               placeholder={t('customSpecialtyPlaceholder')}
                             />
                           )}
+                        </div>
+
+                        {/* Avatar Voice Type */}
+                        <div>
+                          <label className={`block text-sm font-medium ${tc('text-gray-700', 'text-slate-300')} mb-1`}>{t('avatarVoice')}</label>
+                          <select
+                            value={avatarForm.voiceType}
+                            onChange={(e) => setAvatarForm({ ...avatarForm, voiceType: e.target.value })}
+                            className={`w-full px-4 py-2.5 border ${tc('border-blue-200 bg-white text-gray-900', 'border-blue-800 bg-slate-900 text-white')} rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all`}
+                          >
+                            <option value="standard_female">{t('standardFemaleVoice')}</option>
+                            <option value="standard_male">{t('standardMaleVoice')}</option>
+                            <option value="clone">{t('cloneProVoice')}</option>
+                          </select>
                         </div>
                       </div>
 
@@ -2547,14 +2585,14 @@ const HamoPro = () => {
                         </div>
                       </div>
 
-                      {/* Section 5: Voice Clone - Rose tint */}
+                      {/* Section 5: Voice Clone - Rose tint (only when clone mode) */}
+                      {avatarForm.voiceType === 'clone' && (
                       <div className={`${tc('bg-rose-50/70', 'bg-rose-900/20')} rounded-xl p-4`}>
                         <div className="flex items-center space-x-2 mb-2">
                           <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
                             <Mic className="w-3.5 h-3.5 text-white" />
                           </div>
                           <span className={`text-sm font-semibold ${tc('text-rose-700', 'text-rose-300')}`}>{t('voiceClone')}</span>
-                          <span className={`text-xs ${tc('text-rose-400', 'text-rose-500')}`}>{t('optional')}</span>
                         </div>
                         <p className={`text-xs ${tc('text-rose-500', 'text-rose-400')} mb-3`}>{t('voiceCloneDescription')}</p>
 
@@ -2646,6 +2684,7 @@ const HamoPro = () => {
                           </div>
                         )}
                       </div>
+                      )}
                     </div>
 
                     {/* Action Buttons */}
@@ -2668,6 +2707,7 @@ const HamoPro = () => {
                             about: '',
                             experienceYears: 0,
                             experienceMonths: 0,
+                            voiceType: 'standard_female',
                           });
                         }}
                         className={`flex-1 ${tc('bg-gray-200 text-gray-700 hover:bg-gray-300', 'bg-slate-700 text-slate-300 hover:bg-slate-600')} py-3 rounded-lg font-medium transition-colors`}

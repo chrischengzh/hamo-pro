@@ -349,7 +349,11 @@ export const translations = {
     failedToSaveSupervision: 'Failed to save supervision',
     failedToDeleteSupervision: 'Failed to delete supervision',
 
-    // Voice Clone
+    // Voice Type & Clone
+    avatarVoice: 'Avatar Voice',
+    standardMaleVoice: 'Standard Male',
+    standardFemaleVoice: 'Standard Female',
+    cloneProVoice: 'Clone My Voice',
     voiceClone: 'Voice Clone',
     voiceCloneDescription: 'Record your voice (30+ sec) so the avatar speaks like you.',
     recordVoice: 'Record Voice',
@@ -725,7 +729,11 @@ export const translations = {
     failedToSaveSupervision: '保存督导失败',
     failedToDeleteSupervision: '删除督导失败',
 
-    // Voice Clone
+    // Voice Type & Clone
+    avatarVoice: '形象声音',
+    standardMaleVoice: '标准男声',
+    standardFemaleVoice: '标准女声',
+    cloneProVoice: '克隆咨询师声',
     voiceClone: '声音克隆',
     voiceCloneDescription: '录制您的声音（30秒以上），让虚拟咨询师用您的声音说话。',
     recordVoice: '录制声音',
