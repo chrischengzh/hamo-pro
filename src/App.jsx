@@ -128,7 +128,7 @@ const HamoPro = () => {
   };
 
   // Contributors list
-  const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan'];
+  const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan', 'Aria Wang'];
 
   // Profession options for sign up
   const professionOptions = [
