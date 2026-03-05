@@ -375,6 +375,8 @@ export const translations = {
     playAudio: 'Play',
     pause: 'Pause',
     audioGenerationFailed: 'Audio generation failed',
+    maxAvatarsReached: 'You can create up to 3 avatars',
+    connectedClients: 'Connected Clients',
 
     // Language
     language: 'Language',
@@ -755,6 +757,8 @@ export const translations = {
     playAudio: '播放',
     pause: '暂停',
     audioGenerationFailed: '生成音频失败',
+    maxAvatarsReached: '最多只能创建 3 个虚拟咨询师',
+    connectedClients: '已连接来访者',
 
     // Language
     language: '语言',

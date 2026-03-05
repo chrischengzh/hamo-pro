@@ -1995,7 +1995,7 @@ const HamoPro = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className={`text-xl font-semibold ${tc('', 'text-white')}`}>{t('avatarTherapists')}</h2>
-              <button onClick={() => setShowAvatarForm(!showAvatarForm)} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg"><Plus className="w-5 h-5" /><span>{t('createAvatar')}</span></button>
+              <button onClick={() => { if (avatars.length >= 3) { alert(t('maxAvatarsReached')); return; } setShowAvatarForm(!showAvatarForm); }} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg"><Plus className="w-5 h-5" /><span>{t('createAvatar')}</span></button>
             </div>
             {showAvatarForm && (
               <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-6`}>
@@ -2321,6 +2321,10 @@ const HamoPro = () => {
                             <span>{a.experienceYears || 0}{t('years')} {a.experienceMonths || 0}{t('months')}</span>
                           </div>
                         )}
+                        <div className="flex items-center space-x-1">
+                          <User className={`w-4 h-4 ${tc('text-blue-400', 'text-blue-400')}`} />
+                          <span>{a.clientCount || 0}</span>
+                        </div>
                         {a.voiceStatus === 'ready' && (
                           <div className="flex items-center space-x-1">
                             <Mic className="w-3.5 h-3.5 text-rose-500" />
