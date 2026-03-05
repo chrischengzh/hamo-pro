@@ -247,6 +247,7 @@ class ApiService {
         experience_years: avatarData.experience_years || 0,
         experience_months: avatarData.experience_months || 0,
         specializations: avatarData.specializations || [],
+        voice_type: avatarData.voice_type || 'standard_female',
       };
       console.log('🔵 Creating avatar with:', requestBody);
 
@@ -290,6 +291,7 @@ class ApiService {
         about: avatarData.about || '',
         experience_years: avatarData.experience_years || 0,
         experience_months: avatarData.experience_months || 0,
+        voice_type: avatarData.voice_type,
       };
       console.log('🔵 Updating avatar:', avatarId, requestBody);
 
