@@ -377,6 +377,11 @@ export const translations = {
     audioGenerationFailed: 'Audio generation failed',
     maxAvatarsReached: 'You can create up to 3 avatars',
     connectedClients: 'Connected Clients',
+    agreeToPrefix: 'I agree to the ',
+    termsOfService: 'Terms of Service',
+    and: ' and ',
+    privacyPolicy: 'Privacy Policy',
+    pleaseAgreeToTerms: 'Please agree to the Terms of Service and Privacy Policy',
 
     // Language
     language: 'Language',
@@ -759,6 +764,11 @@ export const translations = {
     audioGenerationFailed: '生成音频失败',
     maxAvatarsReached: '最多只能创建 3 个虚拟咨询师',
     connectedClients: '已连接来访者',
+    agreeToPrefix: '同意',
+    termsOfService: '《用户服务协议》',
+    and: '和',
+    privacyPolicy: '《隐私政策》',
+    pleaseAgreeToTerms: '请先同意《用户服务协议》和《隐私政策》',
 
     // Language
     language: '语言',

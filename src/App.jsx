@@ -4,7 +4,7 @@ import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.8.1";
+  const APP_VERSION = "1.8.2";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
@@ -231,6 +231,7 @@ const HamoPro = () => {
   const [authForm, setAuthForm] = useState({ email: '', password: '', fullName: '', profession: '' });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [activeTab, setActiveTab] = useState('avatars');
   const [avatars, setAvatars] = useState([]);
@@ -546,7 +547,8 @@ const HamoPro = () => {
 
   const handleSignUp = async () => {
     setAuthError('');
-    
+    if (!agreedToTerms) { setAuthError(t('pleaseAgreeToTerms')); return; }
+
     if (!authForm.email || !authForm.password || !authForm.fullName || !authForm.profession) {
       setAuthError('Please fill in all fields');
       return;
@@ -582,7 +584,8 @@ const HamoPro = () => {
 
   const handleSignIn = async () => {
     setAuthError('');
-    
+    if (!agreedToTerms) { setAuthError(t('pleaseAgreeToTerms')); return; }
+
     if (!authForm.email || !authForm.password) {
       setAuthError('Please enter email and password');
       return;
@@ -1810,13 +1813,13 @@ const HamoPro = () => {
 
             <div className="flex space-x-2 mb-6">
               <button
-                onClick={() => { setAuthMode('signin'); setAuthError(''); }}
+                onClick={() => { setAuthMode('signin'); setAuthError(''); setAgreedToTerms(false); }}
                 className={`flex-1 py-2 rounded-lg font-medium ${authMode === 'signin' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600', 'bg-slate-700 text-slate-300')}`}
               >
                 {t('signIn')}
               </button>
               <button
-                onClick={() => { setAuthMode('signup'); setAuthError(''); }}
+                onClick={() => { setAuthMode('signup'); setAuthError(''); setAgreedToTerms(false); }}
                 className={`flex-1 py-2 rounded-lg font-medium ${authMode === 'signup' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600', 'bg-slate-700 text-slate-300')}`}
               >
                 {t('signUp')}
@@ -1883,6 +1886,20 @@ const HamoPro = () => {
                   disabled={authLoading}
                 />
               </div>
+
+              {/* Terms agreement checkbox */}
+              <label className="flex items-start space-x-2 my-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-400"
+                />
+                <span className={`text-xs leading-relaxed ${tc('text-gray-500', 'text-slate-400')}`}>
+                  {t('agreeToPrefix')}<a href="https://www.hamoai.com/terms" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t('termsOfService')}</a>{t('and')}<a href="https://www.hamoai.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t('privacyPolicy')}</a>
+                </span>
+              </label>
+
               <button
                 onClick={authMode === 'signin' ? handleSignIn : handleSignUp}
                 className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
