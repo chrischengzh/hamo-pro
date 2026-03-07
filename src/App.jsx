@@ -1896,7 +1896,7 @@ const HamoPro = () => {
                   className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-400"
                 />
                 <span className={`text-xs leading-relaxed ${tc('text-gray-500', 'text-slate-400')}`}>
-                  {t('agreeToPrefix')}<a href={language === 'zh' ? 'https://hamo.ai/terms/' : 'https://www.hamoai.com/terms'} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t('termsOfService')}</a>{t('and')}<a href={language === 'zh' ? 'https://hamo.ai/privacy/' : 'https://www.hamoai.com/privacy'} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t('privacyPolicy')}</a>
+                  {t('agreeToPrefix')}<a href={`https://hamo.ai/terms/?lang=${language}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t('termsOfService')}</a>{t('and')}<a href={`https://hamo.ai/privacy/?lang=${language}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{t('privacyPolicy')}</a>
                 </span>
               </label>
 
