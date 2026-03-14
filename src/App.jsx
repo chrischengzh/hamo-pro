@@ -375,9 +375,13 @@ const HamoPro = () => {
       }
       return;
     }
-    // Load existing unread alerts
+    // Load existing alerts — auto-open panel if any unacknowledged
     apiService.getCrisisAlerts().then(({ alerts }) => {
-      if (alerts.length > 0) setCrisisAlerts(alerts);
+      if (alerts.length > 0) {
+        setCrisisAlerts(alerts);
+        const hasUnread = alerts.some(a => !a.acknowledged);
+        if (hasUnread) setShowAlertPanel(true);
+      }
     });
     // Open SSE stream
     const es = apiService.subscribeToCrisisAlerts(
