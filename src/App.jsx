@@ -4671,7 +4671,7 @@ const HamoPro = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className={`text-xs ${tc('text-gray-500', 'text-slate-400')}`}>{c.created_at?.split('T')[0]}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{c.plan_label}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{language === 'en' ? (c.plan_label_en || c.plan_label) : c.plan_label}</span>
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('referralCommission')}</span>
