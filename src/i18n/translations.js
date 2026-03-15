@@ -406,6 +406,10 @@ export const translations = {
     commissionRate: 'Rate',
     commissionAmount: 'Commission',
     referralCommission: 'Referral Commission',
+    aiCounselorService: 'AI Counselor Service',
+    base: 'Base',
+    tokenDistribution: 'Token',
+    tokensUsed: 'tokens used',
 
     // Language
     language: 'Language',
@@ -817,6 +821,10 @@ export const translations = {
     commissionRate: '佣金比例',
     commissionAmount: '佣金',
     referralCommission: '邀请佣金',
+    aiCounselorService: '虚拟咨询师服务',
+    base: '基础',
+    tokenDistribution: 'Token',
+    tokensUsed: 'tokens 消耗',
 
     // Language
     language: '语言',

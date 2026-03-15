@@ -4682,22 +4682,38 @@ const HamoPro = () => {
                 <p className={`text-sm text-center py-4 ${tc('text-gray-400', 'text-slate-500')}`}>{t('noCommissionRecords')}</p>
               ) : (
                 <div className="space-y-3">
-                  {commissions.map((c, idx) => (
+                  {commissions.map((c, idx) => {
+                    const isAvatarService = c.commission_type === '虚拟咨询师服务' || c.commission_type_en === 'AI Counselor Service';
+                    const displayDate = isAvatarService ? (c.distribution_date || c.created_at?.split('T')[0]) : c.created_at?.split('T')[0];
+                    const displayType = isAvatarService
+                      ? (language === 'en' ? (c.commission_type_en || 'AI Counselor Service') : (c.commission_type || '虚拟咨询师服务'))
+                      : (language === 'en' ? (c.commission_type_en || 'Referral Commission') : (c.commission_type || '邀请佣金'));
+                    const displayPlan = language === 'en' ? (c.plan_label_en || c.plan_label) : c.plan_label;
+
+                    return (
                     <div key={idx} className={`p-3 rounded-lg border ${tc('border-gray-200 bg-gray-50', 'border-slate-700 bg-slate-900')}`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className={`text-sm font-medium ${tc('text-gray-900', 'text-white')}`}>{c.client_name}</span>
                         <span className={`text-sm font-bold text-green-500`}>+¥{parseFloat(c.commission_amount || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className={`text-xs ${tc('text-gray-500', 'text-slate-400')}`}>{c.created_at?.split('T')[0]}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{language === 'en' ? (c.plan_label_en || c.plan_label) : c.plan_label}</span>
+                        <span className={`text-xs ${tc('text-gray-500', 'text-slate-400')}`}>{displayDate}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{displayPlan}</span>
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('referralCommission')}</span>
-                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>¥{parseFloat(c.order_amount || 0).toFixed(2)} × {((c.commission_rate || 0.1) * 100).toFixed(0)}%</span>
+                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{displayType}</span>
+                        {isAvatarService ? (
+                          <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>
+                            {c.avatar_name && <>{c.avatar_name} · </>}
+                            {t('base')} ¥{parseFloat(c.base_amount || 0).toFixed(2)} + {t('tokenDistribution')} ¥{parseFloat(c.token_amount || 0).toFixed(2)}
+                          </span>
+                        ) : (
+                          <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>¥{parseFloat(c.order_amount || 0).toFixed(2)} × {((c.commission_rate || 0.1) * 100).toFixed(0)}%</span>
+                        )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
