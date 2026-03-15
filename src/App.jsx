@@ -234,6 +234,7 @@ const HamoPro = () => {
   const [commissions, setCommissions] = useState([]);
   const [totalCommission, setTotalCommission] = useState(0);
   const [commissionsLoaded, setCommissionsLoaded] = useState(false);
+  const [settingsSubTab, setSettingsSubTab] = useState('profile');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [authForm, setAuthForm] = useState({ email: '', password: '', fullName: '', profession: '' });
   const [authError, setAuthError] = useState('');
@@ -4546,9 +4547,25 @@ const HamoPro = () => {
               </div>
             </div>
 
-            {/* Profile Settings */}
+            {/* Settings Sub-Tabs */}
+            <div className={`flex rounded-lg ${tc('bg-gray-100', 'bg-slate-700')} p-1`}>
+              <button
+                onClick={() => setSettingsSubTab('profile')}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${settingsSubTab === 'profile' ? `${tc('bg-white shadow text-gray-900', 'bg-slate-600 text-white')}` : `${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-200')}`}`}
+              >
+                {t('profileSettings')}
+              </button>
+              <button
+                onClick={() => { setSettingsSubTab('wallet'); if (!commissionsLoaded) loadCommissions(); }}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${settingsSubTab === 'wallet' ? `${tc('bg-white shadow text-gray-900', 'bg-slate-600 text-white')}` : `${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-200')}`}`}
+              >
+                {t('wallet')}
+              </button>
+            </div>
+
+            {/* Profile Tab */}
+            {settingsSubTab === 'profile' && (
             <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-6`}>
-              <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')} mb-6`}>{t('profileSettings')}</h3>
 
               <div className="space-y-4">
                 {/* Nickname */}
@@ -4643,12 +4660,14 @@ const HamoPro = () => {
                 </button>
               </div>
             </div>
+            )}
 
-            {/* Account - Commissions */}
+            {/* Wallet Tab */}
+            {settingsSubTab === 'wallet' && (
             <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-6`}>
               <div className="flex items-center space-x-2 mb-4">
                 <Wallet className={`w-5 h-5 ${tc('text-purple-600', 'text-purple-400')}`} />
-                <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{t('account')}</h3>
+                <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{t('wallet')}</h3>
               </div>
 
               {/* Total Commission */}
@@ -4682,6 +4701,7 @@ const HamoPro = () => {
                 </div>
               )}
             </div>
+            )}
 
             {/* Account Actions */}
             <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-4 space-y-3`}>

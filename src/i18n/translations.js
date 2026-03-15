@@ -393,8 +393,8 @@ export const translations = {
     errorFailedToSaveProfile: 'Failed to save profile',
     pleaseSetSexFirst: 'Please set your gender in Settings before creating an Avatar',
 
-    // Account & Commissions
-    account: 'Account',
+    // Wallet & Commissions
+    wallet: 'Wallet',
     commissionRecords: 'Commission Records',
     totalCommission: 'Total Commission',
     noCommissionRecords: 'No commission records yet',
@@ -804,8 +804,8 @@ export const translations = {
     errorFailedToSaveProfile: '保存个人信息失败',
     pleaseSetSexFirst: '请先在设置中选择您的性别，然后再创建虚拟咨询师',
 
-    // Account & Commissions
-    account: '账户',
+    // Wallet & Commissions
+    wallet: '钱包',
     commissionRecords: '佣金记录',
     totalCommission: '佣金总额',
     noCommissionRecords: '暂无佣金记录',
