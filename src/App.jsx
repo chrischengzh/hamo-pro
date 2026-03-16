@@ -4279,7 +4279,7 @@ const HamoPro = () => {
                         <p>{t('loadingConversations')}</p>
                       </div>
                     ) : conversationsData && conversationsData.length > 0 ? (
-                      conversationsData.filter(conv => conv.proVisible === false || (conv.miniSessionGroups && conv.miniSessionGroups.length > 0)).map((conv, i) => (
+                      [...conversationsData].filter(conv => conv.proVisible === false || (conv.miniSessionGroups && conv.miniSessionGroups.length > 0)).reverse().map((conv, i) => (
                         <div key={i} className="mb-4">
                           {conv.proVisible === false ? (
                             <div className={`border-l-4 ${tc('border-gray-300', 'border-slate-600')} pl-4 mb-4`}>
