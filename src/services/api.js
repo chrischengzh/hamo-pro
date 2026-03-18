@@ -481,6 +481,7 @@ class ApiService {
           experienceMonths: avatar.experience_months || avatar.experienceMonths,
           avatarPicture: avatar.avatar_picture || null,
           likeCount: avatar.like_count || 0,
+          understoodCount: avatar.understood_count || 0,
           clientCount: avatar.client_count || 0,
           voiceType: avatar.voice_type || null,
           voiceId: avatar.voice_id || null,

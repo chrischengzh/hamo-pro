@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save, Sun, Moon, Mic, Volume2, Square, Play, Pause, Wallet } from 'lucide-react';
+import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save, Sun, Moon, Mic, Volume2, Square, Play, Pause, Wallet, Lightbulb } from 'lucide-react';
 import apiService from './services/api';
 import { translations } from './i18n/translations';
 
@@ -2464,9 +2464,15 @@ const HamoPro = () => {
                           <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{a.name}</h3>
                           <p className={`text-sm ${tc('text-blue-600', 'text-blue-400')}`}>{getSpecialtyLabel(a.specialty) || a.specialty || a.theory}</p>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Heart className={`w-4 h-4 ${a.likeCount > 0 ? 'text-purple-500 fill-current' : tc('text-purple-300', 'text-purple-400')}`} />
-                          <span className={`text-sm font-medium ${tc('text-purple-500', 'text-purple-400')}`}>{a.likeCount || 0}</span>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-1">
+                            <Heart className={`w-4 h-4 ${a.likeCount > 0 ? 'text-purple-500 fill-current' : tc('text-purple-300', 'text-purple-400')}`} />
+                            <span className={`text-sm font-medium ${tc('text-purple-500', 'text-purple-400')}`}>{a.likeCount || 0}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Lightbulb className={`w-4 h-4 ${a.understoodCount > 0 ? 'text-amber-500 fill-current' : tc('text-amber-300', 'text-amber-400')}`} />
+                            <span className={`text-sm font-medium ${tc('text-amber-500', 'text-amber-400')}`}>{a.understoodCount || 0}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -2524,10 +2530,16 @@ const HamoPro = () => {
                       <h2 className="text-2xl font-bold text-white">{selectedAvatar.name}</h2>
                       <p className="text-blue-100 mt-1">{getSpecialtyLabel(selectedAvatar.specialty) || selectedAvatar.specialty || selectedAvatar.theory}</p>
 
-                      {/* Like Count */}
-                      <div className="flex items-center space-x-1 mt-2">
-                        <Heart className={`w-5 h-5 ${selectedAvatar.likeCount > 0 ? 'text-purple-300 fill-current' : 'text-purple-400'}`} />
-                        <span className="text-white text-sm">{selectedAvatar.likeCount || 0}</span>
+                      {/* Like & Understood Counts */}
+                      <div className="flex items-center space-x-4 mt-2">
+                        <div className="flex items-center space-x-1">
+                          <Heart className={`w-5 h-5 ${selectedAvatar.likeCount > 0 ? 'text-purple-300 fill-current' : 'text-purple-400'}`} />
+                          <span className="text-white text-sm">{selectedAvatar.likeCount || 0}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Lightbulb className={`w-5 h-5 ${selectedAvatar.understoodCount > 0 ? 'text-amber-300 fill-current' : 'text-amber-400'}`} />
+                          <span className="text-white text-sm">{selectedAvatar.understoodCount || 0}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
