@@ -1337,12 +1337,12 @@ const HamoPro = () => {
     ctx.lineWidth = 3;
     ctx.strokeRect(10, 10, 380, 500);
 
-    // Load avatar image: try fetch blob first, fallback to DOM img
+    // Load avatar image via API proxy (bypasses CORS)
     let avatarImg = null;
     if (avatar.avatarPicture) {
-      // Method 1: fetch as blob (requires S3 CORS)
       try {
-        const resp = await fetch(avatar.avatarPicture);
+        const proxyUrl = `https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatar.avatarPicture)}`;
+        const resp = await fetch(proxyUrl);
         const blob = await resp.blob();
         const bitmapUrl = URL.createObjectURL(blob);
         avatarImg = await new Promise((resolve) => {
@@ -1351,26 +1351,8 @@ const HamoPro = () => {
           img.onerror = () => resolve(null);
           img.src = bitmapUrl;
         });
-      } catch (e) { /* fetch failed */ }
-
-      // Method 2: grab from DOM (the modal img is already rendered)
-      if (!avatarImg) {
-        try {
-          const domImg = document.querySelector('#batch-invite-avatar-img');
-          if (domImg && domImg.naturalWidth > 0) {
-            const tmpCanvas = document.createElement('canvas');
-            tmpCanvas.width = domImg.naturalWidth;
-            tmpCanvas.height = domImg.naturalHeight;
-            tmpCanvas.getContext('2d').drawImage(domImg, 0, 0);
-            avatarImg = await new Promise((resolve) => {
-              const img2 = new Image();
-              img2.onload = () => resolve(img2);
-              img2.onerror = () => resolve(null);
-              img2.src = tmpCanvas.toDataURL();
-            });
-          }
-        } catch (e2) { /* DOM method also failed */ }
-      }
+        URL.revokeObjectURL(bitmapUrl);
+      } catch (e) { /* proxy failed, skip avatar */ }
     }
 
     // Draw avatar circle
@@ -2357,7 +2339,7 @@ const HamoPro = () => {
               <div className="text-center">
                 {/* Avatar Picture */}
                 {showBatchInvitation.avatarPicture ? (
-                  <img id="batch-invite-avatar-img" crossOrigin="anonymous" src={showBatchInvitation.avatarPicture} alt="" className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-blue-500" />
+                  <img src={showBatchInvitation.avatarPicture} alt="" className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-blue-500" />
                 ) : (
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3">
                     <Brain className="w-8 h-8 text-white" />
