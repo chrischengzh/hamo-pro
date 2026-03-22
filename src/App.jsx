@@ -2421,13 +2421,13 @@ const HamoPro = () => {
                   className="flex-1 bg-blue-500 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-600 flex items-center justify-center space-x-2"
                 >
                   <Download className="w-4 h-4" />
-                  <span>{t('save')}</span>
+                  <span>{t('invitationCardBtn')}</span>
                 </button>
                 <button
                   onClick={() => setShowBatchInvitation(null)}
                   className={`flex-1 px-4 py-3 rounded-lg font-medium ${tc('bg-gray-200 text-gray-700 hover:bg-gray-300', 'bg-slate-700 text-slate-300 hover:bg-slate-600')}`}
                 >
-                  {t('done')}
+                  {t('confirm')}
                 </button>
               </div>
             </div>
