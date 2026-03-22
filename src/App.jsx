@@ -1355,17 +1355,20 @@ const HamoPro = () => {
       } catch (e) { /* proxy failed, skip avatar */ }
     }
 
+    // Vertically centered layout
+    const oY = 45; // offset to center content
+
     // Draw avatar circle
     if (avatarImg) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(200, 70, 45, 0, Math.PI * 2);
+      ctx.arc(200, 80 + oY, 45, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
-      ctx.drawImage(avatarImg, 155, 25, 90, 90);
+      ctx.drawImage(avatarImg, 155, 35 + oY, 90, 90);
       ctx.restore();
       ctx.beginPath();
-      ctx.arc(200, 70, 45, 0, Math.PI * 2);
+      ctx.arc(200, 80 + oY, 45, 0, Math.PI * 2);
       ctx.strokeStyle = '#3b82f6';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -1373,38 +1376,38 @@ const HamoPro = () => {
 
     ctx.textAlign = 'center';
 
-    // Avatar name (right below avatar image)
+    // Avatar name
     ctx.fillStyle = '#60a5fa';
     ctx.font = 'bold 18px sans-serif';
-    ctx.fillText(avatar.name, 200, 140);
+    ctx.fillText(avatar.name, 200, 150 + oY);
 
     // "Hamo AI" title
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px sans-serif';
-    ctx.fillText('Hamo AI', 200, 175);
+    ctx.fillText('Hamo AI', 200, 185 + oY);
     // Subtitle
     ctx.fillStyle = '#94a3b8';
     ctx.font = '13px sans-serif';
-    ctx.fillText(t('hamoAiSubtitle'), 200, 195);
+    ctx.fillText(t('hamoAiSubtitle'), 200, 205 + oY);
 
     // Invitation code box
     ctx.fillStyle = '#1e3a5f';
     ctx.beginPath();
-    ctx.roundRect(60, 220, 280, 60, 12);
+    ctx.roundRect(60, 225 + oY, 280, 60, 12);
     ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 32px monospace';
-    ctx.fillText(batchInviteCode, 200, 260);
+    ctx.fillText(batchInviteCode, 200, 265 + oY);
 
     // Validity info
     ctx.fillStyle = '#f59e0b';
     ctx.font = '13px sans-serif';
-    ctx.fillText(`${t('expiryDays')}: ${batchExpiresDays}`, 200, 320);
+    ctx.fillText(`${t('expiryDays')}: ${batchExpiresDays}`, 200, 325 + oY);
 
     // Registration instructions
     ctx.fillStyle = '#94a3b8';
     ctx.font = '12px sans-serif';
-    ctx.fillText(t('registrationInstructions'), 200, 420);
+    ctx.fillText(t('registrationInstructions'), 200, 410 + oY);
 
     // Download
     const link = document.createElement('a');
