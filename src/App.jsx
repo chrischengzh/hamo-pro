@@ -1972,133 +1972,119 @@ const HamoPro = () => {
   const handleSaveInvitationCard = async () => {
     const avatar = avatars.find(a => String(a.id) === String(showInvitationCard.avatarId) || String(a.id) === String(showInvitationCard.avatar_id));
 
-    // Pre-load avatar image via proxy (same approach as batch invitation)
+    // Load avatar image via API proxy (same proven approach as batch invitation)
     let avatarImg = null;
-    const avatarPicUrl = avatar?.avatarPicture;
-    console.log('🖼️ Direct invite avatar lookup:', { avatarId: showInvitationCard.avatarId, avatar_id: showInvitationCard.avatar_id, found: !!avatar, avatarPicUrl });
-    if (avatarPicUrl) {
+    if (avatar?.avatarPicture) {
       try {
-        const proxyUrl = `https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatarPicUrl)}`;
-        console.log('🖼️ Fetching proxy:', proxyUrl);
+        const proxyUrl = `https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatar.avatarPicture)}`;
         const resp = await fetch(proxyUrl);
-        console.log('🖼️ Proxy response:', resp.status, resp.ok);
-        if (resp.ok) {
-          const blob = await resp.blob();
-          console.log('🖼️ Blob size:', blob.size, 'type:', blob.type);
-          const bitmapUrl = URL.createObjectURL(blob);
-          avatarImg = await new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => { console.log('🖼️ Image loaded:', img.width, img.height); resolve(img); };
-            img.onerror = (e) => { console.error('🖼️ Image load error:', e); resolve(null); };
-            img.src = bitmapUrl;
-          });
-          URL.revokeObjectURL(bitmapUrl);
-        }
-      } catch (e) { console.error('🖼️ Proxy fetch error:', e); }
+        const blob = await resp.blob();
+        const bitmapUrl = URL.createObjectURL(blob);
+        avatarImg = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = bitmapUrl;
+        });
+        URL.revokeObjectURL(bitmapUrl);
+      } catch (e) { /* proxy failed, skip avatar */ }
     }
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
     const W = 400;
     const H = 550;
+    const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
+    const ctx = canvas.getContext('2d');
 
-    // Dark background with border
-    ctx.fillStyle = '#0F172A';
-    ctx.roundRect(0, 0, W, H, 20);
-    ctx.fill();
-    ctx.strokeStyle = '#0EA5E9';
-    ctx.lineWidth = 2;
-    ctx.roundRect(8, 8, W - 16, H - 16, 16);
-    ctx.stroke();
+    // Background (use fillRect, no path issues)
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#1e293b');
+    bgGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
 
-    let y = 40;
+    // Border glow
+    const borderGrad = ctx.createLinearGradient(0, 0, W, 0);
+    borderGrad.addColorStop(0, '#3b82f6');
+    borderGrad.addColorStop(1, '#06b6d4');
+    ctx.strokeStyle = borderGrad;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(10, 10, W - 20, H - 20);
 
-    // Avatar picture
+    const oY = 30;
+    ctx.textAlign = 'center';
+
+    // Avatar circle
     if (avatarImg) {
-      const size = 72;
-      const cx = W / 2;
       ctx.save();
       ctx.beginPath();
-      ctx.arc(cx, y + size / 2, size / 2, 0, Math.PI * 2);
+      ctx.arc(200, 75 + oY, 40, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
-      ctx.drawImage(avatarImg, cx - size / 2, y, size, size);
+      ctx.drawImage(avatarImg, 160, 35 + oY, 80, 80);
       ctx.restore();
-      // Border
-      ctx.strokeStyle = '#3B82F6';
-      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(cx, y + size / 2, size / 2, 0, Math.PI * 2);
+      ctx.arc(200, 75 + oY, 40, 0, Math.PI * 2);
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 2;
       ctx.stroke();
-      y += size + 12;
     }
 
     // Avatar name
-    ctx.textAlign = 'center';
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 18px system-ui, sans-serif';
-    ctx.fillText(avatar?.name || t('unknown'), W / 2, y + 16);
-    y += 40;
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(avatar?.name || t('unknown'), 200, 140 + oY);
 
     // Hamo AI title
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px system-ui, sans-serif';
-    ctx.fillText('Hamo AI', W / 2, y);
-    y += 22;
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '13px system-ui, sans-serif';
-    ctx.fillText('Hamo AI：你的虚拟咨询师', W / 2, y);
-    y += 30;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText('Hamo AI', 200, 170 + oY);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '13px sans-serif';
+    ctx.fillText(t('hamoAiSubtitle'), 200, 190 + oY);
 
-    // Code box
-    ctx.fillStyle = '#1E293B';
-    ctx.roundRect(40, y, W - 80, 56, 12);
+    // Invitation code box
+    ctx.fillStyle = '#1e3a5f';
+    ctx.beginPath();
+    ctx.roundRect(50, 210 + oY, 300, 55, 12);
     ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 30px monospace';
-    ctx.fillText(invitationCode, W / 2, y + 38);
-    y += 76;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 28px monospace';
+    ctx.fillText(invitationCode, 200, 247 + oY);
 
     // Validity
     ctx.fillStyle = '#F59E0B';
-    ctx.font = '14px system-ui, sans-serif';
-    ctx.fillText(t('expiresIn'), W / 2, y);
-    y += 30;
+    ctx.font = '14px sans-serif';
+    ctx.fillText(t('expiresIn'), 200, 295 + oY);
 
     // Divider
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(40, y);
-    ctx.lineTo(W - 40, y);
+    ctx.moveTo(50, 315 + oY);
+    ctx.lineTo(350, 315 + oY);
     ctx.stroke();
-    y += 20;
 
     // Client info
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '13px system-ui, sans-serif';
-    ctx.fillText(t('clientLabel'), W / 2, y);
-    y += 22;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 16px system-ui, sans-serif';
-    ctx.fillText(showInvitationCard.name, W / 2, y);
-    y += 30;
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '13px sans-serif';
+    ctx.fillText(t('clientLabel'), 200, 340 + oY);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.fillText(showInvitationCard.name, 200, 362 + oY);
 
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '13px system-ui, sans-serif';
-    ctx.fillText('AI Avatar', W / 2, y);
-    y += 22;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 16px system-ui, sans-serif';
-    ctx.fillText(avatar?.name || t('unknown'), W / 2, y);
-    y += 40;
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '13px sans-serif';
+    ctx.fillText('AI Avatar', 200, 390 + oY);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.fillText(avatar?.name || t('unknown'), 200, 412 + oY);
 
     // Footer
     ctx.fillStyle = '#38BDF8';
-    ctx.font = 'bold 13px system-ui, sans-serif';
-    ctx.fillText(t('registrationInstructions'), W / 2, y);
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(t('registrationInstructions'), 200, 455 + oY);
 
     // Download
     const link = document.createElement('a');
