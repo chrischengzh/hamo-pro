@@ -1977,20 +1977,27 @@ const HamoPro = () => {
 
     // Pre-load avatar image via proxy (same approach as batch invitation)
     let avatarImg = null;
-    if (avatar?.avatarPicture) {
+    const avatarPicUrl = avatar?.avatarPicture;
+    console.log('🖼️ Direct invite avatar lookup:', { avatarId: showInvitationCard.avatarId, avatar_id: showInvitationCard.avatar_id, found: !!avatar, avatarPicUrl });
+    if (avatarPicUrl) {
       try {
-        const proxyUrl = `https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatar.avatarPicture)}`;
+        const proxyUrl = `https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatarPicUrl)}`;
+        console.log('🖼️ Fetching proxy:', proxyUrl);
         const resp = await fetch(proxyUrl);
-        const blob = await resp.blob();
-        const bitmapUrl = URL.createObjectURL(blob);
-        avatarImg = await new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve(img);
-          img.onerror = () => resolve(null);
-          img.src = bitmapUrl;
-        });
-        URL.revokeObjectURL(bitmapUrl);
-      } catch (e) { /* skip avatar image */ }
+        console.log('🖼️ Proxy response:', resp.status, resp.ok);
+        if (resp.ok) {
+          const blob = await resp.blob();
+          console.log('🖼️ Blob size:', blob.size, 'type:', blob.type);
+          const bitmapUrl = URL.createObjectURL(blob);
+          avatarImg = await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => { console.log('🖼️ Image loaded:', img.width, img.height); resolve(img); };
+            img.onerror = (e) => { console.error('🖼️ Image load error:', e); resolve(null); };
+            img.src = bitmapUrl;
+          });
+          URL.revokeObjectURL(bitmapUrl);
+        }
+      } catch (e) { console.error('🖼️ Proxy fetch error:', e); }
     }
 
     const canvas = document.createElement('canvas');
