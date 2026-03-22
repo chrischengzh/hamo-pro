@@ -1384,19 +1384,23 @@ const HamoPro = () => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(200, 80, 40, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(img, 160, 40, 80, 80);
-        ctx.restore();
-        // Circle border
-        ctx.beginPath();
-        ctx.arc(200, 80, 40, 0, Math.PI * 2);
-        ctx.strokeStyle = '#3b82f6';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        try {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(200, 70, 45, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(img, 155, 25, 90, 90);
+          ctx.restore();
+          // Circle border
+          ctx.beginPath();
+          ctx.arc(200, 70, 45, 0, Math.PI * 2);
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        } catch (e) {
+          // CORS issue — draw without avatar
+        }
         drawContent();
       };
       img.onerror = () => drawContent();
@@ -2754,7 +2758,7 @@ const HamoPro = () => {
                       disabled={batchInviteLoading}
                       className="flex items-center space-x-1 text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors"
                     >
-                      <Ticket className="w-3.5 h-3.5" />
+                      <Plus className="w-3.5 h-3.5" />
                       <Users className="w-3.5 h-3.5" />
                       <span className="text-xs">{t('batchInvite')}</span>
                     </button>
