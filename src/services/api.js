@@ -634,6 +634,32 @@ class ApiService {
     }
   }
 
+  async generateBatchInvitation(avatarId, maxUses = 10, expiresDays = 7) {
+    try {
+      const response = await this.request('/pro/invitation/generate-batch', {
+        method: 'POST',
+        body: JSON.stringify({ avatar_id: String(avatarId), max_uses: maxUses, expires_days: expiresDays }),
+      });
+      return { success: true, invitationCode: response.invitation_code, expiresAt: response.expires_at, maxUses: response.max_uses };
+    } catch (error) {
+      console.error('❌ Failed to generate batch invitation:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateInvitationSettings(code, settings) {
+    try {
+      const response = await this.request(`/pro/invitation/${code}/settings`, {
+        method: 'PUT',
+        body: JSON.stringify(settings),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      console.error('❌ Failed to update invitation settings:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get AI Mind data by mind ID
   async getMind(mindId) {
     try {

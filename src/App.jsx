@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save, Sun, Moon, Mic, Volume2, Square, Play, Pause, Wallet, Lightbulb, Target } from 'lucide-react';
+import { User, Brain, Settings, Plus, Ticket, Eye, EyeOff, Clock, MessageSquare, LogOut, Trash2, Download, CheckCircle, Calendar, Sparkles, Send, Star, Heart, X, Briefcase, ChevronRight, ChevronDown, ChevronUp, Globe, Upload, RefreshCw, ArrowDown, Edit3, Save, Sun, Moon, Mic, Volume2, Square, Play, Pause, Wallet, Lightbulb, Target, Share2 } from 'lucide-react';
 import apiService from './services/api';
 import { translations } from './i18n/translations';
 
@@ -283,6 +283,12 @@ const HamoPro = () => {
   const [showInvitationCard, setShowInvitationCard] = useState(null);
   const [invitationCode, setInvitationCode] = useState('');
   const [invitationLoading, setInvitationLoading] = useState(false);
+  // Batch invitation
+  const [showBatchInvitation, setShowBatchInvitation] = useState(null); // avatar object
+  const [batchInviteCode, setBatchInviteCode] = useState('');
+  const [batchInviteLoading, setBatchInviteLoading] = useState(false);
+  const [batchMaxUses, setBatchMaxUses] = useState(10);
+  const [batchExpiresDays, setBatchExpiresDays] = useState(7);
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [editingAvatar, setEditingAvatar] = useState(null);
   const [avatarForm, setAvatarForm] = useState({
@@ -1279,6 +1285,127 @@ const HamoPro = () => {
     }
   };
 
+  // Generate batch invitation code for an Avatar (promotional use)
+  const handleGenerateBatchInvitation = async (avatar) => {
+    setBatchInviteLoading(true);
+    setBatchMaxUses(10);
+    setBatchExpiresDays(7);
+    try {
+      const result = await apiService.generateBatchInvitation(avatar.id, 10, 7);
+      if (result.success) {
+        setBatchInviteCode(result.invitationCode);
+        setShowBatchInvitation(avatar);
+      } else {
+        alert(`Failed to generate batch invitation: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`Failed to generate batch invitation: ${error.message}`);
+    } finally {
+      setBatchInviteLoading(false);
+    }
+  };
+
+  const handleSaveBatchSettings = async () => {
+    if (!batchInviteCode) return;
+    const result = await apiService.updateInvitationSettings(batchInviteCode, {
+      max_uses: batchMaxUses,
+      expires_days: batchExpiresDays,
+    });
+    if (!result.success) alert(`Failed to update: ${result.error}`);
+  };
+
+  const handleSaveBatchInvitationCard = () => {
+    const avatar = showBatchInvitation;
+    if (!avatar) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 500;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    const bgGrad = ctx.createLinearGradient(0, 0, 400, 500);
+    bgGrad.addColorStop(0, '#1e293b');
+    bgGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 400, 500);
+
+    // Border glow
+    const borderGrad = ctx.createLinearGradient(0, 0, 400, 0);
+    borderGrad.addColorStop(0, '#3b82f6');
+    borderGrad.addColorStop(1, '#06b6d4');
+    ctx.strokeStyle = borderGrad;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(10, 10, 380, 480);
+
+    const drawContent = () => {
+      // "Hamo AI" title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Hamo AI', 200, 150);
+      // Subtitle
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px sans-serif';
+      ctx.fillText(t('hamoAiSubtitle'), 200, 175);
+
+      // Invitation code box
+      ctx.fillStyle = '#1e3a5f';
+      ctx.beginPath();
+      ctx.roundRect(60, 200, 280, 60, 12);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 32px monospace';
+      ctx.fillText(batchInviteCode, 200, 240);
+
+      // Avatar name
+      ctx.fillStyle = '#60a5fa';
+      ctx.font = '16px sans-serif';
+      ctx.fillText(avatar.name, 200, 300);
+
+      // Validity info
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '13px sans-serif';
+      ctx.fillText(`${t('expiryDays')}: ${batchExpiresDays}`, 200, 340);
+
+      // Registration instructions
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '12px sans-serif';
+      ctx.fillText(t('registrationInstructions'), 200, 400);
+
+      // Download
+      const link = document.createElement('a');
+      link.download = `hamo-batch-${batchInviteCode}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+
+    // Draw avatar picture as circle
+    if (avatar.avatarPicture) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(200, 80, 40, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(img, 160, 40, 80, 80);
+        ctx.restore();
+        // Circle border
+        ctx.beginPath();
+        ctx.arc(200, 80, 40, 0, Math.PI * 2);
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        drawContent();
+      };
+      img.onerror = () => drawContent();
+      img.src = avatar.avatarPicture;
+    } else {
+      drawContent();
+    }
+  };
+
   // Fetch and display AI Mind for a client
   const handleViewMind = async (client) => {
     // Close View Chats panel if open
@@ -2197,6 +2324,79 @@ const HamoPro = () => {
         </div>
       )}
 
+      {/* Batch Invitation Modal */}
+      {showBatchInvitation && (
+        <div className={`fixed inset-0 flex items-center justify-center z-50 px-4 ${tc('bg-black bg-opacity-50', 'bg-black bg-opacity-70')}`}>
+          <div className={`rounded-2xl p-1 shadow-2xl ${tc('bg-gradient-to-br from-blue-500 to-teal-500', 'bg-gradient-to-br from-blue-600 to-cyan-600')}`}>
+            <div className={`rounded-2xl p-8 w-80 ${tc('bg-white', 'bg-slate-800')}`}>
+              <div className="text-center">
+                {/* Avatar Picture */}
+                {showBatchInvitation.avatarPicture ? (
+                  <img src={showBatchInvitation.avatarPicture} alt="" className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-blue-500" />
+                ) : (
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Brain className="w-8 h-8 text-white" />
+                  </div>
+                )}
+                <h3 className={`text-lg font-bold mb-1 ${tc('text-gray-900', 'text-white')}`}>{showBatchInvitation.name}</h3>
+                <p className={`text-sm mb-5 ${tc('text-blue-500', 'text-blue-400')}`}>{t('hamoAiSubtitle')}</p>
+
+                {/* Invitation Code */}
+                <div className={`rounded-xl p-4 mb-5 ${tc('bg-gray-50', 'bg-slate-900')}`}>
+                  <p className={`text-3xl font-bold font-mono tracking-wider ${tc('text-gray-900', 'text-white')}`}>{batchInviteCode}</p>
+                </div>
+
+                {/* Editable Settings */}
+                <div className="space-y-3 mb-5">
+                  <div className="flex items-center justify-between">
+                    <span className={`text-sm ${tc('text-gray-600', 'text-slate-400')}`}><Clock className="w-4 h-4 inline mr-1" />{t('expiryDays')}</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="90"
+                      value={batchExpiresDays}
+                      onChange={(e) => setBatchExpiresDays(Math.max(1, parseInt(e.target.value) || 7))}
+                      onBlur={handleSaveBatchSettings}
+                      className={`w-16 text-center text-sm border rounded-lg py-1 ${tc('border-gray-300 bg-white text-gray-900', 'border-slate-600 bg-slate-700 text-white')}`}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-sm ${tc('text-gray-600', 'text-slate-400')}`}><User className="w-4 h-4 inline mr-1" />{t('maxInvitees')}</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={batchMaxUses}
+                      onChange={(e) => setBatchMaxUses(Math.max(1, parseInt(e.target.value) || 10))}
+                      onBlur={handleSaveBatchSettings}
+                      className={`w-16 text-center text-sm border rounded-lg py-1 ${tc('border-gray-300 bg-white text-gray-900', 'border-slate-600 bg-slate-700 text-white')}`}
+                    />
+                  </div>
+                </div>
+
+                <p className={`text-sm font-medium mb-5 ${tc('text-blue-500', 'text-blue-400')}`}>{t('registrationInstructions')}</p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleSaveBatchInvitationCard}
+                  className="flex-1 bg-blue-500 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-600 flex items-center justify-center space-x-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>{t('save')}</span>
+                </button>
+                <button
+                  onClick={() => setShowBatchInvitation(null)}
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium ${tc('bg-gray-200 text-gray-700 hover:bg-gray-300', 'bg-slate-700 text-slate-300 hover:bg-slate-600')}`}
+                >
+                  {t('done')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-6 pb-24 pt-4">
         {activeTab === 'avatars' && (
           <div className="space-y-4">
@@ -2543,6 +2743,14 @@ const HamoPro = () => {
                             <Mic className="w-3.5 h-3.5 text-rose-500" />
                           </div>
                         )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleGenerateBatchInvitation(a); }}
+                          disabled={batchInviteLoading}
+                          className="flex items-center space-x-1 text-blue-400 hover:text-blue-300 transition-colors ml-auto"
+                          title={t('batchInvite')}
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
                       </div>
 
                     </div>

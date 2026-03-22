@@ -95,7 +95,12 @@ export const translations = {
 
     // Clients
     clientInstances: 'Client Instances',
-    inviteClient: 'Invite Client',
+    inviteClient: 'Direct Invite',
+    batchInvite: 'Batch Invite',
+    batchInviteTitle: 'Batch Invitation',
+    hamoAiSubtitle: 'Hamo AI: Your Virtual Counselor',
+    expiryDays: 'Validity (days)',
+    maxInvitees: 'Max Invitees',
     noClientsYet: 'No clients yet. Invite your first client!',
     connected: 'Connected',
     sessions: 'Sessions',
@@ -522,7 +527,12 @@ export const translations = {
 
     // Clients
     clientInstances: '来访者',
-    inviteClient: '邀请来访者',
+    inviteClient: '定向邀请',
+    batchInvite: '批量邀请',
+    batchInviteTitle: '批量邀请',
+    hamoAiSubtitle: 'Hamo AI：你的虚拟咨询师',
+    expiryDays: '有效期（天）',
+    maxInvitees: '来访者邀请总数',
     noClientsYet: '暂无来访者。邀请您的第一位来访者！',
     connected: '已连接',
     sessions: '次会话',
