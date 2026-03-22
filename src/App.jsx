@@ -2417,7 +2417,7 @@ const HamoPro = () => {
 
               <div className="flex space-x-3">
                 <button
-                  onClick={handleSaveBatchInvitationCard}
+                  onClick={async () => { await handleSaveBatchInvitationCard(); setShowBatchInvitation(null); }}
                   className="flex-1 bg-blue-500 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-600 flex items-center justify-center space-x-2"
                 >
                   <Download className="w-4 h-4" />
