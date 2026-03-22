@@ -1975,15 +1975,21 @@ const HamoPro = () => {
 
     const avatar = avatars.find(a => String(a.id) === String(showInvitationCard.avatarId) || String(a.id) === String(showInvitationCard.avatar_id));
 
-    // Pre-load avatar image via proxy
+    // Pre-load avatar image via proxy (same approach as batch invitation)
     let avatarImg = null;
     if (avatar?.avatarPicture) {
       try {
-        const resp = await fetch(`https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatar.avatarPicture)}`);
-        if (resp.ok) {
-          const blob = await resp.blob();
-          avatarImg = await createImageBitmap(blob);
-        }
+        const proxyUrl = `https://api.hamo.ai/api/image-proxy?url=${encodeURIComponent(avatar.avatarPicture)}`;
+        const resp = await fetch(proxyUrl);
+        const blob = await resp.blob();
+        const bitmapUrl = URL.createObjectURL(blob);
+        avatarImg = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = bitmapUrl;
+        });
+        URL.revokeObjectURL(bitmapUrl);
       } catch (e) { /* skip avatar image */ }
     }
 
@@ -2054,7 +2060,7 @@ const HamoPro = () => {
     // Validity
     ctx.fillStyle = '#F59E0B';
     ctx.font = '14px system-ui, sans-serif';
-    ctx.fillText(t('validFor24Hours'), W / 2, y);
+    ctx.fillText(t('expiresIn'), W / 2, y);
     y += 30;
 
     // Divider
