@@ -5163,15 +5163,23 @@ const HamoPro = () => {
                 </div>
                 <button
                   onClick={async () => {
-                    if (!verificationLoaded) await loadVerification();
-                    if (verificationStatus === 'verified') {
+                    let status = verificationStatus;
+                    if (!verificationLoaded) {
+                      const result = await apiService.getVerification();
+                      if (result.success) {
+                        status = result.verification_status || null;
+                        setVerificationForm({ real_name: result.real_name || '', alipay_account: result.alipay_account || '', wechat_id: result.wechat_id || '' });
+                        setVerificationStatus(status);
+                        setVerificationLoaded(true);
+                      }
+                    }
+                    if (status === 'verified') {
                       alert(t('withdrawComingSoon'));
-                    } else if (verificationStatus === 'pending') {
+                    } else if (status === 'pending') {
                       alert(t('withdrawPendingVerification'));
                     } else {
                       alert(t('withdrawRequiresVerification'));
                       setSettingsSubTab('verification');
-                      loadVerification();
                     }
                   }}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg flex items-center space-x-1 ${tc('bg-purple-100 text-purple-700 hover:bg-purple-200', 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50')} transition-colors`}
