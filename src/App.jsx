@@ -5156,9 +5156,30 @@ const HamoPro = () => {
             {/* Wallet Tab */}
             {settingsSubTab === 'wallet' && (
             <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-6`}>
-              <div className="flex items-center space-x-2 mb-4">
-                <Wallet className={`w-5 h-5 ${tc('text-purple-600', 'text-purple-400')}`} />
-                <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{t('wallet')}</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <Wallet className={`w-5 h-5 ${tc('text-purple-600', 'text-purple-400')}`} />
+                  <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{t('wallet')}</h3>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (!verificationLoaded) await loadVerification();
+                    if (verificationStatus === 'verified') {
+                      // TODO: open withdrawal flow
+                      alert('Coming soon');
+                    } else if (verificationStatus === 'pending') {
+                      alert(t('withdrawPendingVerification'));
+                    } else {
+                      alert(t('withdrawRequiresVerification'));
+                      setSettingsSubTab('verification');
+                      loadVerification();
+                    }
+                  }}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg flex items-center space-x-1 ${tc('bg-purple-100 text-purple-700 hover:bg-purple-200', 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50')} transition-colors`}
+                >
+                  <ArrowDown className="w-3 h-3" />
+                  <span>{t('withdraw')}</span>
+                </button>
               </div>
 
               {/* Total Commission */}

@@ -57,6 +57,9 @@ export const translations = {
     verified: 'Verified',
     verificationSubmitted: 'Verification submitted, under review',
     verificationAlreadyVerified: 'Your identity has been verified',
+    withdraw: 'Withdraw',
+    withdrawRequiresVerification: 'Please complete identity verification before withdrawing',
+    withdrawPendingVerification: 'Verification is under review, please wait for approval before withdrawing',
 
     // Avatars
     avatarTherapists: 'Avatar Therapists',
@@ -505,6 +508,9 @@ export const translations = {
     verified: '已验证',
     verificationSubmitted: '验证信息已提交，等待审核',
     verificationAlreadyVerified: '您的身份已验证',
+    withdraw: '提现',
+    withdrawRequiresVerification: '请先完成身份验证后再提现',
+    withdrawPendingVerification: '身份验证审核中，请等待审核通过后再提现',
 
     // Avatars
     avatarTherapists: '虚拟咨询师',
