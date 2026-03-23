@@ -5165,8 +5165,7 @@ const HamoPro = () => {
                   onClick={async () => {
                     if (!verificationLoaded) await loadVerification();
                     if (verificationStatus === 'verified') {
-                      // TODO: open withdrawal flow
-                      alert('Coming soon');
+                      alert(t('withdrawComingSoon'));
                     } else if (verificationStatus === 'pending') {
                       alert(t('withdrawPendingVerification'));
                     } else {

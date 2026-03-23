@@ -58,6 +58,7 @@ export const translations = {
     verificationSubmitted: 'Verification submitted, under review',
     verificationAlreadyVerified: 'Your identity has been verified',
     withdraw: 'Withdraw',
+    withdrawComingSoon: 'Withdrawal feature coming soon',
     withdrawRequiresVerification: 'Please complete identity verification before withdrawing',
     withdrawPendingVerification: 'Verification is under review, please wait for approval before withdrawing',
 
@@ -509,6 +510,7 @@ export const translations = {
     verificationSubmitted: '验证信息已提交，等待审核',
     verificationAlreadyVerified: '您的身份已验证',
     withdraw: '提现',
+    withdrawComingSoon: '提现功能即将上线',
     withdrawRequiresVerification: '请先完成身份验证后再提现',
     withdrawPendingVerification: '身份验证审核中，请等待审核通过后再提现',
 
