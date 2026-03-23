@@ -261,12 +261,26 @@ class ApiService {
   // Delete Pro account
   async deleteProAccount(password) {
     try {
-      const response = await this.request('/pro/close-account', {
+      const url = `${this.baseURL}/pro/close-account`;
+      const token = this.getAccessToken();
+      console.log('🗑️ Delete account request:', url, 'token:', token ? 'present' : 'missing');
+      const resp = await fetch(url, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ password }),
       });
-      return { success: true, ...response };
+      console.log('🗑️ Delete response status:', resp.status);
+      const data = await resp.json();
+      console.log('🗑️ Delete response data:', data);
+      if (!resp.ok) {
+        return { success: false, error: data.detail || 'Request failed' };
+      }
+      return { success: true, ...data };
     } catch (error) {
+      console.error('🗑️ Delete error:', error);
       return { success: false, error: error.message };
     }
   }
