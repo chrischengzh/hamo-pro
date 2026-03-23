@@ -683,14 +683,35 @@ const HamoPro = () => {
     setAuthError('');
   };
 
-  const handleDeleteAccount = () => {
-    // TODO: Call API to delete account
-    apiService.logout();
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    setAvatars([]);
-    setClients([]);
-    setShowDeleteConfirm(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setDeleteError(t('deletePasswordRequired'));
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      const result = await apiService.deleteProAccount(deletePassword);
+      if (result.success) {
+        apiService.logout();
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        setAvatars([]);
+        setClients([]);
+        setShowDeleteConfirm(false);
+        setDeletePassword('');
+      } else {
+        setDeleteError(mapApiError(result.error) || result.error);
+      }
+    } catch (e) {
+      setDeleteError(e.message);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const loadCommissions = async () => {
@@ -708,6 +729,7 @@ const HamoPro = () => {
       'Current password is required to set new password': 'errorCurrentPasswordRequired',
       'Email already registered as Pro': 'errorEmailAlreadyRegistered',
       'Invalid email or password': 'errorInvalidCredentials',
+      'Password is incorrect': 'deletePasswordIncorrect',
     };
     return errorMap[msg] ? t(errorMap[msg]) : msg;
   };
@@ -2360,10 +2382,22 @@ const HamoPro = () => {
         <div className={`fixed inset-0 flex items-center justify-center z-50 px-4 ${tc('bg-black bg-opacity-50', 'bg-black bg-opacity-70')}`}>
           <div className={`rounded-xl shadow-2xl p-6 max-w-md w-full ${tc('bg-white', 'bg-slate-800')}`}>
             <h3 className={`text-lg font-semibold mb-2 ${tc('', 'text-white')}`}>{t('deleteConfirmTitle')}</h3>
-            <p className={`mb-6 ${tc('text-gray-600', 'text-slate-400')}`}>{t('deleteConfirmMessage')}</p>
-            <div className="flex space-x-3">
-              <button onClick={handleDeleteAccount} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg">{t('confirmDelete')}</button>
-              <button onClick={() => setShowDeleteConfirm(false)} className={`flex-1 px-4 py-2 rounded-lg ${tc('bg-gray-200', 'bg-slate-700 text-slate-300')}`}>{t('cancel')}</button>
+            <p className={`mb-4 ${tc('text-gray-600', 'text-slate-400')}`}>{t('deleteConfirmMessage')}</p>
+            <label className={`block text-sm font-medium mb-1 ${tc('text-gray-700', 'text-slate-300')}`}>{t('deletePasswordLabel')}</label>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(''); }}
+              placeholder={t('deletePasswordPlaceholder')}
+              className={`w-full px-3 py-2 border rounded-lg text-sm mb-2 ${tc('border-gray-300 bg-white text-gray-900', 'border-slate-600 bg-slate-900 text-white')} focus:outline-none focus:ring-2 focus:ring-red-500`}
+            />
+            {deleteError && <p className="text-red-500 text-xs mb-2">{t(deleteError) !== deleteError ? t(deleteError) : deleteError}</p>}
+            <div className="flex space-x-3 mt-3">
+              <button onClick={handleDeleteAccount} disabled={deleteLoading} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center justify-center space-x-1">
+                {deleteLoading && <RefreshCw className="w-4 h-4 animate-spin" />}
+                <span>{t('confirmDelete')}</span>
+              </button>
+              <button onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteError(''); }} className={`flex-1 px-4 py-2 rounded-lg ${tc('bg-gray-200', 'bg-slate-700 text-slate-300')}`}>{t('cancel')}</button>
             </div>
           </div>
         </div>

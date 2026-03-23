@@ -258,6 +258,19 @@ class ApiService {
     }
   }
 
+  // Delete Pro account
+  async deleteProAccount(password) {
+    try {
+      const response = await this.request('/pro/account', {
+        method: 'DELETE',
+        body: JSON.stringify({ password }),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get commission records for the Pro user
   async getCommissions() {
     try {

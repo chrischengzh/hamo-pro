@@ -367,8 +367,13 @@ export const translations = {
     // Delete Account
     deleteAccount: 'Delete Account',
     deleteConfirmTitle: 'Delete Account?',
-    deleteConfirmMessage: 'This will permanently delete your account and all data. This action cannot be undone.',
+    deleteConfirmMessage: 'This will deactivate all your Avatars and disconnect all clients. This action cannot be undone.',
     confirmDelete: 'Yes, Delete',
+    deletePasswordLabel: 'Enter your password to confirm',
+    deletePasswordPlaceholder: 'Password',
+    deletePasswordRequired: 'Password is required',
+    deletePasswordIncorrect: 'Password is incorrect',
+    accountDeleted: 'Account has been deleted',
 
     // Errors
     loginFailed: 'Login failed. Please check your credentials.',
@@ -819,8 +824,13 @@ export const translations = {
     // Delete Account
     deleteAccount: '删除账户',
     deleteConfirmTitle: '确认删除账户？',
-    deleteConfirmMessage: '这将永久删除您的账户和所有数据。此操作无法撤销。',
+    deleteConfirmMessage: '这将停用您所有的虚拟咨询师并断开所有来访者连接。此操作无法撤销。',
     confirmDelete: '确认删除',
+    deletePasswordLabel: '请输入密码确认',
+    deletePasswordPlaceholder: '密码',
+    deletePasswordRequired: '请输入密码',
+    deletePasswordIncorrect: '密码不正确',
+    accountDeleted: '账户已删除',
 
     // Errors
     loginFailed: '登录失败，请检查您的账号密码。',
