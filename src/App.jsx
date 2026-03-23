@@ -688,6 +688,7 @@ const HamoPro = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteAccount = async () => {
+    if (deleteLoading) return;
     if (!deletePassword.trim()) {
       setDeleteError(t('deletePasswordRequired'));
       return;
@@ -705,7 +706,11 @@ const HamoPro = () => {
         setShowDeleteConfirm(false);
         setDeletePassword('');
       } else {
-        setDeleteError(mapApiError(result.error) || result.error);
+        const errMsg = result.error || '';
+        const errorMap = {
+          'Password is incorrect': t('deletePasswordIncorrect'),
+        };
+        setDeleteError(errorMap[errMsg] || errMsg);
       }
     } catch (e) {
       setDeleteError(e.message);
