@@ -695,6 +695,11 @@ const HamoPro = () => {
     }
     setDeleteLoading(true);
     setDeleteError('');
+    // Close SSE connection first to avoid HTTP/2 connection interference
+    if (crisisEsRef.current) {
+      crisisEsRef.current.close();
+      crisisEsRef.current = null;
+    }
     try {
       const result = await apiService.deleteProAccount(deletePassword);
       if (result.success) {
