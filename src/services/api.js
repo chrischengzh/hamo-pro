@@ -261,8 +261,8 @@ class ApiService {
   // Delete Pro account
   async deleteProAccount(password) {
     try {
-      const response = await this.request('/pro/account', {
-        method: 'DELETE',
+      const response = await this.request('/pro/account/delete', {
+        method: 'POST',
         body: JSON.stringify({ password }),
       });
       return { success: true, ...response };
