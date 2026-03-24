@@ -758,7 +758,7 @@ const HamoPro = () => {
     try {
       const result = await apiService.getVerification();
       if (result.success) {
-        setVerificationForm({ real_name: result.real_name || '', alipay_account: result.alipay_account || '', wechat_id: result.wechat_id || '' });
+        setVerificationForm({ real_name: result.real_name || '', alipay_account: result.alipay_account || '', wechat_id: result.wechat_id || '', professional_qualification: result.professional_qualification || '' });
         setVerificationStatus(result.verification_status || null);
       }
     } catch (e) { /* ignore */ }
@@ -5184,7 +5184,7 @@ const HamoPro = () => {
                       const result = await apiService.getVerification();
                       if (result.success) {
                         status = result.verification_status || null;
-                        setVerificationForm({ real_name: result.real_name || '', alipay_account: result.alipay_account || '', wechat_id: result.wechat_id || '' });
+                        setVerificationForm({ real_name: result.real_name || '', alipay_account: result.alipay_account || '', wechat_id: result.wechat_id || '', professional_qualification: result.professional_qualification || '' });
                         setVerificationStatus(status);
                         setVerificationLoaded(true);
                       }
