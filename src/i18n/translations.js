@@ -514,7 +514,7 @@ export const translations = {
     wechatId: '微信号',
     wechatPlaceholder: '用以客服联系您',
     professionalQualification: '专业资质',
-    professionalQualificationPlaceholder: '例如：国家二级心理咨询师、中协心理咨询师',
+    professionalQualificationPlaceholder: '例如：国家二级心理咨询师、中心协心理咨询师',
     submitVerification: '提交验证',
     verificationPending: '审核中',
     verified: '已验证',
