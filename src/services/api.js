@@ -108,7 +108,7 @@ class ApiService {
     try {
       console.log('🔵 Registering Pro:', { email, fullName, profession }); // Debug
       const body = { full_name: fullName, profession, email, password };
-      if (proInviteCode) body.pro_invite_code = proInviteCode;
+      if (proInviteCode) body.invitation_code = proInviteCode;
 
       const response = await this.request('/auth/registerPro', {
         method: 'POST',
