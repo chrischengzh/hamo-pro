@@ -204,6 +204,34 @@ class ApiService {
     return { success: true };
   }
 
+  // Request password reset code
+  async requestPasswordReset(email) {
+    try {
+      const response = await this.request('/auth/requestPasswordReset', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+        skipAuth: true,
+      });
+      return response;
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Reset password with code
+  async resetPassword(email, code, newPassword) {
+    try {
+      const response = await this.request('/auth/resetPassword', {
+        method: 'POST',
+        body: JSON.stringify({ email, code, new_password: newPassword }),
+        skipAuth: true,
+      });
+      return response;
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   // Check if user is authenticated
   isAuthenticated() {
     return !!this.getAccessToken();

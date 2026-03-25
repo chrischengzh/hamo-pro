@@ -221,7 +221,11 @@ const HamoPro = () => {
   ];
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authMode, setAuthMode] = useState('signin');
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' | 'signup' | 'forgot' | 'resetCode'
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
   // Crisis alerts
   const [crisisAlerts, setCrisisAlerts] = useState([]);
   const [showAlertPanel, setShowAlertPanel] = useState(false);
@@ -2186,7 +2190,44 @@ const HamoPro = () => {
             <h1 className={`text-3xl font-bold text-center mb-2 ${tc('text-gray-900', 'text-white')}`}>{t('appName')}</h1>
             <p className={`text-center mb-8 text-sm ${tc('text-gray-500', 'text-slate-400')}`}>{t('tagline')}</p>
 
-            <div className="flex space-x-2 mb-6">
+            {/* Forgot Password Screen */}
+            {authMode === 'forgot' && (
+              <div className="space-y-4">
+                <h2 className={`text-xl font-bold ${tc('text-gray-900', 'text-white')}`}>{t('resetPassword')}</h2>
+                {authError && <div className={`p-3 rounded-lg ${tc('bg-red-50 border border-red-200', 'bg-red-900/20 border border-red-800')}`}><p className={`text-sm ${tc('text-red-600', 'text-red-400')}`}>{authError}</p></div>}
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${tc('text-gray-700', 'text-slate-300')}`}>{t('email')}</label>
+                  <input type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${tc('border-gray-300 bg-white text-gray-900', 'border-slate-600 bg-slate-900 text-white placeholder-slate-500')}`} placeholder={t('emailPlaceholder')} disabled={resetLoading} />
+                </div>
+                <button onClick={async () => { if (!resetEmail.trim()) return; setResetLoading(true); setAuthError(''); const r = await apiService.requestPasswordReset(resetEmail.trim()); setResetLoading(false); if (r.success) { setAuthMode('resetCode'); } else { setAuthError(r.error || 'Failed'); } }} className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50" disabled={resetLoading || !resetEmail.trim()}>
+                  {resetLoading ? t('sendingResetCode') : t('sendResetCode')}
+                </button>
+                <button onClick={() => { setAuthMode('signin'); setAuthError(''); }} className={`w-full py-2 text-sm ${tc('text-gray-500', 'text-slate-400')} hover:underline`}>{t('backToSignIn')}</button>
+              </div>
+            )}
+
+            {/* Reset Code Screen */}
+            {authMode === 'resetCode' && (
+              <div className="space-y-4">
+                <h2 className={`text-xl font-bold ${tc('text-gray-900', 'text-white')}`}>{t('resetPassword')}</h2>
+                <p className={`text-sm ${tc('text-green-600', 'text-green-400')}`}>{t('resetCodeSent')}</p>
+                {authError && <div className={`p-3 rounded-lg ${tc('bg-red-50 border border-red-200', 'bg-red-900/20 border border-red-800')}`}><p className={`text-sm ${tc('text-red-600', 'text-red-400')}`}>{authError}</p></div>}
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${tc('text-gray-700', 'text-slate-300')}`}>{t('resetCode')}</label>
+                  <input type="text" value={resetCode} onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))} className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest ${tc('border-gray-300 bg-white text-gray-900', 'border-slate-600 bg-slate-900 text-white')}`} placeholder="000000" maxLength={6} disabled={resetLoading} />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${tc('text-gray-700', 'text-slate-300')}`}>{t('newPassword')}</label>
+                  <input type="password" value={resetNewPassword} onChange={(e) => setResetNewPassword(e.target.value)} className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${tc('border-gray-300 bg-white text-gray-900', 'border-slate-600 bg-slate-900 text-white placeholder-slate-500')}`} placeholder="••••••••" disabled={resetLoading} />
+                </div>
+                <button onClick={async () => { if (resetCode.length !== 6 || !resetNewPassword.trim()) return; setResetLoading(true); setAuthError(''); const r = await apiService.resetPassword(resetEmail.trim(), resetCode, resetNewPassword); setResetLoading(false); if (r.success) { alert(t('passwordResetSuccess')); setAuthMode('signin'); setResetCode(''); setResetNewPassword(''); setResetEmail(''); } else { setAuthError(r.error || 'Failed'); } }} className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50" disabled={resetLoading || resetCode.length !== 6 || !resetNewPassword.trim()}>
+                  {resetLoading ? t('processing') : t('confirmResetPassword')}
+                </button>
+                <button onClick={() => { setAuthMode('signin'); setAuthError(''); setResetCode(''); setResetNewPassword(''); }} className={`w-full py-2 text-sm ${tc('text-gray-500', 'text-slate-400')} hover:underline`}>{t('backToSignIn')}</button>
+              </div>
+            )}
+
+            {(authMode === 'signin' || authMode === 'signup') && <div className="flex space-x-2 mb-6">
               <button
                 onClick={() => { setAuthMode('signin'); setAuthError(''); setAgreedToTerms(false); }}
                 className={`flex-1 py-2 rounded-lg font-medium ${authMode === 'signin' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600', 'bg-slate-700 text-slate-300')}`}
@@ -2199,15 +2240,15 @@ const HamoPro = () => {
               >
                 {t('signUp')}
               </button>
-            </div>
+            </div>}
 
-            {authError && (
+            {(authMode === 'signin' || authMode === 'signup') && authError && (
               <div className={`mb-4 p-3 rounded-lg ${tc('bg-red-50 border border-red-200', 'bg-red-900/20 border border-red-800')}`}>
                 <p className={`text-sm ${tc('text-red-600', 'text-red-400')}`}>{authError}</p>
               </div>
             )}
 
-            <div className="space-y-4">
+            {(authMode === 'signin' || authMode === 'signup') && <div className="space-y-4">
               {authMode === 'signup' && (
                 <>
                   <div>
@@ -2260,6 +2301,9 @@ const HamoPro = () => {
                   placeholder="••••••••"
                   disabled={authLoading}
                 />
+                {authMode === 'signin' && (
+                  <button type="button" onClick={() => { setAuthMode('forgot'); setAuthError(''); setResetEmail(authForm.email); }} className="text-xs text-blue-500 hover:underline mt-1 float-right">{t('forgotPassword')}</button>
+                )}
               </div>
 
               {/* Pro invitation code (optional) */}
@@ -2297,7 +2341,7 @@ const HamoPro = () => {
               >
                 {authLoading ? t('processing') : (authMode === 'signin' ? t('signIn') : t('createAccount'))}
               </button>
-            </div>
+            </div>}
 
             <div className={`text-center mt-6 text-xs ${tc('text-gray-400', 'text-slate-500')}`}>
               {t('version')} {APP_VERSION}
