@@ -5456,7 +5456,7 @@ const HamoPro = () => {
                 <Users className={`w-5 h-5 ${tc('text-purple-600', 'text-purple-400')}`} />
                 <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{t('inviteProTitle')}</h3>
               </div>
-              <p className={`text-sm ${tc('text-gray-500', 'text-slate-400')} mb-4`}>{t('inviteProDesc')}</p>
+              <p className={`text-sm ${tc('text-gray-500', 'text-slate-400')} mb-4 whitespace-pre-line`}>{t('inviteProDesc')}</p>
 
               {/* Generate / Show invite code */}
               {proInviteCode ? (
