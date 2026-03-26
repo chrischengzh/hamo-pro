@@ -800,6 +800,13 @@ const HamoPro = () => {
   };
 
   const handleGenerateProInvite = async () => {
+    // Check if Pro is verified first
+    if (verificationStatus !== 'verified') {
+      alert(t('needVerifyBeforeInvite'));
+      setSettingsSubTab('verification');
+      if (!verificationLoaded) loadVerification();
+      return;
+    }
     setProInviteLoading(true);
     try {
       const result = await apiService.generateProInvite();
