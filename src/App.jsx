@@ -237,6 +237,7 @@ const HamoPro = () => {
   const [commissions, setCommissions] = useState([]);
   const [totalCommission, setTotalCommission] = useState(0);
   const [commissionsLoaded, setCommissionsLoaded] = useState(false);
+  const [walletSubTab, setWalletSubTab] = useState('service');
   const [settingsSubTab, setSettingsSubTab] = useState('profile');
   const [verificationForm, setVerificationForm] = useState({ real_name: '', alipay_account: '', wechat_id: '' });
   const [verificationSaving, setVerificationSaving] = useState(false);
@@ -694,6 +695,7 @@ const HamoPro = () => {
     setCommissions([]);
     setTotalCommission(0);
     setCommissionsLoaded(false);
+    setWalletSubTab('service');
     setVerificationForm({ real_name: '', alipay_account: '', wechat_id: '', professional_qualification: '' });
     setVerificationStatus(null);
     setVerificationLoaded(false);
@@ -5341,46 +5343,94 @@ const HamoPro = () => {
                 <span className={`text-lg font-bold ${tc('text-purple-700', 'text-purple-300')}`}>¥{totalCommission.toFixed(2)}</span>
               </div>
 
-              {/* Commission Records */}
-              <h4 className={`text-sm font-medium ${tc('text-gray-500', 'text-slate-400')} mb-3`}>{t('commissionRecords')}</h4>
-              {commissions.length === 0 ? (
-                <p className={`text-sm text-center py-4 ${tc('text-gray-400', 'text-slate-500')}`}>{t('noCommissionRecords')}</p>
-              ) : (
-                <div className="space-y-3">
-                  {commissions.map((c, idx) => {
-                    const isAvatarService = c.commission_type === '虚拟咨询师服务' || c.commission_type_en === 'AI Counselor Service';
-                    const displayDate = isAvatarService ? (c.distribution_date || c.created_at?.split('T')[0]) : c.created_at?.split('T')[0];
-                    const displayType = isAvatarService
-                      ? (language === 'en' ? (c.commission_type_en || 'AI Counselor Service') : (c.commission_type || '虚拟咨询师服务'))
-                      : (language === 'en' ? (c.commission_type_en || 'Referral Commission') : (c.commission_type || '邀请佣金'));
-                    const displayPlan = language === 'en' ? (c.plan_label_en || c.plan_label) : c.plan_label;
+              {/* Wallet Sub Tabs */}
+              <div className={`flex space-x-1 p-1 rounded-lg mb-4 ${tc('bg-gray-100', 'bg-slate-700')}`}>
+                <button
+                  onClick={() => setWalletSubTab('service')}
+                  className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${walletSubTab === 'service' ? `${tc('bg-white shadow text-gray-900', 'bg-slate-600 text-white')}` : `${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-200')}`}`}
+                >{t('serviceIncome')}</button>
+                <button
+                  onClick={() => setWalletSubTab('invite')}
+                  className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${walletSubTab === 'invite' ? `${tc('bg-white shadow text-gray-900', 'bg-slate-600 text-white')}` : `${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-200')}`}`}
+                >{t('inviteIncome')}</button>
+              </div>
 
-                    return (
-                    <div key={idx} className={`p-3 rounded-lg border ${tc('border-gray-200 bg-gray-50', 'border-slate-700 bg-slate-900')}`}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`text-sm font-medium ${tc('text-gray-900', 'text-white')}`}>{c.client_name}</span>
-                        <span className={`text-sm font-bold text-green-500`}>+¥{parseFloat(c.commission_amount || 0).toFixed(2)}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className={`text-xs ${tc('text-gray-500', 'text-slate-400')}`}>{displayDate}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{displayPlan}</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{displayType}</span>
-                        {isAvatarService ? (
-                          <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>
-                            {c.avatar_name && <>{c.avatar_name} · </>}
-                            {t('base')} ¥{parseFloat(c.base_amount || 0).toFixed(2)} + {t('tokenDistribution')} ¥{parseFloat(c.token_amount || 0).toFixed(2)}
-                          </span>
-                        ) : (
-                          <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>¥{parseFloat(c.order_amount || 0).toFixed(2)} × {((c.commission_rate || 0.1) * 100).toFixed(0)}%</span>
-                        )}
-                      </div>
+              {/* Service Income Tab */}
+              {walletSubTab === 'service' && (() => {
+                const serviceRecords = commissions.filter(c => c.commission_type === '虚拟咨询师服务' || c.commission_type_en === 'AI Counselor Service');
+                return (
+                  <>
+                    <div className={`p-3 rounded-lg mb-4 text-xs ${tc('bg-blue-50 text-blue-700', 'bg-blue-900/20 text-blue-300')}`}>
+                      {t('serviceIncomeNote')}
                     </div>
-                    );
-                  })}
-                </div>
-              )}
+                    {serviceRecords.length === 0 ? (
+                      <p className={`text-sm text-center py-4 ${tc('text-gray-400', 'text-slate-500')}`}>{t('noServiceIncomeRecords')}</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {serviceRecords.map((c, idx) => {
+                          const displayDate = c.distribution_date || c.created_at?.split('T')[0];
+                          const displayPlan = language === 'en' ? (c.plan_label_en || c.plan_label) : c.plan_label;
+                          return (
+                            <div key={idx} className={`p-3 rounded-lg border ${tc('border-gray-200 bg-gray-50', 'border-slate-700 bg-slate-900')}`}>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className={`text-sm font-medium ${tc('text-gray-900', 'text-white')}`}>{c.client_name}</span>
+                                <span className="text-sm font-bold text-green-500">+¥{parseFloat(c.commission_amount || 0).toFixed(2)}</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className={`text-xs ${tc('text-gray-500', 'text-slate-400')}`}>{displayDate}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{displayPlan}</span>
+                              </div>
+                              <div className="flex items-center justify-end mt-1">
+                                <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>
+                                  {c.avatar_name && <>{c.avatar_name} · </>}
+                                  {t('base')} ¥{parseFloat(c.base_amount || 0).toFixed(2)} + {t('tokenDistribution')} ¥{parseFloat(c.token_amount || 0).toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+
+              {/* Invite Income Tab */}
+              {walletSubTab === 'invite' && (() => {
+                const inviteRecords = commissions.filter(c => c.commission_type !== '虚拟咨询师服务' && c.commission_type_en !== 'AI Counselor Service');
+                return (
+                  <>
+                    <div className={`p-3 rounded-lg mb-4 text-xs ${tc('bg-green-50 text-green-700', 'bg-green-900/20 text-green-300')}`}>
+                      {t('inviteIncomeNote')}
+                    </div>
+                    {inviteRecords.length === 0 ? (
+                      <p className={`text-sm text-center py-4 ${tc('text-gray-400', 'text-slate-500')}`}>{t('noInviteIncomeRecords')}</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {inviteRecords.map((c, idx) => {
+                          const displayDate = c.created_at?.split('T')[0];
+                          const displayPlan = language === 'en' ? (c.plan_label_en || c.plan_label) : c.plan_label;
+                          return (
+                            <div key={idx} className={`p-3 rounded-lg border ${tc('border-gray-200 bg-gray-50', 'border-slate-700 bg-slate-900')}`}>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className={`text-sm font-medium ${tc('text-gray-900', 'text-white')}`}>{c.client_name}</span>
+                                <span className="text-sm font-bold text-green-500">+¥{parseFloat(c.commission_amount || 0).toFixed(2)}</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className={`text-xs ${tc('text-gray-500', 'text-slate-400')}`}>{displayDate}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${tc('bg-blue-100 text-blue-700', 'bg-blue-900/30 text-blue-300')}`}>{displayPlan}</span>
+                              </div>
+                              <div className="flex items-center justify-end mt-1">
+                                <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>¥{parseFloat(c.order_amount || 0).toFixed(2)} × {((c.commission_rate || 0.1) * 100).toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             )}
 
