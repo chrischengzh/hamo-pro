@@ -691,7 +691,8 @@ const HamoPro = () => {
     setActiveTab('avatars');
     setAuthError('');
     // Reset settings tab cached state
-    setCommissionsData(null);
+    setCommissions([]);
+    setTotalCommission(0);
     setCommissionsLoaded(false);
     setVerificationForm({ real_name: '', alipay_account: '', wechat_id: '', professional_qualification: '' });
     setVerificationStatus(null);
@@ -714,7 +715,8 @@ const HamoPro = () => {
         setAvatars([]);
         setClients([]);
         setShowDeleteConfirm(false);
-        setCommissionsData(null);
+        setCommissions([]);
+        setTotalCommission(0);
         setCommissionsLoaded(false);
         setVerificationForm({ real_name: '', alipay_account: '', wechat_id: '', professional_qualification: '' });
         setVerificationStatus(null);
