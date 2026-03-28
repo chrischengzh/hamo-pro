@@ -244,6 +244,8 @@ const HamoPro = () => {
   const [commissions, setCommissions] = useState([]);
   const [totalCommission, setTotalCommission] = useState(0);
   const [showAlgoModal, setShowAlgoModal] = useState(false);
+  const [showBookingDemoModal, setShowBookingDemoModal] = useState(false);
+  const [bookingDemoContactOpen, setBookingDemoContactOpen] = useState(false);
   const [commissionsLoaded, setCommissionsLoaded] = useState(false);
   const [alertDialog, setAlertDialog] = useState(null);
   const [confirmDialogState, setConfirmDialogState] = useState(null);
@@ -2496,6 +2498,109 @@ const HamoPro = () => {
                 })
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Demo Modal */}
+      {showBookingDemoModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[60] px-4 bg-black bg-opacity-60"
+          onClick={() => { setShowBookingDemoModal(false); setBookingDemoContactOpen(false); }}
+        >
+          <div
+            className={`rounded-2xl shadow-2xl p-6 max-w-sm w-full ${tc('bg-white', 'bg-slate-800')}`}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-1">
+              <h3 className={`text-base font-bold ${tc('text-gray-900', 'text-white')}`}>{t('bookingDemoTitle')}</h3>
+              <button
+                onClick={() => { setShowBookingDemoModal(false); setBookingDemoContactOpen(false); }}
+                className={`text-lg leading-none ${tc('text-gray-400 hover:text-gray-600', 'text-slate-500 hover:text-slate-300')}`}
+              >✕</button>
+            </div>
+            <p className={`text-xs mb-4 ${tc('text-gray-500', 'text-slate-400')}`}>{t('bookingDemoSubtitle')}</p>
+
+            {/* Mock client view */}
+            <div className={`rounded-xl overflow-hidden border mb-4 ${tc('border-gray-200 bg-gray-50', 'border-slate-600 bg-slate-900')}`}>
+              {/* Mock header */}
+              <div className={`px-4 py-3 border-b ${tc('border-gray-200 bg-white', 'border-slate-700 bg-slate-800')}`}>
+                <p className={`text-sm font-semibold ${tc('text-gray-800', 'text-white')}`}>{t('bookingDemoAvatarLabel')}</p>
+                <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{language === 'zh' ? '拥有AI心智的虚拟咨询师' : 'AI-powered virtual counselors'}</p>
+              </div>
+
+              {/* Mock avatar card */}
+              <div className={`p-4`}>
+                <div className={`rounded-xl p-3 ${tc('bg-white shadow-sm border border-gray-100', 'bg-slate-800 border border-slate-700')}`}>
+                  <div className="flex items-start space-x-3">
+                    {/* Avatar placeholder */}
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex-shrink-0 flex items-center justify-center">
+                      <span className="text-white text-lg font-bold">明</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <p className={`text-sm font-semibold ${tc('text-gray-900', 'text-white')}`}>{language === 'zh' ? '明镜老师' : 'Dr. Ming'}</p>
+                          <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{currentUser?.full_name || 'Chris Pro'}</p>
+                        </div>
+                        <span className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{language === 'zh' ? '3月4日' : 'Mar 4'}</span>
+                      </div>
+                      <p className={`text-xs mb-2 ${tc('text-gray-500', 'text-slate-400')}`}>
+                        {language === 'zh' ? '欢迎回来！我是明镜老师。你今天感觉怎么样？' : 'Welcome back! How are you feeling today?'}
+                      </p>
+                      {/* Contact button — highlighted */}
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => setBookingDemoContactOpen(true)}
+                          className={`relative text-xs px-3 py-1.5 rounded-lg font-medium transition-all
+                            ${bookingDemoContactOpen
+                              ? tc('bg-purple-600 text-white', 'bg-purple-600 text-white')
+                              : tc('border border-purple-500 text-purple-600 hover:bg-purple-50', 'border border-purple-400 text-purple-400 hover:bg-purple-900/20')
+                            }`}
+                        >
+                          {/* Pulsing ring when not clicked */}
+                          {!bookingDemoContactOpen && (
+                            <span className="absolute inset-0 rounded-lg animate-ping opacity-40 bg-purple-400 pointer-events-none" />
+                          )}
+                          {t('bookingDemoContactBtn')}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact info card — shown after click */}
+            {bookingDemoContactOpen && (
+              <div className={`rounded-xl border p-4 mb-4 ${tc('border-gray-200 bg-white', 'border-slate-600 bg-slate-700/50')}`}>
+                <p className={`text-sm font-bold mb-3 ${tc('text-gray-900', 'text-white')}`}>{t('bookingDemoContactTitle')}</p>
+                <div className="space-y-2">
+                  {[
+                    { label: t('bookingDemoContactName'), value: currentUser?.full_name || (language === 'zh' ? '程朝晖' : 'Chris Cheng') },
+                    { label: t('bookingDemoContactWechat'), value: 'chrischengzh' },
+                    { label: t('bookingDemoContactEmail'), value: currentUser?.email || 'chris@hamo.ai' },
+                    { label: t('bookingDemoContactQual'), value: language === 'zh' ? '国家二级心理咨询师' : 'Licensed Counselor (Level 2)' },
+                  ].map(({ label, value }) => (
+                    <div key={label}>
+                      <p className={`text-xs ${tc('text-gray-400', 'text-slate-400')}`}>{label}</p>
+                      <p className={`text-sm font-medium ${tc('text-gray-800', 'text-white')}`}>{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Hint */}
+            <div className={`rounded-lg p-3 mb-4 text-xs ${tc('bg-purple-50 text-purple-700', 'bg-purple-900/20 text-purple-300')}`}>
+              {t('bookingDemoHint')}
+            </div>
+
+            <button
+              onClick={() => { setShowBookingDemoModal(false); setBookingDemoContactOpen(false); }}
+              className="w-full py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700"
+            >{language === 'zh' ? '知道了' : 'Got it'}</button>
           </div>
         </div>
       )}
@@ -5691,7 +5796,16 @@ const HamoPro = () => {
                 <Users className={`w-5 h-5 ${tc('text-purple-600', 'text-purple-400')}`} />
                 <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>{t('inviteProTitle')}</h3>
               </div>
-              <p className={`text-sm ${tc('text-gray-500', 'text-slate-400')} mb-4 whitespace-pre-line`}>{t('inviteProDesc')}</p>
+              <div className={`text-sm ${tc('text-gray-500', 'text-slate-400')} mb-4 space-y-1`}>
+                <p>{t('inviteProDesc1')}</p>
+                <p className="flex items-start flex-wrap gap-x-2">
+                  <span>{t('inviteProDesc2')}</span>
+                  <button
+                    onClick={() => { setBookingDemoContactOpen(false); setShowBookingDemoModal(true); }}
+                    className={`flex-shrink-0 text-xs font-medium underline underline-offset-2 ${tc('text-purple-600 hover:text-purple-800', 'text-purple-400 hover:text-purple-200')}`}
+                  >{t('seeExample')}</button>
+                </p>
+              </div>
 
               {/* Generate / Show invite code */}
               {proInviteCode ? (
