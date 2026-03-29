@@ -425,6 +425,20 @@ class ApiService {
     }
   }
 
+  // Toggle avatar public/private visibility
+  async updateAvatarVisibility(avatarId, isPublic) {
+    try {
+      await this.request(`/avatars/${avatarId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_public: isPublic }),
+      });
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Failed to update avatar visibility:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Upload avatar picture (multipart/form-data)
   async uploadAvatarPicture(avatarId, file) {
     try {
@@ -577,6 +591,7 @@ class ApiService {
           voiceType: avatar.voice_type || null,
           voiceId: avatar.voice_id || null,
           voiceStatus: avatar.voice_status || null,
+          isPublic: avatar.is_public !== false,  // default true for existing avatars without field
           specializations: avatar.specializations,
           // Legacy fields for backward compatibility
           theory: avatar.theory,

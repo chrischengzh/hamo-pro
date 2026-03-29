@@ -1411,6 +1411,19 @@ const HamoPro = () => {
     }
   };
 
+  // Toggle Avatar public/private visibility
+  const handleToggleAvatarVisibility = async (avatarId, currentIsPublic) => {
+    const newIsPublic = !currentIsPublic;
+    // Optimistic update for instant feedback
+    setAvatars(prev => prev.map(a => a.id === avatarId ? { ...a, isPublic: newIsPublic } : a));
+    const result = await apiService.updateAvatarVisibility(avatarId, newIsPublic);
+    if (!result.success) {
+      // Revert on failure
+      setAvatars(prev => prev.map(a => a.id === avatarId ? { ...a, isPublic: currentIsPublic } : a));
+      showAlert(result.error || t('failedToSave'));
+    }
+  };
+
   // Open batch invitation for an Avatar — reuse existing or generate new
   const handleGenerateBatchInvitation = async (avatar) => {
     setBatchInviteLoading(true);
@@ -3267,8 +3280,24 @@ const HamoPro = () => {
 
                     </div>
                   </div>
-                  {/* Batch Invite Button - card bottom right */}
-                  <div className="flex justify-end mt-2">
+                  {/* Card bottom row: visibility pill (left) + batch invite (right) */}
+                  <div className="flex items-center justify-between mt-2">
+                    {/* Public/Private visibility toggle */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleAvatarVisibility(a.id, a.isPublic !== false); }}
+                      title={a.isPublic !== false ? t('avatarPublic') : t('avatarPrivate')}
+                      className={`flex items-center space-x-1 text-xs px-2 py-0.5 rounded-full transition-colors ${
+                        a.isPublic !== false
+                          ? tc('bg-green-100 text-green-700 hover:bg-green-200', 'bg-green-900/30 text-green-400 hover:bg-green-900/50')
+                          : tc('bg-gray-100 text-gray-500 hover:bg-gray-200', 'bg-slate-700 text-slate-400 hover:bg-slate-600')
+                      }`}
+                    >
+                      {a.isPublic !== false
+                        ? <><Globe className="w-3 h-3" /><span>{t('avatarPublic')}</span></>
+                        : <><EyeOff className="w-3 h-3" /><span>{t('avatarPrivate')}</span></>
+                      }
+                    </button>
+                    {/* Batch invite */}
                     <button
                       onClick={(e) => { e.stopPropagation(); handleGenerateBatchInvitation(a); }}
                       disabled={batchInviteLoading}
