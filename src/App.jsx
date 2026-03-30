@@ -4,7 +4,7 @@ import apiService from './services/api';
 import { translations } from './i18n/translations';
 
 const HamoPro = () => {
-  const APP_VERSION = "1.9.5";
+  const APP_VERSION = "1.9.6";
 
   // Language state - default to browser language or English
   const [language, setLanguage] = useState(() => {
