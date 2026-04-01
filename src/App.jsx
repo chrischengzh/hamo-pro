@@ -284,7 +284,7 @@ const HamoPro = () => {
   const lastMessageCountRef = useRef(0); // Track message count for detecting new messages
   const [showStressDetail, setShowStressDetail] = useState(false); // Toggle stress detail panel
   const [directives, setDirectives] = useState([]); // Supervision directives for selected client
-  const [showDirectives, setShowDirectives] = useState(false); // Toggle directives panel
+  const [showDirectives, setShowDirectives] = useState(false); // Toggle directives panel (legacy, kept for compat)
   const [newDirectiveText, setNewDirectiveText] = useState('');
   const [newDirectiveType, setNewDirectiveType] = useState('strategy');
   const [stressIndicatorsData, setStressIndicatorsData] = useState(null); // A/W/E/H/B from portal API
@@ -292,6 +292,10 @@ const HamoPro = () => {
   const [supervisingMessageId, setSupervisingMessageId] = useState(null); // Which message is being supervised
   const [supervisionText, setSupervisionText] = useState(''); // Input text for supervision
   const [supervisionSaving, setSupervisionSaving] = useState(false); // Loading state while saving
+  // Supervision panel (bottom sheet)
+  const [showSupervisionPanel, setShowSupervisionPanel] = useState(false);
+  const [supervisionPanelTab, setSupervisionPanelTab] = useState('notes'); // 'model' | 'directives' | 'notes'
+  const [clientMentalModel, setClientMentalModel] = useState({ attachmentStyle: '', coreIssue: '', stage: '', currentFocus: '' });
   const [selectedMindClient, setSelectedMindClient] = useState(null);
   const [mindData, setMindData] = useState(null);
   const [mindLoading, setMindLoading] = useState(false);
@@ -1747,6 +1751,14 @@ const HamoPro = () => {
     setCurrentPsvs(null);
     setPsvsTrajectory([]);
     setExpandedMiniSessions(new Set());
+    setShowSupervisionPanel(false);
+    setSupervisingMessageId(null);
+    setSupervisionText('');
+    // Load mental model from localStorage
+    try {
+      const saved = localStorage.getItem(`hamo_mental_model_${client.id}`);
+      setClientMentalModel(saved ? JSON.parse(saved) : { attachmentStyle: '', coreIssue: '', stage: '', currentFocus: '' });
+    } catch { setClientMentalModel({ attachmentStyle: '', coreIssue: '', stage: '', currentFocus: '' }); }
 
     try {
       // Fetch sessions, PSVS profile, portal messages, and directives in parallel
@@ -2103,6 +2115,14 @@ const HamoPro = () => {
     } catch (error) {
       console.error('Failed to delete supervision:', error);
     }
+  };
+
+  // Save client mental model to localStorage
+  const saveClientMentalModel = (updatedModel) => {
+    if (!selectedClient) return;
+    const merged = { ...clientMentalModel, ...updatedModel };
+    setClientMentalModel(merged);
+    try { localStorage.setItem(`hamo_mental_model_${selectedClient.id}`, JSON.stringify(merged)); } catch {}
   };
 
   // Save invitation card as image to local device
@@ -4808,9 +4828,9 @@ const HamoPro = () => {
 
             {selectedClient && (
               <div className={`fixed inset-0 ${tc('bg-black bg-opacity-50', 'bg-black bg-opacity-70')} flex items-center justify-center z-50 px-4`} onClick={() => { setSelectedClient(null); setCurrentPsvs(null); }}>
-                <div className={`${tc('bg-white', 'bg-slate-800')} rounded-2xl ${tc('shadow-2xl', 'shadow-2xl shadow-black/40')} max-w-lg w-full max-h-[90vh] overflow-hidden`} onClick={(e) => e.stopPropagation()}>
+                <div className={`${tc('bg-white', 'bg-slate-800')} rounded-2xl ${tc('shadow-2xl', 'shadow-2xl shadow-black/40')} max-w-lg w-full flex flex-col`} style={{ height: '90vh', maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4 rounded-t-2xl">
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4 rounded-t-2xl flex-shrink-0">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -4822,6 +4842,24 @@ const HamoPro = () => {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
+                        {/* Supervision panel toggle */}
+                        <button
+                          onClick={() => {
+                            setShowSupervisionPanel(p => !p);
+                            if (!showSupervisionPanel) setSupervisionPanelTab('notes');
+                          }}
+                          className={`relative p-1.5 rounded-full transition-colors ${
+                            showSupervisionPanel
+                              ? 'bg-amber-400/80 text-white'
+                              : 'text-white/70 hover:text-white hover:bg-white/20'
+                          }`}
+                          title={t('supervisionPanel')}
+                        >
+                          <Target className="w-4 h-4" />
+                          {(directives.length > 0 || clientMentalModel.coreIssue || clientMentalModel.attachmentStyle) && (
+                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-amber-300 rounded-full" />
+                          )}
+                        </button>
                         {/* Auto-refresh toggle button */}
                         <button
                           onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
@@ -4846,7 +4884,7 @@ const HamoPro = () => {
 
                   {/* PSVS Status Bar - Clickable to expand detail */}
                   <div
-                    className={`border-b ${tc('', 'border-slate-700')} px-4 py-3 cursor-pointer transition-colors ${
+                    className={`border-b flex-shrink-0 ${tc('', 'border-slate-700')} px-4 py-3 cursor-pointer transition-colors ${
                       showStressDetail ? tc('bg-blue-50', 'bg-blue-900/20') : tc('bg-gray-50 hover:bg-gray-100', 'bg-slate-700 hover:bg-slate-600')
                     }`}
                     onClick={() => setShowStressDetail(!showStressDetail)}
@@ -5084,108 +5122,12 @@ const HamoPro = () => {
                     );
                   })()}
 
-                  {/* Supervision Directives Section */}
-                  <div className={`border-b ${tc('border-gray-200', 'border-slate-700')}`}>
-                    <div
-                      className={`px-4 py-2.5 cursor-pointer flex items-center justify-between transition-colors ${tc('hover:bg-gray-50', 'hover:bg-slate-700')}`}
-                      onClick={() => setShowDirectives(!showDirectives)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Target className={`w-4 h-4 ${tc('text-amber-500', 'text-amber-400')}`} />
-                        <span className={`text-sm font-medium ${tc('text-gray-700', 'text-slate-300')}`}>{t('directives')}</span>
-                        {directives.length > 0 && (
-                          <span className="bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">{directives.length}</span>
-                        )}
-                      </div>
-                      {showDirectives ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-                    </div>
-                    {showDirectives && (
-                      <div className={`px-4 pb-3 ${tc('bg-gray-50', 'bg-slate-800')}`}>
-                        <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')} mb-2`}>{t('directivesDescription')}</p>
-                        {/* Existing directives */}
-                        {directives.length > 0 ? (
-                          <div className="space-y-1.5 mb-2">
-                            {directives.map(d => (
-                              <div key={d.id} className={`flex items-start justify-between p-2 rounded-lg ${tc('bg-white border border-gray-200', 'bg-slate-700 border border-slate-600')}`}>
-                                <div className="flex-1 min-w-0">
-                                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
-                                    d.directive_type === 'avoid' ? 'bg-red-100 text-red-700' :
-                                    d.directive_type === 'focus' ? 'bg-blue-100 text-blue-700' :
-                                    'bg-amber-100 text-amber-700'
-                                  }`}>
-                                    {d.directive_type === 'avoid' ? t('directiveAvoid') : d.directive_type === 'focus' ? t('directiveFocus') : t('directiveStrategy')}
-                                  </span>
-                                  <p className={`text-sm mt-1 ${tc('text-gray-700', 'text-slate-300')}`}>{d.text}</p>
-                                </div>
-                                <button
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const result = await apiService.deleteDirective(d.id);
-                                    if (result.success) setDirectives(prev => prev.filter(x => x.id !== d.id));
-                                  }}
-                                  className="ml-2 text-gray-400 hover:text-red-500 flex-shrink-0"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')} italic mb-2`}>{t('noDirectives')}</p>
-                        )}
-                        {/* Add new directive */}
-                        <div className="flex items-center space-x-1.5">
-                          <select
-                            value={newDirectiveType}
-                            onChange={(e) => setNewDirectiveType(e.target.value)}
-                            className={`text-xs px-1.5 py-1.5 rounded border ${tc('border-gray-300 bg-white', 'border-slate-600 bg-slate-700 text-white')}`}
-                          >
-                            <option value="strategy">{t('directiveStrategy')}</option>
-                            <option value="avoid">{t('directiveAvoid')}</option>
-                            <option value="focus">{t('directiveFocus')}</option>
-                          </select>
-                          <input
-                            type="text"
-                            value={newDirectiveText}
-                            onChange={(e) => setNewDirectiveText(e.target.value)}
-                            onKeyDown={async (e) => {
-                              if (e.key === 'Enter' && newDirectiveText.trim()) {
-                                const result = await apiService.createDirective(selectedClient.id, newDirectiveType, newDirectiveText.trim());
-                                if (result.success) {
-                                  setDirectives(prev => [result.directive, ...prev]);
-                                  setNewDirectiveText('');
-                                }
-                              }
-                            }}
-                            placeholder={t('directivePlaceholder')}
-                            maxLength={200}
-                            className={`flex-1 text-xs px-2 py-1.5 rounded border ${tc('border-gray-300 bg-white', 'border-slate-600 bg-slate-700 text-white')} focus:outline-none focus:ring-1 focus:ring-amber-400`}
-                          />
-                          <button
-                            onClick={async () => {
-                              if (!newDirectiveText.trim()) return;
-                              const result = await apiService.createDirective(selectedClient.id, newDirectiveType, newDirectiveText.trim());
-                              if (result.success) {
-                                setDirectives(prev => [result.directive, ...prev]);
-                                setNewDirectiveText('');
-                              }
-                            }}
-                            disabled={!newDirectiveText.trim()}
-                            className="px-2 py-1.5 text-xs bg-amber-500 text-white rounded hover:bg-amber-600 disabled:opacity-50 flex-shrink-0"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content wrapper with new message indicator */}
-                  <div className="relative">
+                  {/* Chat scroll area - flex-1 so it fills remaining space */}
+                  <div className="relative flex-1 min-h-0">
                     <div
                       ref={chatScrollRef}
                       onScroll={handleChatScroll}
-                      className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]"
+                      className="p-6 overflow-y-auto h-full"
                     >
                     {conversationsLoading ? (
                       <div className={`text-center py-12 ${tc('text-gray-500', 'text-slate-400')}`}>
@@ -5340,37 +5282,16 @@ const HamoPro = () => {
                                                         <p key={mi} className={`text-sm ${tc('', 'text-slate-200')} ${mi > 0 ? 'mt-2' : ''}`}>{msg.content}</p>
                                                       ))}
                                                     </div>
-                                                    {/* Supervise buttons per message */}
+                                                    {/* Supervision note badges per message (read-only, editing is in panel) */}
                                                     {block.msgs.map((msg, mi) => (
                                                       <React.Fragment key={`sv-${mi}`}>
-                                                        {supervisingMessageId === msg.id && (
-                                                          <div className={`mt-2 ml-2 p-3 ${tc('bg-amber-50 border-amber-200', 'bg-amber-900/20 border-amber-800')} border rounded-lg`}>
-                                                            <textarea
-                                                              value={supervisionText}
-                                                              onChange={(e) => setSupervisionText(e.target.value)}
-                                                              placeholder={t('supervisionPlaceholder')}
-                                                              className={`w-full text-sm border ${tc('border-amber-300 bg-white text-gray-900', 'border-amber-700 bg-slate-900 text-white')} rounded p-2 resize-none focus:outline-none focus:ring-1 focus:ring-amber-400`}
-                                                              rows={3}
-                                                            />
-                                                            <div className="flex justify-end space-x-2 mt-2">
-                                                              <button onClick={() => { setSupervisingMessageId(null); setSupervisionText(''); }} className={`px-3 py-1 text-xs ${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-200')}`}>{t('cancel')}</button>
-                                                              <button onClick={handleMessageSupervise} disabled={supervisionSaving || !supervisionText.trim()} className="px-3 py-1 text-xs bg-amber-500 text-white rounded hover:bg-amber-600 disabled:opacity-50 flex items-center space-x-1">
-                                                                {supervisionSaving ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                                                                <span>{t('save')}</span>
-                                                              </button>
-                                                            </div>
-                                                          </div>
-                                                        )}
                                                         {msg.supervision?.text && supervisingMessageId !== msg.id && (
-                                                          <div className={`mt-2 ml-2 p-2 ${tc('bg-amber-50', 'bg-amber-900/20')} border-l-4 border-amber-400 rounded-r-lg`}>
-                                                            <div className="flex items-center justify-between mb-1">
-                                                              <span className="text-xs font-medium text-amber-700">{t('superviseMessage')}</span>
-                                                              <span className="text-xs text-amber-500">{msg.supervision.created_at ? new Date(msg.supervision.created_at).toLocaleDateString() : ''}</span>
-                                                            </div>
-                                                            <p className="text-sm text-amber-900">{msg.supervision.text}</p>
-                                                            <div className="flex justify-end mt-1">
-                                                              <button onClick={() => handleDeleteSupervision(msg.id)} className="text-amber-400 hover:text-red-500 transition-colors" title="Delete"><Trash2 className="w-3 h-3" /></button>
-                                                            </div>
+                                                          <div
+                                                            className={`mt-1.5 ml-2 px-2.5 py-1.5 ${tc('bg-amber-50', 'bg-amber-900/20')} border-l-4 border-amber-400 rounded-r-lg flex items-start gap-2 cursor-pointer hover:opacity-80`}
+                                                            onClick={() => { setSupervisingMessageId(msg.id); setSupervisionText(msg.supervision.text); setShowSupervisionPanel(true); setSupervisionPanelTab('notes'); }}
+                                                          >
+                                                            <Edit3 className="w-3 h-3 text-amber-500 mt-0.5 flex-shrink-0" />
+                                                            <p className={`text-xs flex-1 line-clamp-2 ${tc('text-amber-800', 'text-amber-300')}`}>{msg.supervision.text}</p>
                                                           </div>
                                                         )}
                                                       </React.Fragment>
@@ -5396,10 +5317,16 @@ const HamoPro = () => {
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           const targetMsg = block.msgs[0];
-                                                          if (supervisingMessageId === targetMsg.id) { setSupervisingMessageId(null); setSupervisionText(''); }
-                                                          else { setSupervisingMessageId(targetMsg.id); setSupervisionText(targetMsg.supervision?.text || ''); }
+                                                          setSupervisingMessageId(targetMsg.id);
+                                                          setSupervisionText(targetMsg.supervision?.text || '');
+                                                          setShowSupervisionPanel(true);
+                                                          setSupervisionPanelTab('notes');
                                                         }}
-                                                        className={`text-xs ${tc('text-gray-400', 'text-slate-500')} hover:text-blue-500 flex items-center space-x-1 transition-colors`}
+                                                        className={`text-xs flex items-center space-x-1 transition-colors ${
+                                                          block.msgs[0].supervision?.text
+                                                            ? 'text-amber-500 hover:text-amber-600'
+                                                            : tc('text-gray-400 hover:text-amber-500', 'text-slate-500 hover:text-amber-400')
+                                                        }`}
                                                       >
                                                         <Edit3 className="w-3 h-3" />
                                                         <span>{t('superviseMessage')}</span>
@@ -5445,6 +5372,271 @@ const HamoPro = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* ── Supervision Bottom Panel ────────────────────────────── */}
+                  {showSupervisionPanel && (
+                    <div className={`flex-shrink-0 flex flex-col border-t ${tc('border-gray-200 bg-white', 'border-slate-700 bg-slate-800')}`} style={{ height: '45%' }}>
+                      {/* Drag handle */}
+                      <div className={`flex justify-center pt-2 pb-1 flex-shrink-0 ${tc('bg-gray-50', 'bg-slate-700/40')}`}>
+                        <div className={`w-8 h-1 rounded-full ${tc('bg-gray-300', 'bg-slate-500')}`} />
+                      </div>
+
+                      {/* Tab bar */}
+                      <div className={`flex border-b flex-shrink-0 ${tc('border-gray-200', 'border-slate-700')}`}>
+                        {[
+                          { key: 'model', label: t('spTabModel') },
+                          { key: 'directives', label: t('spTabDirectives') },
+                          { key: 'notes', label: t('spTabNotes') },
+                        ].map(({ key, label }) => {
+                          const badge =
+                            key === 'directives' ? directives.length :
+                            key === 'notes' ? (conversationsData?.flatMap(c => c.miniSessionGroups || []).flatMap(g => g.messages || []).filter(m => m.supervision?.text).length || 0) :
+                            0;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => setSupervisionPanelTab(key)}
+                              className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
+                                supervisionPanelTab === key
+                                  ? `border-b-2 border-amber-500 ${tc('text-amber-600', 'text-amber-400')}`
+                                  : tc('text-gray-400 hover:text-gray-600', 'text-slate-500 hover:text-slate-300')
+                              }`}
+                            >
+                              {label}
+                              {badge > 0 && <span className="bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded-full leading-none">{badge}</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Tab content */}
+                      <div className="flex-1 overflow-y-auto">
+
+                        {/* ── 心理模型 tab ── */}
+                        {supervisionPanelTab === 'model' && (
+                          <div className="p-4 space-y-4">
+                            {/* Attachment style */}
+                            <div>
+                              <label className={`block text-xs font-semibold mb-2 ${tc('text-amber-600', 'text-amber-400')}`}>{t('spAttachmentStyle')}</label>
+                              <div className="grid grid-cols-4 gap-1.5">
+                                {['anxious', 'avoidant', 'secure', 'disorganized'].map(s => (
+                                  <button
+                                    key={s}
+                                    onClick={() => saveClientMentalModel({ attachmentStyle: clientMentalModel.attachmentStyle === s ? '' : s })}
+                                    className={`py-1.5 text-xs rounded-lg border transition-all ${
+                                      clientMentalModel.attachmentStyle === s
+                                        ? 'bg-amber-500 text-white border-amber-500 font-medium'
+                                        : tc('border-gray-200 text-gray-500 hover:border-amber-300 hover:text-amber-600', 'border-slate-600 text-slate-400 hover:border-amber-500 hover:text-amber-400')
+                                    }`}
+                                  >
+                                    {t(`spAttachment_${s}`)}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            {/* Core issue */}
+                            <div>
+                              <label className={`block text-xs font-semibold mb-1.5 ${tc('text-amber-600', 'text-amber-400')}`}>{t('spCoreIssue')}</label>
+                              <textarea
+                                value={clientMentalModel.coreIssue}
+                                onChange={e => setClientMentalModel(p => ({ ...p, coreIssue: e.target.value }))}
+                                onBlur={e => saveClientMentalModel({ coreIssue: e.target.value })}
+                                rows={2}
+                                placeholder={t('spCoreIssuePlaceholder')}
+                                className={`w-full text-sm rounded-lg border px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-amber-400 ${tc('border-gray-200 bg-white text-gray-800 placeholder-gray-300', 'border-slate-600 bg-slate-700 text-white placeholder-slate-500')}`}
+                              />
+                            </div>
+                            {/* Treatment stage */}
+                            <div>
+                              <label className={`block text-xs font-semibold mb-2 ${tc('text-amber-600', 'text-amber-400')}`}>{t('spStage')}</label>
+                              <div className="grid grid-cols-3 gap-1.5">
+                                {['rapport', 'exploration', 'deepening'].map(s => (
+                                  <button
+                                    key={s}
+                                    onClick={() => saveClientMentalModel({ stage: clientMentalModel.stage === s ? '' : s })}
+                                    className={`py-1.5 text-xs rounded-lg border transition-all ${
+                                      clientMentalModel.stage === s
+                                        ? 'bg-amber-500 text-white border-amber-500 font-medium'
+                                        : tc('border-gray-200 text-gray-500 hover:border-amber-300 hover:text-amber-600', 'border-slate-600 text-slate-400 hover:border-amber-500 hover:text-amber-400')
+                                    }`}
+                                  >
+                                    {t(`spStage_${s}`)}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            {/* Current focus */}
+                            <div>
+                              <label className={`block text-xs font-semibold mb-1.5 ${tc('text-amber-600', 'text-amber-400')}`}>{t('spCurrentFocus')}</label>
+                              <input
+                                type="text"
+                                value={clientMentalModel.currentFocus}
+                                onChange={e => setClientMentalModel(p => ({ ...p, currentFocus: e.target.value }))}
+                                onBlur={e => saveClientMentalModel({ currentFocus: e.target.value })}
+                                placeholder={t('spCurrentFocusPlaceholder')}
+                                className={`w-full text-sm rounded-lg border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-400 ${tc('border-gray-200 bg-white text-gray-800 placeholder-gray-300', 'border-slate-600 bg-slate-700 text-white placeholder-slate-500')}`}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ── 督导指令 tab ── */}
+                        {supervisionPanelTab === 'directives' && (
+                          <div className="p-4 space-y-3">
+                            <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{t('directivesDescription')}</p>
+                            {directives.length > 0 ? (
+                              <div className="space-y-2">
+                                {directives.map(d => (
+                                  <div key={d.id} className={`flex items-start gap-2 p-2.5 rounded-xl ${tc('bg-gray-50 border border-gray-200', 'bg-slate-700 border border-slate-600')}`}>
+                                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
+                                      d.directive_type === 'avoid' ? 'bg-red-100 text-red-700' :
+                                      d.directive_type === 'focus' ? 'bg-blue-100 text-blue-700' :
+                                      'bg-amber-100 text-amber-700'
+                                    }`}>
+                                      {d.directive_type === 'avoid' ? t('directiveAvoid') : d.directive_type === 'focus' ? t('directiveFocus') : t('directiveStrategy')}
+                                    </span>
+                                    <p className={`text-sm flex-1 ${tc('text-gray-700', 'text-slate-300')}`}>{d.text}</p>
+                                    <button
+                                      onClick={async () => {
+                                        const result = await apiService.deleteDirective(d.id);
+                                        if (result.success) setDirectives(prev => prev.filter(x => x.id !== d.id));
+                                      }}
+                                      className={`flex-shrink-0 ${tc('text-gray-300 hover:text-red-500', 'text-slate-600 hover:text-red-400')} transition-colors`}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className={`text-xs italic ${tc('text-gray-400', 'text-slate-500')}`}>{t('noDirectives')}</p>
+                            )}
+                            {/* Add new */}
+                            <div className={`flex gap-1.5 pt-1 border-t ${tc('border-gray-100', 'border-slate-700')}`}>
+                              <select
+                                value={newDirectiveType}
+                                onChange={e => setNewDirectiveType(e.target.value)}
+                                className={`text-xs px-2 py-2 rounded-lg border flex-shrink-0 ${tc('border-gray-200 bg-white text-gray-700', 'border-slate-600 bg-slate-700 text-white')}`}
+                              >
+                                <option value="strategy">{t('directiveStrategy')}</option>
+                                <option value="avoid">{t('directiveAvoid')}</option>
+                                <option value="focus">{t('directiveFocus')}</option>
+                              </select>
+                              <input
+                                type="text"
+                                value={newDirectiveText}
+                                onChange={e => setNewDirectiveText(e.target.value)}
+                                onKeyDown={async e => {
+                                  if (e.key === 'Enter' && newDirectiveText.trim()) {
+                                    const result = await apiService.createDirective(selectedClient.id, newDirectiveType, newDirectiveText.trim());
+                                    if (result.success) { setDirectives(prev => [result.directive, ...prev]); setNewDirectiveText(''); }
+                                  }
+                                }}
+                                placeholder={t('directivePlaceholder')}
+                                maxLength={200}
+                                className={`flex-1 text-xs px-3 py-2 rounded-lg border focus:outline-none focus:ring-1 focus:ring-amber-400 ${tc('border-gray-200 bg-white text-gray-800 placeholder-gray-300', 'border-slate-600 bg-slate-700 text-white placeholder-slate-500')}`}
+                              />
+                              <button
+                                onClick={async () => {
+                                  if (!newDirectiveText.trim()) return;
+                                  const result = await apiService.createDirective(selectedClient.id, newDirectiveType, newDirectiveText.trim());
+                                  if (result.success) { setDirectives(prev => [result.directive, ...prev]); setNewDirectiveText(''); }
+                                }}
+                                disabled={!newDirectiveText.trim()}
+                                className="px-3 py-2 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-40 flex-shrink-0"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ── 督导笔记 tab ── */}
+                        {supervisionPanelTab === 'notes' && (() => {
+                          // Collect all messages with supervision notes
+                          const allNotes = (conversationsData || []).flatMap(conv =>
+                            (conv.miniSessionGroups || []).flatMap(group =>
+                              (group.messages || [])
+                                .filter(m => m.role !== 'user' && m.supervision?.text)
+                                .map(m => ({ msg: m, date: conv.date }))
+                            )
+                          );
+                          return (
+                            <div className="p-3 space-y-3">
+                              {/* Active note editor */}
+                              {supervisingMessageId && (
+                                <div className={`rounded-xl border-2 border-amber-400 overflow-hidden ${tc('bg-white', 'bg-slate-800')}`}>
+                                  <div className={`px-3 py-2 flex items-center gap-1.5 ${tc('bg-amber-50', 'bg-amber-900/30')}`}>
+                                    <Edit3 className="w-3 h-3 text-amber-500" />
+                                    <span className="text-xs font-medium text-amber-600">{t('superviseMessage')}</span>
+                                  </div>
+                                  <div className="p-3">
+                                    <textarea
+                                      autoFocus
+                                      rows={4}
+                                      value={supervisionText}
+                                      onChange={e => setSupervisionText(e.target.value)}
+                                      placeholder={t('supervisionPlaceholder')}
+                                      className={`w-full text-sm rounded-lg border px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-amber-400 ${tc('border-gray-200 bg-gray-50 text-gray-800 placeholder-gray-300', 'border-slate-600 bg-slate-700 text-white placeholder-slate-500')}`}
+                                    />
+                                    <div className="flex justify-end gap-2 mt-2">
+                                      <button
+                                        onClick={() => { setSupervisingMessageId(null); setSupervisionText(''); }}
+                                        className={`px-3 py-1.5 text-xs rounded-lg ${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-200')}`}
+                                      >
+                                        {t('cancel')}
+                                      </button>
+                                      <button
+                                        onClick={handleMessageSupervise}
+                                        disabled={supervisionSaving || !supervisionText.trim()}
+                                        className="px-3 py-1.5 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-40 flex items-center gap-1"
+                                      >
+                                        {supervisionSaving ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                        {t('save')}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              {/* Past notes */}
+                              {allNotes.length === 0 && !supervisingMessageId && (
+                                <div className={`text-center py-8 ${tc('text-gray-400', 'text-slate-500')}`}>
+                                  <Edit3 className="w-6 h-6 mx-auto mb-2 opacity-40" />
+                                  <p className="text-xs">{t('spNoNotes')}</p>
+                                  <p className={`text-xs mt-1 ${tc('text-gray-300', 'text-slate-600')}`}>{t('spNoNotesHint')}</p>
+                                </div>
+                              )}
+                              {allNotes.map(({ msg, date }) => (
+                                <div key={msg.id} className={`rounded-xl overflow-hidden border ${tc('border-amber-200 bg-amber-50', 'border-amber-800/50 bg-amber-900/20')}`}>
+                                  <div className={`px-3 py-1.5 flex items-center justify-between ${tc('bg-amber-100/60', 'bg-amber-900/40')}`}>
+                                    <span className="text-xs font-medium text-amber-700">{date}</span>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={() => { setSupervisingMessageId(msg.id); setSupervisionText(msg.supervision.text); }}
+                                        className="text-xs text-amber-500 hover:text-amber-700"
+                                      >
+                                        <Edit3 className="w-3 h-3" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteSupervision(msg.id)}
+                                        className={`text-xs ${tc('text-gray-400 hover:text-red-500', 'text-slate-500 hover:text-red-400')}`}
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <p className={`px-3 py-2 text-sm ${tc('text-amber-900', 'text-amber-200')}`}>{msg.supervision.text}</p>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+
+                      </div>
+                    </div>
+                  )}
+                  {/* ── End Supervision Panel ── */}
+
                 </div>
               </div>
             )}
