@@ -3770,30 +3770,28 @@ const HamoPro = () => {
 
         {activeTab === 'clients' && (
           <div className="space-y-4">
-            <div className="flex items-center">
+            <div className="relative flex justify-between items-center">
               <h2 className={`text-xl font-semibold ${tc('', 'text-white')}`}>{t('clientInstances')}</h2>
-              {/* Crisis alert bell — centered between title and button */}
-              <div className="flex-1 flex justify-center">
-                {(() => {
-                  const unread = crisisAlerts.filter(a => !a.acknowledged).length;
-                  return (
-                    <button
-                      onClick={() => setShowAlertPanel(true)}
-                      className={`relative p-2 rounded-full transition-colors ${unread > 0 ? 'bg-red-100 hover:bg-red-200' : tc('bg-gray-100 hover:bg-gray-200', 'bg-slate-700 hover:bg-slate-600')}`}
-                      title={unread > 0 ? `${unread} crisis alert${unread > 1 ? 's' : ''}` : t('crisisAlerts')}
-                    >
-                      <svg className={`w-5 h-5 ${unread > 0 ? 'text-red-600' : tc('text-gray-400', 'text-slate-400')}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                      </svg>
-                      {unread > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                          {unread}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })()}
-              </div>
+              {/* Crisis alert bell — absolute center of the row */}
+              {(() => {
+                const unread = crisisAlerts.filter(a => !a.acknowledged).length;
+                return (
+                  <button
+                    onClick={() => setShowAlertPanel(true)}
+                    className={`absolute left-1/2 -translate-x-1/2 p-2 rounded-full transition-colors ${unread > 0 ? 'bg-red-100 hover:bg-red-200' : tc('bg-gray-100 hover:bg-gray-200', 'bg-slate-700 hover:bg-slate-600')}`}
+                    title={unread > 0 ? `${unread} crisis alert${unread > 1 ? 's' : ''}` : t('crisisAlerts')}
+                  >
+                    <svg className={`w-5 h-5 ${unread > 0 ? 'text-red-600' : tc('text-gray-400', 'text-slate-400')}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    {unread > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                        {unread}
+                      </span>
+                    )}
+                  </button>
+                );
+              })()}
               <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>{t('inviteClient')}</span></button>
             </div>
             {!avatars.length && <div className={`${tc('bg-yellow-50 border-yellow-200', 'bg-yellow-900/20 border-yellow-800')} border rounded-lg p-4 ${tc('', 'text-yellow-300')}`}>{t('createAvatarFirst')}</div>}
