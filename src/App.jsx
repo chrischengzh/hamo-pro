@@ -134,8 +134,14 @@ const HamoPro = () => {
     );
   };
 
-  // Contributors list
-  const contributors = ['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan', 'Aria Wang'];
+  // Contributors list — fetched from API, fallback to defaults
+  const [contributors, setContributors] = useState(['Chris Cheng', 'Anthropic Claude', 'Kerwin Du', 'Amy Chan', 'Aria Wang']);
+  useEffect(() => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://api.hamo.ai/api';
+    fetch(`${apiBase.replace(/\/api$/, '')}/api/contributors`).then(r => r.json()).then(data => {
+      if (Array.isArray(data) && data.length > 0) setContributors(data.map(c => c.name));
+    }).catch(() => {});
+  }, []);
 
   // Profession options for sign up
   const professionOptions = [
