@@ -2460,10 +2460,10 @@ const HamoPro = () => {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <span className="font-bold text-lg">Crisis Alerts</span>
+                <span className="font-bold text-lg">{t('crisisAlerts')}</span>
                 {crisisAlerts.filter(a => !a.acknowledged).length > 0 && (
                   <span className="bg-white text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
-                    {crisisAlerts.filter(a => !a.acknowledged).length} unread
+                    {crisisAlerts.filter(a => !a.acknowledged).length} {t('crisisUnread')}
                   </span>
                 )}
               </div>
@@ -2471,13 +2471,13 @@ const HamoPro = () => {
             </div>
             <div className="overflow-y-auto max-h-[calc(70vh-64px)]">
               {crisisAlerts.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">No crisis alerts</div>
+                <div className="p-8 text-center text-gray-400">{t('noCrisisAlerts')}</div>
               ) : (
                 crisisAlerts.map(alert => {
                   const crisisLabels = {
-                    suicidal_ideation: '🆘 Suicidal Ideation',
-                    self_harm: '⚠️ Self-Harm Intent',
-                    dangerous_drug_use: '💊 Dangerous Drug Use',
+                    suicidal_ideation: `🆘 ${t('crisisSuicidal')}`,
+                    self_harm: `⚠️ ${t('crisisSelfHarm')}`,
+                    dangerous_drug_use: `💊 ${t('crisisDrugUse')}`,
                   };
                   const label = crisisLabels[alert.crisis_type] || alert.crisis_type;
                   const date = alert.created_at ? new Date(alert.created_at).toLocaleString() : '';
@@ -2502,7 +2502,7 @@ const HamoPro = () => {
                             }}
                             className="shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition-colors"
                           >
-                            Dismiss
+                            {t('crisisDismiss')}
                           </button>
                         )}
                       </div>
@@ -3770,17 +3770,17 @@ const HamoPro = () => {
 
         {activeTab === 'clients' && (
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center">
               <h2 className={`text-xl font-semibold ${tc('', 'text-white')}`}>{t('clientInstances')}</h2>
-              <div className="flex items-center space-x-3">
-                {/* Crisis alert bell — only on clients tab */}
+              {/* Crisis alert bell — centered between title and button */}
+              <div className="flex-1 flex justify-center">
                 {(() => {
                   const unread = crisisAlerts.filter(a => !a.acknowledged).length;
                   return (
                     <button
                       onClick={() => setShowAlertPanel(true)}
                       className={`relative p-2 rounded-full transition-colors ${unread > 0 ? 'bg-red-100 hover:bg-red-200' : tc('bg-gray-100 hover:bg-gray-200', 'bg-slate-700 hover:bg-slate-600')}`}
-                      title={unread > 0 ? `${unread} crisis alert${unread > 1 ? 's' : ''}` : 'Crisis alerts'}
+                      title={unread > 0 ? `${unread} crisis alert${unread > 1 ? 's' : ''}` : t('crisisAlerts')}
                     >
                       <svg className={`w-5 h-5 ${unread > 0 ? 'text-red-600' : tc('text-gray-400', 'text-slate-400')}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -3793,8 +3793,8 @@ const HamoPro = () => {
                     </button>
                   );
                 })()}
-                <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>{t('inviteClient')}</span></button>
               </div>
+              <button onClick={() => setShowClientForm(!showClientForm)} disabled={!avatars.length} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"><Plus className="w-5 h-5" /><span>{t('inviteClient')}</span></button>
             </div>
             {!avatars.length && <div className={`${tc('bg-yellow-50 border-yellow-200', 'bg-yellow-900/20 border-yellow-800')} border rounded-lg p-4 ${tc('', 'text-yellow-300')}`}>{t('createAvatarFirst')}</div>}
             {showClientForm && avatars.length > 0 && (

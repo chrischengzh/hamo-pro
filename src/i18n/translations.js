@@ -437,6 +437,13 @@ export const translations = {
     failedToGenerateInviteCode: 'Failed to generate invite code',
     failedToGenerateBatchInvitation: 'Failed to generate batch invitation',
     failedToUpdate: 'Failed to update',
+    crisisAlerts: 'Crisis Alerts',
+    noCrisisAlerts: 'No crisis alerts',
+    crisisUnread: 'unread',
+    crisisSuicidal: 'Suicidal Ideation',
+    crisisSelfHarm: 'Self-Harm Intent',
+    crisisDrugUse: 'Dangerous Drug Use',
+    crisisDismiss: 'Dismiss',
 
     // Voice Type & Clone
     avatarVoice: 'Avatar Voice',
@@ -973,6 +980,13 @@ export const translations = {
     failedToGenerateInviteCode: '生成邀请码失败',
     failedToGenerateBatchInvitation: '生成批量邀请失败',
     failedToUpdate: '更新失败',
+    crisisAlerts: '危机警报',
+    noCrisisAlerts: '暂无危机警报',
+    crisisUnread: '条未读',
+    crisisSuicidal: '自杀意念',
+    crisisSelfHarm: '自伤倾向',
+    crisisDrugUse: '危险用药',
+    crisisDismiss: '已知悉',
 
     // Voice Type & Clone
     avatarVoice: '形象声音',
