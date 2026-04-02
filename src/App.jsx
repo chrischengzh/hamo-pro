@@ -6116,19 +6116,20 @@ const HamoPro = () => {
             <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-4`}>
               <h3 className={`text-sm font-medium ${tc('text-gray-500', 'text-slate-400')} mb-3`}>{t('contributors')}</h3>
               <div className="overflow-hidden">
-                <div className="flex animate-marquee whitespace-nowrap">
+                <div className="inline-flex animate-marquee-pro whitespace-nowrap">
                   {[...contributors, ...contributors].map((name, index) => (
                     <span key={index} className={`mx-4 ${tc('text-gray-400', 'text-slate-500')} font-medium`}>{name}</span>
                   ))}
                 </div>
               </div>
               <style>{`
-                @keyframes marquee {
-                  0% { transform: translateX(0%); }
+                @keyframes marqueePro {
+                  0% { transform: translateX(0); }
                   100% { transform: translateX(-50%); }
                 }
-                .animate-marquee {
-                  animation: marquee 15s linear infinite;
+                .animate-marquee-pro {
+                  animation: marqueePro 15s linear infinite;
+                  min-width: 200%;
                 }
               `}</style>
             </div>
