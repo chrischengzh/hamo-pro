@@ -2546,7 +2546,7 @@ const HamoPro = () => {
               {/* Mock header */}
               <div className={`px-4 py-3 border-b ${tc('border-gray-200 bg-white', 'border-slate-700 bg-slate-800')}`}>
                 <p className={`text-sm font-semibold ${tc('text-gray-800', 'text-white')}`}>{t('bookingDemoAvatarLabel')}</p>
-                <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{language === 'zh' ? '拥有AI心智的虚拟咨询师' : 'AI-powered virtual counselors'}</p>
+                <p className={`text-xs ${tc('text-gray-400', 'text-slate-500')}`}>{language === 'zh' ? '拥有AI心智的虚拟疗愈师' : 'AI-powered virtual counselors'}</p>
               </div>
 
               {/* Mock avatar card */}
@@ -5842,7 +5842,7 @@ const HamoPro = () => {
 
               {/* Service Income Tab */}
               {walletSubTab === 'service' && (() => {
-                const serviceRecords = commissions.filter(c => c.commission_type === '虚拟咨询师服务' || c.commission_type_en === 'AI Counselor Service');
+                const serviceRecords = commissions.filter(c => c.commission_type === '虚拟疗愈师服务' || c.commission_type_en === 'AI Counselor Service');
                 return (
                   <>
                     <div className={`p-3 rounded-lg mb-4 text-xs flex items-center justify-between ${tc('bg-blue-50 text-blue-700', 'bg-blue-900/20 text-blue-300')}`}>
@@ -5886,7 +5886,7 @@ const HamoPro = () => {
 
               {/* Invite Income Tab */}
               {walletSubTab === 'invite' && (() => {
-                const inviteRecords = commissions.filter(c => c.commission_type !== '虚拟咨询师服务' && c.commission_type_en !== 'AI Counselor Service');
+                const inviteRecords = commissions.filter(c => c.commission_type !== '虚拟疗愈师服务' && c.commission_type_en !== 'AI Counselor Service');
                 return (
                   <>
                     <div className={`p-3 rounded-lg mb-4 text-xs ${tc('bg-green-50 text-green-700', 'bg-green-900/20 text-green-300')}`}>
