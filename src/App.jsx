@@ -583,16 +583,14 @@ const HamoPro = () => {
     }
   }, [selectedClient]);
 
-  // Initial load when dialog opens
+  // Reset UI state when dialog opens (data loading is handled by handleViewChats directly)
   useEffect(() => {
     if (selectedClient) {
-      // Reset states when opening dialog
       lastMessageCountRef.current = 0;
       setHasNewMessages(false);
-      setAutoRefreshEnabled(false); // Default to off
-      refreshConversationsData(false);
+      setAutoRefreshEnabled(false);
     }
-  }, [selectedClient, refreshConversationsData]);
+  }, [selectedClient]);
 
   // Auto-refresh polling (only when enabled)
   useEffect(() => {
