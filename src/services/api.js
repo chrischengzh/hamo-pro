@@ -104,10 +104,10 @@ class ApiService {
   }
 
   // Auth APIs
-  async registerPro(fullName, profession, email, password, proInviteCode) {
+  async registerPro(fullName, profession, email, password, proInviteCode, language = 'en') {
     try {
       console.log('🔵 Registering Pro:', { email, fullName, profession }); // Debug
-      const body = { full_name: fullName, profession, email, password };
+      const body = { full_name: fullName, profession, email, password, language };
       if (proInviteCode) body.invitation_code = proInviteCode;
 
       const response = await this.request('/auth/registerPro', {

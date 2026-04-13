@@ -648,7 +648,8 @@ const HamoPro = () => {
         authForm.profession,
         authForm.email,
         authForm.password,
-        authForm.proInviteCode || undefined
+        authForm.proInviteCode || undefined,
+        language
       );
 
       if (result.success) {
