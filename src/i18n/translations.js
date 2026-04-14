@@ -212,7 +212,7 @@ export const translations = {
     validFor24Hours: 'Valid for 7 days',
     clientLabel: 'Client',
     unknown: 'Unknown',
-    registrationInstructions: 'Visit client.hamo.ai to register and enter code',
+    registrationInstructions: 'Visit c.hamo.ai to register and enter code',
 
     // AI Mind Panel
     psychologicalProfile: 'Psychological Profile Analysis',
@@ -755,7 +755,7 @@ export const translations = {
     validFor24Hours: '7天内有效',
     clientLabel: '来访者',
     unknown: '未知',
-    registrationInstructions: '访问 client.hamo.ai 注册，输入邀请码',
+    registrationInstructions: '访问 c.hamo.ai 注册，输入邀请码',
 
     // AI Mind Panel
     psychologicalProfile: '心理档案分析',
