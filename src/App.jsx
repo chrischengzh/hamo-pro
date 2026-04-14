@@ -16,7 +16,8 @@ const HamoPro = () => {
 
   // Translation helper function
   const t = useCallback((key) => {
-    return translations[language]?.[key] || translations['en'][key] || key;
+    const val = translations[language]?.[key] ?? translations['en']?.[key];
+    return val !== undefined ? val : key;
   }, [language]);
 
   // Save language preference
