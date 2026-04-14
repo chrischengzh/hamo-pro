@@ -318,6 +318,7 @@ const HamoPro = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [authForm, setAuthForm] = useState({ email: '', password: '', fullName: '', profession: '' });
   const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -706,9 +707,9 @@ const HamoPro = () => {
         setAuthForm({ ...authForm, password: '', fullName: '', profession: '', proInviteCode: '' });
         setAuthError('');
         setAuthMode('signin');
-        // Show success message (will be displayed as a non-error info banner)
-        setAuthError(t('registrationSuccessPleaseLogin'));
+        setAuthSuccess(t('registrationSuccessPleaseLogin'));
       } else {
+        setAuthSuccess('');
         setAuthError(mapApiError(result.error) || result.error);
       }
     } catch (error) {
@@ -728,6 +729,7 @@ const HamoPro = () => {
     }
 
     setAuthLoading(true);
+    setAuthSuccess('');
 
     try {
       const result = await apiService.loginPro(
@@ -2482,12 +2484,18 @@ const HamoPro = () => {
                 {t('signIn')}
               </button>
               <button
-                onClick={() => { setAuthMode('signup'); setAuthError(''); setAgreedToTerms(false); }}
+                onClick={() => { setAuthMode('signup'); setAuthError(''); setAuthSuccess(''); setAgreedToTerms(false); }}
                 className={`flex-1 py-2 rounded-lg font-medium ${authMode === 'signup' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600', 'bg-slate-700 text-slate-300')}`}
               >
                 {t('signUp')}
               </button>
             </div>}
+
+            {(authMode === 'signin' || authMode === 'signup') && authSuccess && (
+              <div className={`mb-4 p-3 rounded-lg ${tc('bg-green-50 border border-green-200', 'bg-green-900/20 border border-green-800')}`}>
+                <p className={`text-sm ${tc('text-green-700', 'text-green-400')}`}>{authSuccess}</p>
+              </div>
+            )}
 
             {(authMode === 'signin' || authMode === 'signup') && authError && (
               <div className={`mb-4 p-3 rounded-lg ${tc('bg-red-50 border border-red-200', 'bg-red-900/20 border border-red-800')}`}>
