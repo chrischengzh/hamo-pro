@@ -2203,28 +2203,40 @@ const HamoPro = () => {
     // Load avatar image for canvas drawing
     let avatarImg = null;
     if (avatar?.avatarPicture) {
-      // Try multiple approaches: proxy first, then direct with crossOrigin
-      const loadImg = (url) => new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve(img);
-        img.onerror = () => resolve(null);
-        img.src = url;
-      });
+      console.log('🔵 Loading avatar for invitation card:', avatar.avatarPicture);
       try {
         const proxyUrl = `${apiService.baseURL}/image-proxy?url=${encodeURIComponent(avatar.avatarPicture)}`;
+        console.log('🔵 Proxy URL:', proxyUrl);
         const resp = await fetch(proxyUrl);
+        console.log('🔵 Proxy response:', resp.status, resp.statusText);
         if (resp.ok) {
           const blob = await resp.blob();
+          console.log('🔵 Blob size:', blob.size, 'type:', blob.type);
           const bitmapUrl = URL.createObjectURL(blob);
-          avatarImg = await loadImg(bitmapUrl);
+          avatarImg = await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => { console.log('✅ Avatar image loaded via proxy'); resolve(img); };
+            img.onerror = (e) => { console.error('❌ Avatar image load error:', e); resolve(null); };
+            img.src = bitmapUrl;
+          });
           URL.revokeObjectURL(bitmapUrl);
+        } else {
+          const errText = await resp.text();
+          console.error('❌ Proxy failed:', resp.status, errText);
         }
-      } catch (e) { /* proxy failed */ }
-      // Fallback: load directly
+      } catch (e) { console.error('❌ Proxy fetch error:', e); }
+      // Fallback: load directly without crossOrigin (won't taint canvas but image still shows)
       if (!avatarImg) {
-        avatarImg = await loadImg(avatar.avatarPicture);
+        console.log('🔵 Trying direct load (no crossOrigin)...');
+        avatarImg = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => { console.log('✅ Avatar loaded directly'); resolve(img); };
+          img.onerror = (e) => { console.error('❌ Direct load failed:', e); resolve(null); };
+          img.src = avatar.avatarPicture;
+        });
       }
+    } else {
+      console.log('⚠️ No avatar picture found. avatar:', avatar?.id, 'avatarPicture:', avatar?.avatarPicture);
     }
 
     const W = 400;
