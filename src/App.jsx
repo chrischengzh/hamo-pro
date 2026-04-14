@@ -1620,24 +1620,24 @@ const HamoPro = () => {
     ctx.font = '13px sans-serif';
     ctx.fillText(t('hamoAiSubtitle'), 200, 205 + oY);
 
+    // Registration instructions (moved above code box)
+    ctx.fillStyle = '#38BDF8';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(t('registrationInstructions'), 200, 235 + oY);
+
     // Invitation code box
     ctx.fillStyle = '#1e3a5f';
     ctx.beginPath();
-    ctx.roundRect(60, 225 + oY, 280, 60, 12);
+    ctx.roundRect(60, 255 + oY, 280, 60, 12);
     ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 32px monospace';
-    ctx.fillText(batchInviteCode, 200, 265 + oY);
+    ctx.fillText(batchInviteCode, 200, 295 + oY);
 
     // Validity info
     ctx.fillStyle = '#f59e0b';
     ctx.font = '13px sans-serif';
-    ctx.fillText(`${t('expiryDays')}: ${batchExpiresDays}`, 200, 325 + oY);
-
-    // Registration instructions
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '12px sans-serif';
-    ctx.fillText(t('registrationInstructions'), 200, 410 + oY);
+    ctx.fillText(`${t('expiryDays')}: ${batchExpiresDays}`, 200, 355 + oY);
 
     // Download
     const link = document.createElement('a');
@@ -2281,47 +2281,40 @@ const HamoPro = () => {
     ctx.font = '13px sans-serif';
     ctx.fillText(t('hamoAiSubtitle'), 200, 190 + oY);
 
+    // Registration instructions (moved above code box)
+    ctx.fillStyle = '#38BDF8';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(t('registrationInstructions'), 200, 220 + oY);
+
     // Invitation code box
     ctx.fillStyle = '#1e3a5f';
     ctx.beginPath();
-    ctx.roundRect(50, 210 + oY, 300, 55, 12);
+    ctx.roundRect(50, 240 + oY, 300, 55, 12);
     ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 28px monospace';
-    ctx.fillText(invitationCode, 200, 247 + oY);
+    ctx.fillText(invitationCode, 200, 277 + oY);
 
     // Validity
     ctx.fillStyle = '#F59E0B';
     ctx.font = '14px sans-serif';
-    ctx.fillText(t('expiresIn'), 200, 295 + oY);
+    ctx.fillText(t('expiresIn'), 200, 325 + oY);
 
     // Divider
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(50, 315 + oY);
-    ctx.lineTo(350, 315 + oY);
+    ctx.moveTo(50, 350 + oY);
+    ctx.lineTo(350, 350 + oY);
     ctx.stroke();
 
-    // Client info
+    // Client info (AI Avatar block removed — already shown at top)
     ctx.fillStyle = '#94a3b8';
     ctx.font = '13px sans-serif';
-    ctx.fillText(t('clientLabel'), 200, 340 + oY);
+    ctx.fillText(t('clientLabel'), 200, 385 + oY);
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText(showInvitationCard.name, 200, 362 + oY);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '13px sans-serif';
-    ctx.fillText('AI Avatar', 200, 390 + oY);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText(avatar?.name || t('unknown'), 200, 412 + oY);
-
-    // Footer
-    ctx.fillStyle = '#38BDF8';
-    ctx.font = 'bold 13px sans-serif';
-    ctx.fillText(t('registrationInstructions'), 200, 455 + oY);
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(showInvitationCard.name, 200, 412 + oY);
 
     // Download
     const link = document.createElement('a');
