@@ -422,8 +422,10 @@ export const translations = {
     // Delete Account
     deleteAccount: 'Delete Account',
     deleteConfirmTitle: 'Delete Account?',
-    deleteConfirmMessage: 'This will deactivate all your Avatars and disconnect all clients. This action cannot be undone.',
+    deleteConfirmMessage: 'This will deactivate all your Avatars and disconnect all clients. This action cannot be undone. For security, we will send a verification code to your email.',
     confirmDelete: 'Yes, Delete',
+    deleteSendCode: 'Send Verification Code',
+    deleteCodeSentDescription: 'A verification code has been sent to your email. Enter it below to confirm account deletion.',
     deletePasswordLabel: 'Enter your password to confirm',
     deletePasswordPlaceholder: 'Password',
     deletePasswordRequired: 'Password is required',
@@ -977,8 +979,10 @@ export const translations = {
     // Delete Account
     deleteAccount: '删除账户',
     deleteConfirmTitle: '确认删除账户？',
-    deleteConfirmMessage: '这将停用您所有的虚拟疗愈师并断开所有来访者连接。此操作无法撤销。',
+    deleteConfirmMessage: '这将停用您所有的虚拟疗愈师并断开所有来访者连接。此操作无法撤销。为了安全，我们会向您的邮箱发送验证码。',
     confirmDelete: '确认删除',
+    deleteSendCode: '发送验证码',
+    deleteCodeSentDescription: '验证码已发送到您的邮箱，请输入验证码以确认删除账户。',
     deletePasswordLabel: '请输入密码确认',
     deletePasswordPlaceholder: '密码',
     deletePasswordRequired: '请输入密码',

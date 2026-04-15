@@ -359,11 +359,25 @@ class ApiService {
     }
   }
 
-  // Delete Pro account
-  async deleteProAccount() {
+  // Request account-deletion verification code (sent via email)
+  async requestDeleteProAccountCode(language = 'en') {
+    try {
+      await this.request('/pro/account/delete-request', {
+        method: 'POST',
+        body: JSON.stringify({ language }),
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Delete Pro account after verifying email code
+  async deleteProAccount(code) {
     try {
       await this.request('/pro/account', {
         method: 'DELETE',
+        body: JSON.stringify({ code }),
       });
       this.clearTokens();
       return { success: true };

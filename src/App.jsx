@@ -316,6 +316,10 @@ const HamoPro = () => {
   const [proInviteLoading, setProInviteLoading] = useState(false);
   const [proInvitesLoaded, setProInvitesLoaded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteStep, setDeleteStep] = useState('request'); // 'request' | 'verify'
+  const [deleteCode, setDeleteCode] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleteCodeSending, setDeleteCodeSending] = useState(false);
   const [authForm, setAuthForm] = useState({ email: '', password: '', fullName: '', profession: '' });
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
@@ -843,16 +847,42 @@ const HamoPro = () => {
 
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const handleDeleteAccount = async () => {
-    setDeleteLoading(true);
+  const handleSendDeleteCode = async () => {
+    setDeleteCodeSending(true);
+    setDeleteError('');
     try {
-      const result = await apiService.deleteProAccount();
+      const result = await apiService.requestDeleteProAccountCode(language);
+      if (result.success) {
+        setDeleteStep('verify');
+        setDeleteCode('');
+      } else {
+        setDeleteError(result.error || t('errorFailedToSaveProfile'));
+      }
+    } catch (e) {
+      setDeleteError(e.message);
+    } finally {
+      setDeleteCodeSending(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deleteCode || deleteCode.length !== 6) {
+      setDeleteError(t('mfaEnterCode'));
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      const result = await apiService.deleteProAccount(deleteCode);
       if (result.success) {
         setIsAuthenticated(false);
         setCurrentUser(null);
         setAvatars([]);
         setClients([]);
         setShowDeleteConfirm(false);
+        setDeleteStep('request');
+        setDeleteCode('');
+        setDeleteError('');
         setCommissions([]);
         setTotalCommission(0);
         setCommissionsLoaded(false);
@@ -864,13 +894,20 @@ const HamoPro = () => {
         setProInvitesLoaded(false);
         setSettingsSubTab('profile');
       } else {
-        showAlert(result.error || t('errorFailedToSaveProfile'));
+        setDeleteError(result.error || t('errorFailedToSaveProfile'));
       }
     } catch (e) {
-      showAlert(e.message);
+      setDeleteError(e.message);
     } finally {
       setDeleteLoading(false);
     }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setShowDeleteConfirm(false);
+    setDeleteStep('request');
+    setDeleteCode('');
+    setDeleteError('');
   };
 
   const loadCommissions = async () => {
@@ -2942,14 +2979,56 @@ const HamoPro = () => {
         <div className={`fixed inset-0 flex items-center justify-center z-50 px-4 ${tc('bg-black bg-opacity-50', 'bg-black bg-opacity-70')}`}>
           <div className={`rounded-xl shadow-2xl p-6 max-w-md w-full ${tc('bg-white', 'bg-slate-800')}`}>
             <h3 className={`text-lg font-semibold mb-2 ${tc('', 'text-white')}`}>{t('deleteConfirmTitle')}</h3>
-            <p className={`mb-6 ${tc('text-gray-600', 'text-slate-400')}`}>{t('deleteConfirmMessage')}</p>
-            <div className="flex space-x-3">
-              <button onClick={handleDeleteAccount} disabled={deleteLoading} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center justify-center space-x-1">
-                {deleteLoading && <RefreshCw className="w-4 h-4 animate-spin" />}
-                <span>{t('confirmDelete')}</span>
-              </button>
-              <button onClick={() => setShowDeleteConfirm(false)} className={`flex-1 px-4 py-2 rounded-lg ${tc('bg-gray-200', 'bg-slate-700 text-slate-300')}`}>{t('cancel')}</button>
-            </div>
+            {deleteStep === 'request' ? (
+              <>
+                <p className={`mb-6 ${tc('text-gray-600', 'text-slate-400')}`}>{t('deleteConfirmMessage')}</p>
+                {deleteError && (
+                  <div className={`mb-4 p-3 rounded-lg ${tc('bg-red-50 border border-red-200', 'bg-red-900/20 border border-red-800')}`}>
+                    <p className={`text-sm ${tc('text-red-600', 'text-red-400')}`}>{deleteError}</p>
+                  </div>
+                )}
+                <div className="flex space-x-3">
+                  <button onClick={handleSendDeleteCode} disabled={deleteCodeSending} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center justify-center space-x-1">
+                    {deleteCodeSending && <RefreshCw className="w-4 h-4 animate-spin" />}
+                    <span>{t('deleteSendCode')}</span>
+                  </button>
+                  <button onClick={handleCloseDeleteDialog} className={`flex-1 px-4 py-2 rounded-lg ${tc('bg-gray-200', 'bg-slate-700 text-slate-300')}`}>{t('cancel')}</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className={`mb-4 text-sm ${tc('text-gray-600', 'text-slate-400')}`}>{t('deleteCodeSentDescription')}</p>
+                <div className="mb-4">
+                  <label className={`block text-sm font-medium mb-1 ${tc('text-gray-700', 'text-slate-300')}`}>{t('mfaCodeLabel')}</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={deleteCode}
+                    onChange={(e) => setDeleteCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    onKeyDown={(e) => e.key === 'Enter' && deleteCode.length === 6 && handleDeleteAccount()}
+                    placeholder="000000"
+                    className={`w-full px-4 py-3 rounded-lg text-center text-2xl tracking-[0.5em] font-mono ${tc('bg-gray-50 border border-gray-200 text-gray-900', 'bg-slate-700 border border-slate-600 text-white')} focus:outline-none focus:ring-2 focus:ring-red-500`}
+                    autoFocus
+                  />
+                </div>
+                {deleteError && (
+                  <div className={`mb-4 p-3 rounded-lg ${tc('bg-red-50 border border-red-200', 'bg-red-900/20 border border-red-800')}`}>
+                    <p className={`text-sm ${tc('text-red-600', 'text-red-400')}`}>{deleteError}</p>
+                  </div>
+                )}
+                <div className="flex space-x-3">
+                  <button onClick={handleDeleteAccount} disabled={deleteLoading || deleteCode.length !== 6} className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center justify-center space-x-1">
+                    {deleteLoading && <RefreshCw className="w-4 h-4 animate-spin" />}
+                    <span>{t('confirmDelete')}</span>
+                  </button>
+                  <button onClick={handleCloseDeleteDialog} className={`flex-1 px-4 py-2 rounded-lg ${tc('bg-gray-200', 'bg-slate-700 text-slate-300')}`}>{t('cancel')}</button>
+                </div>
+                <button onClick={handleSendDeleteCode} disabled={deleteCodeSending} className={`w-full mt-3 text-sm ${tc('text-gray-500 hover:text-gray-700', 'text-slate-400 hover:text-slate-300')} disabled:opacity-50`}>
+                  {deleteCodeSending ? t('processing') : t('mfaResend')}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -6276,7 +6355,7 @@ const HamoPro = () => {
 
               {/* Delete Account */}
               <button
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={() => { setDeleteStep('request'); setDeleteCode(''); setDeleteError(''); setShowDeleteConfirm(true); }}
                 className={`w-full flex items-center justify-center space-x-2 py-3 border ${tc('border-red-300 text-red-600 hover:bg-red-50', 'border-red-800 text-red-400 hover:bg-red-900/20')} rounded-lg transition-colors`}
               >
                 <Trash2 className="w-5 h-5" />
