@@ -320,6 +320,7 @@ const HamoPro = () => {
   const [deleteCode, setDeleteCode] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [deleteCodeSending, setDeleteCodeSending] = useState(false);
+  const [sessionExpiredDialog, setSessionExpiredDialog] = useState(null); // null | { reason: 'inactivity' | 'other' }
   const [authForm, setAuthForm] = useState({ email: '', password: '', fullName: '', profession: '' });
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
@@ -471,6 +472,20 @@ const HamoPro = () => {
     };
     checkAuth();
   }, []);
+
+  // PHIPA 6.1.8 — listen for session expiry events from api service.
+  // Show a confirmation dialog instead of silently logging out, so the user
+  // understands why they were signed out.
+  useEffect(() => {
+    const handler = (e) => {
+      // Only show dialog if user was actually authenticated (avoid flashing
+      // the dialog during initial page load when no session exists)
+      if (!apiService.isAuthenticated() && !isAuthenticated) return;
+      setSessionExpiredDialog({ reason: e.detail?.reason || 'other' });
+    };
+    window.addEventListener('auth:session-expired', handler);
+    return () => window.removeEventListener('auth:session-expired', handler);
+  }, [isAuthenticated]);
 
   // Crisis alert SSE connection — open when authenticated, close on logout
   useEffect(() => {
@@ -2937,6 +2952,46 @@ const HamoPro = () => {
               onClick={() => setShowAlgoModal(false)}
               className="mt-5 w-full py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700"
             >{language === 'zh' ? '知道了' : 'Got it'}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Session Expired (PHIPA 6.1.8) Dialog — highest priority, blocks all other UI */}
+      {sessionExpiredDialog && (
+        <div className="fixed inset-0 flex items-center justify-center z-[80] px-4 bg-black bg-opacity-60">
+          <div className={`rounded-2xl shadow-2xl p-6 max-w-sm w-full ${tc('bg-white', 'bg-slate-800')}`}>
+            <div className="flex items-center space-x-3 mb-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tc('bg-amber-100', 'bg-amber-900/30')}`}>
+                <Shield className={`w-5 h-5 ${tc('text-amber-600', 'text-amber-400')}`} />
+              </div>
+              <h3 className={`text-lg font-semibold ${tc('text-gray-900', 'text-white')}`}>
+                {t('sessionExpiredTitle')}
+              </h3>
+            </div>
+            <p className={`text-sm mb-6 leading-relaxed ${tc('text-gray-600', 'text-slate-300')}`}>
+              {sessionExpiredDialog.reason === 'inactivity'
+                ? t('sessionExpiredInactivityMessage')
+                : t('sessionExpiredGenericMessage')}
+            </p>
+            <button
+              onClick={() => {
+                // Reset all auth-related state and route back to login
+                setIsAuthenticated(false);
+                setCurrentUser(null);
+                setAvatars([]);
+                setClients([]);
+                setMfaCode('');
+                setMfaToken('');
+                setAuthMode('signin');
+                setAuthError('');
+                setAuthSuccess('');
+                setAuthForm({ email: '', password: '', fullName: '', profession: '' });
+                setSessionExpiredDialog(null);
+              }}
+              className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600"
+            >
+              {t('sessionExpiredConfirm')}
+            </button>
           </div>
         </div>
       )}

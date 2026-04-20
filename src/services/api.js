@@ -72,9 +72,14 @@ class ApiService {
           // Retry original request with new token
           return this.request(endpoint, options);
         } else {
-          // Refresh failed, clear tokens and throw error
+          // Refresh failed, clear tokens and notify app via global event.
+          // App.jsx listens for this and shows a PHIPA-compliant dialog.
+          const reason = this.lastRefreshError || 'other';
           this.clearTokens();
-          throw new Error('Session expired. Please login again.');
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('auth:session-expired', { detail: { reason } }));
+          }
+          throw new Error(reason === 'inactivity' ? 'Session expired due to inactivity' : 'Session expired. Please login again.');
         }
       }
 
@@ -221,6 +226,7 @@ class ApiService {
   async refreshToken() {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
+      this.lastRefreshError = 'no_token';
       return false;
     }
 
@@ -235,12 +241,17 @@ class ApiService {
 
       if (response.access_token) {
         this.setTokens(response.access_token, response.refresh_token);
+        this.lastRefreshError = null;
         return true;
       }
 
+      this.lastRefreshError = 'no_access_token';
       return false;
     } catch (error) {
       console.error('Token refresh failed:', error);
+      // Distinguish PHIPA idle timeout from other refresh failures
+      const msg = (error?.message || '').toLowerCase();
+      this.lastRefreshError = msg.includes('inactivity') ? 'inactivity' : 'other';
       return false;
     }
   }

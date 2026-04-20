@@ -37,6 +37,11 @@ export const translations = {
     mfaCodeResent: 'A new verification code has been sent',
     mfaResendFailed: 'Failed to resend code, please try again',
     registrationSuccessPleaseLogin: 'Registration successful! Please sign in to continue.',
+    // Session expired
+    sessionExpiredTitle: 'Session Expired',
+    sessionExpiredInactivityMessage: 'For security and PHIPA compliance, you have been signed out after 30 minutes of inactivity. Please sign in again to continue.',
+    sessionExpiredGenericMessage: 'Your session has expired. Please sign in again to continue.',
+    sessionExpiredConfirm: 'Sign In Again',
     theme: 'Theme',
     lightMode: 'Light',
     darkMode: 'Dark',
@@ -592,6 +597,11 @@ export const translations = {
     mfaCodeResent: '新验证码已发送',
     mfaResendFailed: '发送失败，请重试',
     registrationSuccessPleaseLogin: '注册成功！请登录以继续。',
+    // Session expired
+    sessionExpiredTitle: '会话已过期',
+    sessionExpiredInactivityMessage: '为符合 PHIPA 安全合规要求，您已 30 分钟未操作，已自动退出登录。请重新登录以继续使用。',
+    sessionExpiredGenericMessage: '您的会话已过期，请重新登录以继续使用。',
+    sessionExpiredConfirm: '重新登录',
     signUp: '注册',
     signOut: '退出',
     theme: '主题',
