@@ -394,6 +394,7 @@ const HamoPro = () => {
     experienceYears: 0,
     experienceMonths: 0,
     voiceType: 'standard_female',
+    avatarLanguage: 'en',  // initialized to Pro UI language when modal opens
   });
   const [avatarPictureFile, setAvatarPictureFile] = useState(null);
   const [avatarPicturePreview, setAvatarPicturePreview] = useState(null);
@@ -1216,6 +1217,7 @@ const HamoPro = () => {
       experience_years: avatarForm.experienceYears,
       experience_months: avatarForm.experienceMonths,
       voice_type: avatarForm.voiceType,
+      language: avatarForm.avatarLanguage || language,
     });
 
     if (result.success) {
@@ -1250,6 +1252,7 @@ const HamoPro = () => {
         voiceId: voiceId,
         voiceStatus: voiceStatus,
         voiceType: avatarForm.voiceType,
+        language: avatarForm.avatarLanguage || language,
       }]);
       console.log('✅ Avatar created with backend ID:', result.avatar.id);
     } else {
@@ -1275,6 +1278,7 @@ const HamoPro = () => {
       experienceYears: 0,
       experienceMonths: 0,
       voiceType: currentUser?.sex === 'male' ? 'standard_male' : 'standard_female',
+      avatarLanguage: language,
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(null);
@@ -1309,6 +1313,7 @@ const HamoPro = () => {
       experienceYears: avatar.experienceYears || 0,
       experienceMonths: avatar.experienceMonths || 0,
       voiceType: avatar.voiceType || (avatar.voiceId ? 'clone' : 'standard_female'),
+      avatarLanguage: avatar.language || 'en',
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(avatar.avatarPicture || null);
@@ -1351,6 +1356,7 @@ const HamoPro = () => {
       experience_years: avatarForm.experienceYears,
       experience_months: avatarForm.experienceMonths,
       voice_type: avatarForm.voiceType,
+      language: avatarForm.avatarLanguage || 'en',
     });
 
     if (result.success) {
@@ -1404,6 +1410,7 @@ const HamoPro = () => {
       experienceYears: 0,
       experienceMonths: 0,
       voiceType: currentUser?.sex === 'male' ? 'standard_male' : 'standard_female',
+      avatarLanguage: language,
     });
     setAvatarPictureFile(null);
     setAvatarPicturePreview(null);
@@ -3241,7 +3248,7 @@ const HamoPro = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className={`text-xl font-semibold ${tc('', 'text-white')}`}>{t('avatarTherapists')}</h2>
-              <button onClick={async () => { if (!currentUser?.sex) { showAlert(t('pleaseSetSexFirst')); setSettingsSubTab('profile'); setActiveTab('settings'); return; } const quota = await apiService.getAvatarQuota(); if (quota.success && quota.used >= quota.total) { showAlert(t('avatarQuotaReached')); setSettingsSubTab('invite'); setActiveTab('settings'); loadProInvites(); return; } if (!showAvatarForm) { setAvatarForm(prev => ({ ...prev, voiceType: currentUser?.sex === 'male' ? 'standard_male' : 'standard_female' })); setAvatarDisclaimerChecked(false); } setShowAvatarForm(!showAvatarForm); }} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg"><Plus className="w-5 h-5" /><span>{t('createAvatar')}</span></button>
+              <button onClick={async () => { if (!currentUser?.sex) { showAlert(t('pleaseSetSexFirst')); setSettingsSubTab('profile'); setActiveTab('settings'); return; } const quota = await apiService.getAvatarQuota(); if (quota.success && quota.used >= quota.total) { showAlert(t('avatarQuotaReached')); setSettingsSubTab('invite'); setActiveTab('settings'); loadProInvites(); return; } if (!showAvatarForm) { setAvatarForm(prev => ({ ...prev, voiceType: currentUser?.sex === 'male' ? 'standard_male' : 'standard_female', avatarLanguage: language })); setAvatarDisclaimerChecked(false); } setShowAvatarForm(!showAvatarForm); }} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg"><Plus className="w-5 h-5" /><span>{t('createAvatar')}</span></button>
             </div>
             {showAvatarForm && (
               <div className={`${tc('bg-white', 'bg-slate-800')} rounded-xl ${tc('shadow-md', 'shadow-lg shadow-black/20')} p-6`}>
@@ -3312,6 +3319,24 @@ const HamoPro = () => {
                           placeholder={t('customSpecialtyPlaceholder')}
                         />
                       )}
+                    </div>
+
+                    {/* Avatar Language */}
+                    <div>
+                      <label className={`block text-sm font-medium ${tc('text-gray-700', 'text-slate-300')} mb-1`}>{t('avatarLanguageLabel')} <span className="text-red-500">*</span></label>
+                      <div className="flex space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => setAvatarForm({ ...avatarForm, avatarLanguage: 'en' })}
+                          className={`flex-1 py-2 rounded-lg font-medium transition-all ${avatarForm.avatarLanguage === 'en' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600 hover:bg-gray-200', 'bg-slate-700 text-slate-300 hover:bg-slate-600')}`}
+                        >English</button>
+                        <button
+                          type="button"
+                          onClick={() => setAvatarForm({ ...avatarForm, avatarLanguage: 'zh' })}
+                          className={`flex-1 py-2 rounded-lg font-medium transition-all ${avatarForm.avatarLanguage === 'zh' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600 hover:bg-gray-200', 'bg-slate-700 text-slate-300 hover:bg-slate-600')}`}
+                        >中文</button>
+                      </div>
+                      <p className={`text-xs mt-1 ${tc('text-gray-500', 'text-slate-400')}`}>{t('avatarLanguageHint')}</p>
                     </div>
 
                     {/* Avatar Voice Type */}
@@ -3809,6 +3834,24 @@ const HamoPro = () => {
                               placeholder={t('customSpecialtyPlaceholder')}
                             />
                           )}
+                        </div>
+
+                        {/* Avatar Language */}
+                        <div>
+                          <label className={`block text-sm font-medium ${tc('text-gray-700', 'text-slate-300')} mb-1`}>{t('avatarLanguageLabel')} <span className="text-red-500">*</span></label>
+                          <div className="flex space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => setAvatarForm({ ...avatarForm, avatarLanguage: 'en' })}
+                              className={`flex-1 py-2 rounded-lg font-medium transition-all ${avatarForm.avatarLanguage === 'en' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600 hover:bg-gray-200', 'bg-slate-700 text-slate-300 hover:bg-slate-600')}`}
+                            >English</button>
+                            <button
+                              type="button"
+                              onClick={() => setAvatarForm({ ...avatarForm, avatarLanguage: 'zh' })}
+                              className={`flex-1 py-2 rounded-lg font-medium transition-all ${avatarForm.avatarLanguage === 'zh' ? 'bg-blue-500 text-white' : tc('bg-gray-100 text-gray-600 hover:bg-gray-200', 'bg-slate-700 text-slate-300 hover:bg-slate-600')}`}
+                            >中文</button>
+                          </div>
+                          <p className={`text-xs mt-1 ${tc('text-gray-500', 'text-slate-400')}`}>{t('avatarLanguageHint')}</p>
                         </div>
 
                         {/* Avatar Voice Type */}

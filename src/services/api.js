@@ -420,6 +420,7 @@ class ApiService {
         experience_months: avatarData.experience_months || 0,
         specializations: avatarData.specializations || [],
         voice_type: avatarData.voice_type || 'standard_female',
+        language: avatarData.language || 'en',
       };
       console.log('🔵 Creating avatar with:', requestBody);
 
@@ -464,6 +465,7 @@ class ApiService {
         experience_years: avatarData.experience_years || 0,
         experience_months: avatarData.experience_months || 0,
         voice_type: avatarData.voice_type,
+        ...(avatarData.language && { language: avatarData.language }),
       };
       console.log('🔵 Updating avatar:', avatarId, requestBody);
 
@@ -663,6 +665,7 @@ class ApiService {
           voiceId: avatar.voice_id || null,
           voiceStatus: avatar.voice_status || null,
           isPublic: avatar.is_public !== false,  // default true for existing avatars without field
+          language: avatar.language || 'en',
           specializations: avatar.specializations,
           // Legacy fields for backward compatibility
           theory: avatar.theory,

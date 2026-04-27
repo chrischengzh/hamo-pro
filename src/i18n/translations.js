@@ -128,6 +128,10 @@ export const translations = {
     monthUnit: 'month',
     monthsUnit: 'months',
 
+    // Avatar Language (en/zh)
+    avatarLanguageLabel: 'Avatar Language',
+    avatarLanguageHint: 'Clients only see avatars matching their app language.',
+
     // Specialties
     depressionAnxiety: 'Depression & Anxiety',
     npdPersonality: 'NPD & Personality Disorders',
@@ -689,6 +693,10 @@ export const translations = {
     yearsUnit: '年',
     monthUnit: '月',
     monthsUnit: '月',
+
+    // Avatar Language (en/zh)
+    avatarLanguageLabel: '虚拟疗愈师语言',
+    avatarLanguageHint: '来访者只能看到与自己应用语言相同的虚拟疗愈师。',
 
     // Specialties
     depressionAnxiety: '抑郁与焦虑',
